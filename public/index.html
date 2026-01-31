@@ -27,18 +27,19 @@
             position: fixed;
             top: 80px;
             right: 20px;
-            width: 350px;
-            background: rgba(0, 0, 0, 0.9);
+            width: 400px;
+            background: rgba(0, 0, 0, 0.95);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 1.5rem;
+            padding: 0;
             z-index: 1001;
             transform: translateX(120%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-height: 80vh;
-            overflow-y: auto;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .settings-panel.show {
@@ -49,27 +50,103 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            flex-shrink: 0;
         }
 
-        .settings-header h3 {
-            margin: 0;
-            color: var(--text-main);
-            font-family: 'Orbitron', sans-serif;
+        .settings-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
         }
 
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
+        /* Settings Tabs */
+        .settings-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .settings-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
 
-        .close-btn:hover {
+        .settings-tab:hover {
             color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-tab.active {
+            background: var(--text-main);
+            color: black;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+
+        .admin-item:hover {
+            border-color: var(--border-color);
+        }
+
+        .admin-item-title {
+            color: var(--text-main);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .btn-delete {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-delete:hover {
+            background: #cc0000;
         }
 
         .setting-item {
@@ -868,48 +945,126 @@
         </div>
     </nav>
 
+    <!-- Password Modal -->
+    <div id="passwordModal" class="settings-panel show" style="display:none; width:300px; top:50%; left:50%; transform:translate(-50%, -50%); right:auto; height:auto; z-index:2000;">
+        <div class="settings-header">
+            <h3>Admin Access</h3>
+            <button class="close-btn" id="closePasswordModal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="settings-content" style="padding: 1.5rem;">
+            <div class="form-group">
+                <input type="password" id="adminPasswordInput" placeholder="Enter Password" style="width:100%; padding:0.8rem; margin-bottom:1rem; background:rgba(255,255,255,0.1); border:1px solid var(--border-color); color:white; border-radius:4px;">
+                <button class="btn-upload" onclick="verifyPassword()" style="width:100%">Unlock Settings</button>
+                <p id="passwordError" style="color:#ff4444; font-size:0.8rem; margin-top:0.5rem; display:none;">Incorrect Password</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Panel -->
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-header">
             <h3>设置</h3>
             <button class="close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
         </div>
-        <div class="settings-content">
-            <div class="setting-item">
-                <label>背景颜色</label>
-                <input type="color" id="bgColorInput" value="#000000">
-            </div>
-            <div class="setting-item">
-                <label>背景图片</label>
-                <input type="file" id="bgImageInput" accept="image/*">
-            </div>
-            <div class="setting-item">
-                <label>背景音乐</label>
-                <input type="file" id="bgMusicInput" accept="audio/*">
-            </div>
+        
+        <div class="settings-tabs">
+            <div class="settings-tab active" data-tab="general">通用</div>
+            <div class="settings-tab" data-tab="projects">作品</div>
+            <div class="settings-tab" data-tab="media">媒体</div>
+            <div class="settings-tab" data-tab="tools">工具</div>
+            <div class="settings-tab" data-tab="articles">文章</div>
+        </div>
 
-            <!-- Admin Sections -->
-            <div class="admin-section">
-                <h4>添加应用 (作品)</h4>
-                <div class="form-group">
-                    <input type="text" id="projTitle" placeholder="应用名称">
-                    <input type="text" id="projDesc" placeholder="简短描述">
-                    <input type="text" id="projLink" placeholder="链接地址">
-                    <input type="text" id="projCategory" placeholder="分类 (e.g. Web App)">
-                    <button class="btn-upload" onclick="uploadProject()">添加应用</button>
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div class="settings-section active" id="tab-general">
+                <div class="setting-item">
+                    <label>背景颜色</label>
+                    <input type="color" id="bgColorInput" value="#000000">
+                </div>
+                <div class="setting-item">
+                    <label>背景图片</label>
+                    <input type="file" id="bgImageInput" accept="image/*">
+                </div>
+                <div class="setting-item">
+                    <label>背景音乐</label>
+                    <input type="file" id="bgMusicInput" accept="audio/*">
                 </div>
             </div>
 
-            <div class="admin-section">
-                <h4>上传媒体 (视频/图像)</h4>
-                <div class="form-group">
-                    <select id="mediaType">
-                        <option value="video">视频</option>
-                        <option value="image">图像</option>
-                    </select>
-                    <input type="text" id="mediaTitle" placeholder="标题">
-                    <input type="file" id="mediaFileInput">
-                    <button class="btn-upload" onclick="uploadMedia()">上传</button>
+            <!-- Projects Settings -->
+            <div class="settings-section" id="tab-projects">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>添加应用 (作品)</h4>
+                    <div class="form-group">
+                        <input type="text" id="projTitle" placeholder="应用名称">
+                        <input type="text" id="projDesc" placeholder="简短描述">
+                        <input type="text" id="projLink" placeholder="链接地址">
+                        <input type="text" id="projCategory" placeholder="分类 (e.g. Web App)">
+                        <button class="btn-upload" onclick="uploadProject()">添加应用</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理作品</h4>
+                    <div id="adminProjectsList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Media Settings -->
+            <div class="settings-section" id="tab-media">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>上传媒体 (视频/图像)</h4>
+                    <div class="form-group">
+                        <select id="mediaType">
+                            <option value="video">视频</option>
+                            <option value="image">图像</option>
+                        </select>
+                        <input type="text" id="mediaTitle" placeholder="标题">
+                        <input type="file" id="mediaFileInput">
+                        <button class="btn-upload" onclick="uploadMedia()">上传</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理媒体</h4>
+                    <div id="adminMediaList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Tools Settings -->
+            <div class="settings-section" id="tab-tools">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>添加工具</h4>
+                    <div class="form-group">
+                        <input type="text" id="toolName" placeholder="工具名称 (e.g. VS Code)">
+                        <input type="text" id="toolDesc" placeholder="描述">
+                        <input type="text" id="toolIcon" placeholder="图标类名 (e.g. fas fa-code)">
+                        <button class="btn-upload" onclick="addTool()">添加工具</button>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:1rem;">
+                        提示: 图标使用 FontAwesome 类名。
+                    </p>
+                </div>
+                <div class="admin-section">
+                    <h4>管理工具</h4>
+                    <div id="adminToolsList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Articles Settings -->
+            <div class="settings-section" id="tab-articles">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>发布文章</h4>
+                    <div class="form-group">
+                        <input type="text" id="articleTitle" placeholder="文章标题">
+                        <textarea id="articleSummary" rows="3" placeholder="文章摘要..."></textarea>
+                        <input type="text" id="articleLink" placeholder="文章链接 (可选)">
+                        <input type="text" id="articleCategory" placeholder="分类 (e.g. Tech)">
+                        <button class="btn-upload" onclick="addArticle()">发布文章</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理文章</h4>
+                    <div id="adminArticlesList" class="admin-list"></div>
                 </div>
             </div>
         </div>
@@ -1115,8 +1270,45 @@
                 applySettings(data.settings);
                 renderProjects(data.projects);
                 renderMedia(data.media);
+                renderTools(data.tools);
+                renderArticles(data.articles);
+
+                // Render Admin Lists
+                renderAdminList('adminProjectsList', data.projects, 'projects');
+                renderAdminList('adminMediaList', data.media, 'media');
+                renderAdminList('adminToolsList', data.tools, 'tools');
+                renderAdminList('adminArticlesList', data.articles, 'articles');
             } catch (err) {
                 console.error('Failed to fetch data:', err);
+            }
+        }
+
+        function renderAdminList(elementId, items, type) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.8rem;">No items yet.</p>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="admin-item">
+                    <span class="admin-item-title">${item.title || item.name}</span>
+                    <button class="btn-delete" onclick="deleteItem('${type}', ${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteItem(type, id) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+            
+            try {
+                await fetch(`${API_URL}/${type}/${id}`, { method: 'DELETE' });
+                fetchData(); // Refresh all lists
+            } catch (err) {
+                console.error('Failed to delete:', err);
+                alert('Failed to delete item.');
             }
         }
 
@@ -1136,7 +1328,7 @@
         }
 
         function renderProjects(projects) {
-            const html = projects.map(p => `
+            const html = (projects || []).map(p => `
                 <a href="${p.link || '#'}" class="project-card" target="_blank">
                     <div class="project-icon-wrapper">
                          <i class="fas fa-layer-group"></i>
@@ -1155,8 +1347,8 @@
         }
 
         function renderMedia(mediaList) {
-            const videos = mediaList.filter(m => m.type === 'video');
-            const images = mediaList.filter(m => m.type === 'image');
+            const videos = (mediaList || []).filter(m => m.type === 'video');
+            const images = (mediaList || []).filter(m => m.type === 'image');
 
             document.getElementById('videosGrid').innerHTML = videos.map(v => `
                 <div class="project-card" style="height: auto;">
@@ -1171,6 +1363,52 @@
                     <h3 style="color:var(--text-main); margin-top:0.5rem;">${img.title}</h3>
                 </div>
             `).join('') || '<p style="color:#888; text-align:center;">暂无图片</p>';
+        }
+
+        function renderTools(tools) {
+            const html = (tools || []).map(t => `
+                <div class="tool-item">
+                    <div class="tool-icon"><i class="${t.icon || 'fas fa-wrench'}"></i></div>
+                    <div class="tool-details">
+                        <h4>${t.name}</h4>
+                        <p>${t.description}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Render to both sidebar (limit 4) and tools page (all)
+            // Note: Current HTML structure has static tools in sidebar. 
+            // We'll update the tools-section in sidebar if we want dynamic sidebar tools.
+            // For now let's update the main tools page.
+            
+            // Wait, the main tools page has a list? No, it has grid cards.
+            // Let's render grid cards for the Tools Section in main content.
+            const gridHtml = (tools || []).map(t => `
+                <div class="project-card">
+                    <div class="project-icon-wrapper"><i class="${t.icon || 'fas fa-wrench'}"></i></div>
+                    <h3>${t.name}</h3>
+                    <p>${t.description}</p>
+                    <span class="category-pill">Tool</span>
+                </div>
+            `).join('');
+            
+            // If we want to replace the static content in #section-tools .projects-grid
+            const toolsGrid = document.querySelector('#section-tools .projects-grid');
+            if(toolsGrid) toolsGrid.innerHTML = gridHtml || '<p style="color:#888;">暂无工具</p>';
+        }
+
+        function renderArticles(articles) {
+            const html = (articles || []).map(a => `
+                <div class="project-card" onclick="window.open('${a.link || '#'}', '_blank')">
+                    <div class="project-icon-wrapper">📝</div>
+                    <h3>${a.title}</h3>
+                    <p>${a.summary}</p>
+                    <span class="category-pill">${a.category || 'Blog'}</span>
+                </div>
+            `).join('');
+            
+            const articlesGrid = document.querySelector('#section-articles .projects-grid');
+            if(articlesGrid) articlesGrid.innerHTML = html || '<p style="color:#888;">暂无文章</p>';
         }
 
         // --- Admin Actions ---
@@ -1244,6 +1482,41 @@
             fetchData();
         }
 
+        // Add Tool
+        async function addTool() {
+            const tool = {
+                name: document.getElementById('toolName').value,
+                description: document.getElementById('toolDesc').value,
+                icon: document.getElementById('toolIcon').value
+            };
+            
+            await fetch(`${API_URL}/tools`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tool)
+            });
+            alert('工具添加成功！');
+            fetchData();
+        }
+
+        // Add Article
+        async function addArticle() {
+            const article = {
+                title: document.getElementById('articleTitle').value,
+                summary: document.getElementById('articleSummary').value,
+                link: document.getElementById('articleLink').value,
+                category: document.getElementById('articleCategory').value
+            };
+            
+            await fetch(`${API_URL}/articles`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(article)
+            });
+            alert('文章发布成功！');
+            fetchData();
+        }
+
 
         // --- UI Interactions ---
 
@@ -1251,13 +1524,70 @@
         const settingsBtn = document.getElementById('settingsToggleBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const passwordModal = document.getElementById('passwordModal');
+        const closePasswordModalBtn = document.getElementById('closePasswordModal');
 
+        // Verify Password Logic
+        async function verifyPassword() {
+            const password = document.getElementById('adminPasswordInput').value;
+            try {
+                const res = await fetch(`${API_URL}/verify-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    passwordModal.classList.remove('show');
+                    passwordModal.style.display = 'none';
+                    settingsPanel.classList.add('show');
+                    document.getElementById('adminPasswordInput').value = ''; // Clear password
+                    document.getElementById('passwordError').style.display = 'none';
+                } else {
+                    document.getElementById('passwordError').style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Verify failed', err);
+            }
+        }
+
+        // Open Password Modal instead of Settings Panel
         settingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.toggle('show');
+            // Check if already open
+            if (settingsPanel.classList.contains('show')) {
+                settingsPanel.classList.remove('show');
+            } else {
+                passwordModal.style.display = 'block';
+                // Small timeout to allow display:block to apply before adding class (if we had transition)
+                passwordModal.classList.add('show');
+            }
+        });
+
+        // Close Password Modal
+        closePasswordModalBtn.addEventListener('click', () => {
+            passwordModal.classList.remove('show');
+            passwordModal.style.display = 'none';
         });
 
         closeSettingsBtn.addEventListener('click', () => {
             settingsPanel.classList.remove('show');
+        });
+
+        // Settings Tabs Logic
+        document.querySelectorAll('.settings-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all sections
+                document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+                // Show target section
+                const targetId = tab.getAttribute('data-tab');
+                document.getElementById(`tab-${targetId}`).classList.add('active');
+            });
         });
 
         // Tab Switching Logic

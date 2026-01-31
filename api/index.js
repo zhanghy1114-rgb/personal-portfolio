@@ -34,10 +34,13 @@ let memoryDB = {
         backgroundColor: '#000000',
         backgroundImage: '',
         backgroundMusic: '',
-        particlesEnabled: true
+        particlesEnabled: true,
+        adminPassword: 'admin' // Default password
     },
     projects: [],
-    media: [] 
+    media: [],
+    tools: [],
+    articles: []
 };
 
 // Initialize DB if not exists (Try-Catch for Vercel)
@@ -141,6 +144,77 @@ app.post('/api/upload/media', upload.single('file'), (req, res) => {
     db.media.push(newMedia);
     saveDB(db);
     res.json(newMedia);
+});
+
+// Add Tool
+app.post('/api/tools', (req, res) => {
+    const db = getDB();
+    const newTool = {
+        id: Date.now(),
+        ...req.body
+    };
+    db.tools.push(newTool);
+    saveDB(db);
+    res.json(newTool);
+});
+
+// Add Article
+app.post('/api/articles', (req, res) => {
+    const db = getDB();
+    const newArticle = {
+        id: Date.now(),
+        ...req.body
+    };
+    db.articles.push(newArticle);
+    saveDB(db);
+    res.json(newArticle);
+});
+
+// Verify Password
+app.post('/api/verify-password', (req, res) => {
+    const { password } = req.body;
+    const db = getDB();
+    if (password === (db.settings.adminPassword || 'admin')) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
+});
+
+// Delete Project
+app.delete('/api/projects/:id', (req, res) => {
+    const db = getDB();
+    const id = parseInt(req.params.id);
+    db.projects = db.projects.filter(p => p.id !== id);
+    saveDB(db);
+    res.json({ success: true });
+});
+
+// Delete Media
+app.delete('/api/media/:id', (req, res) => {
+    const db = getDB();
+    const id = parseInt(req.params.id);
+    db.media = db.media.filter(m => m.id !== id);
+    saveDB(db);
+    res.json({ success: true });
+});
+
+// Delete Tool
+app.delete('/api/tools/:id', (req, res) => {
+    const db = getDB();
+    const id = parseInt(req.params.id);
+    db.tools = db.tools.filter(t => t.id !== id);
+    saveDB(db);
+    res.json({ success: true });
+});
+
+// Delete Article
+app.delete('/api/articles/:id', (req, res) => {
+    const db = getDB();
+    const id = parseInt(req.params.id);
+    db.articles = db.articles.filter(a => a.id !== id);
+    saveDB(db);
+    res.json({ success: true });
 });
 
 // Start Server
