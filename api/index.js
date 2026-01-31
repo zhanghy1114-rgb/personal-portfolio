@@ -15,13 +15,14 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
 // Ensure directories exist (Only for local dev or writable environments)
-const dataDir = path.join(__dirname, 'data');
-const uploadsDir = path.join(__dirname, 'uploads');
+// Use process.cwd() for Vercel compatibility
+const dataDir = path.join(process.cwd(), 'data');
+const uploadsDir = path.join(process.cwd(), 'uploads');
 try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 } catch (e) {
-    console.log("Read-only file system detected, skipping mkdir");
+    console.log("Read-only file system detected or error creating dirs");
 }
 
 // Data File Paths
