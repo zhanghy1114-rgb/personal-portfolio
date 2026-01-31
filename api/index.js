@@ -207,15 +207,18 @@ app.post('/api/verify-password', (req, res) => {
 app.post('/api/deploy', (req, res) => {
     console.log("Starting deployment process...");
     
+    // Define Git Path (Common Windows Path or fallback to 'git')
+    const gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"';
+
     // 1. Git Add
-    exec('git add .', { cwd: process.cwd() }, (err, stdout, stderr) => {
+    exec(`${gitPath} add .`, { cwd: process.cwd() }, (err, stdout, stderr) => {
         if (err) {
             console.error("Git Add Failed:", stderr);
             return res.status(500).json({ error: 'Git Add failed', details: stderr });
         }
 
         // 2. Git Commit
-        exec('git commit -m "Auto-deploy: Sync content from Admin Panel"', { cwd: process.cwd() }, (err, stdout, stderr) => {
+        exec(`${gitPath} commit -m "Auto-deploy: Sync content from Admin Panel"`, { cwd: process.cwd() }, (err, stdout, stderr) => {
             // Ignore error if nothing to commit
             if (err && !stdout.includes('nothing to commit') && !stderr.includes('nothing to commit')) {
                 console.error("Git Commit Failed:", stderr);
@@ -223,7 +226,7 @@ app.post('/api/deploy', (req, res) => {
             }
 
             // 3. Git Push
-            exec('git push', { cwd: process.cwd() }, (err, stdout, stderr) => {
+            exec(`${gitPath} push`, { cwd: process.cwd() }, (err, stdout, stderr) => {
                 if (err) {
                     console.error("Git Push Failed:", stderr);
                     return res.status(500).json({ error: 'Git Push failed. Please check server logs or network.', details: stderr });
