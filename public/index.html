@@ -32,7 +32,7 @@
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 0;
-            z-index: 1001;
+            z-index: 2001; /* Ensure it's higher than everything else */
             transform: translateX(120%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
@@ -1541,7 +1541,14 @@
                 if (data.success) {
                     passwordModal.classList.remove('show');
                     passwordModal.style.display = 'none';
-                    settingsPanel.classList.add('show');
+                    // Use setTimeout to allow UI update
+                    setTimeout(() => {
+                        settingsPanel.style.display = 'flex'; // Ensure it's visible
+                        // Force reflow
+                        void settingsPanel.offsetWidth;
+                        settingsPanel.classList.add('show');
+                    }, 50);
+                    
                     document.getElementById('adminPasswordInput').value = ''; // Clear password
                     document.getElementById('passwordError').style.display = 'none';
                 } else {
@@ -1557,21 +1564,23 @@
             // Check if already open
             if (settingsPanel.classList.contains('show')) {
                 settingsPanel.classList.remove('show');
+                setTimeout(() => { settingsPanel.style.display = 'none'; }, 300); // Wait for transition
             } else {
                 passwordModal.style.display = 'block';
                 // Small timeout to allow display:block to apply before adding class (if we had transition)
-                passwordModal.classList.add('show');
+                setTimeout(() => { passwordModal.classList.add('show'); }, 10);
             }
         });
 
         // Close Password Modal
         closePasswordModalBtn.addEventListener('click', () => {
             passwordModal.classList.remove('show');
-            passwordModal.style.display = 'none';
+            setTimeout(() => { passwordModal.style.display = 'none'; }, 300);
         });
 
         closeSettingsBtn.addEventListener('click', () => {
             settingsPanel.classList.remove('show');
+            setTimeout(() => { settingsPanel.style.display = 'none'; }, 300);
         });
 
         // Settings Tabs Logic
