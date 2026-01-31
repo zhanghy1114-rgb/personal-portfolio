@@ -775,10 +775,11 @@
             background: var(--card-bg);
             border-radius: var(--radius-md);
             padding: 1.5rem;
-            height: 220px;
+            height: auto; /* Allow flexible height but constrained by grid */
+            min-height: 240px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start; /* Align to top */
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -796,38 +797,49 @@
         }
 
         .project-icon-wrapper {
-            width: 60px;
-            height: 60px;
+            width: 50px; /* Slightly smaller */
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.5rem;
             margin-bottom: 1rem;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
         }
 
         .project-info h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
             font-weight: 700;
             color: var(--text-main);
+            line-height: 1.4;
         }
 
         .project-info p {
             font-size: 0.9rem;
             color: var(--text-secondary);
+            line-height: 1.6;
+            
+            /* Line Clamping for Description */
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Limit to 3 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 1rem;
         }
 
         .category-pill {
             display: inline-block;
-            padding: 0.3rem 0.8rem;
+            padding: 0.25rem 0.8rem;
             border-radius: var(--radius-pill);
             font-size: 0.75rem;
             font-weight: 700;
             color: black;
-            margin-top: auto;
+            margin-top: auto; /* Push to bottom if flex space allows */
             align-self: flex-start;
             background: var(--text-main);
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -973,17 +985,17 @@
         </div>
     </nav>
 
-    <!-- Password Modal -->
-    <div id="passwordModal" class="settings-panel show" style="display:none; width:300px; top:50%; left:50%; transform:translate(-50%, -50%); right:auto; height:auto; z-index:2000;">
+    <!-- Password Modal (Sidebar Style) -->
+    <div id="passwordModal" class="settings-panel" style="z-index: 2002; height: auto; bottom: auto;">
         <div class="settings-header">
             <h3>Admin Access</h3>
             <button class="close-btn" id="closePasswordModal"><i class="fas fa-times"></i></button>
         </div>
-        <div class="settings-content" style="padding: 1.5rem;">
+        <div class="settings-content" style="padding: 2rem;">
             <div class="form-group">
-                <input type="password" id="adminPasswordInput" placeholder="Enter Password" style="width:100%; padding:0.8rem; margin-bottom:1rem; background:rgba(255,255,255,0.1); border:1px solid var(--border-color); color:white; border-radius:4px;">
-                <button class="btn-upload" onclick="verifyPassword()" style="width:100%">Unlock Settings</button>
-                <p id="passwordError" style="color:#ff4444; font-size:0.8rem; margin-top:0.5rem; display:none;">Incorrect Password</p>
+                <input type="password" id="adminPasswordInput" placeholder="Enter Password" style="margin-bottom: 1.5rem;">
+                <button class="btn-upload" onclick="verifyPassword()" style="width:100%; padding: 1rem;">Unlock Settings</button>
+                <p id="passwordError" style="color:#ff4444; font-size:0.9rem; margin-top:1rem; display:none; text-align: center;">Incorrect Password</p>
             </div>
         </div>
     </div>
@@ -1645,7 +1657,12 @@
                 settingsPanel.classList.remove('show');
                 setTimeout(() => { settingsPanel.style.display = 'none'; }, 300); // Wait for transition
             } else {
-                passwordModal.style.display = 'block';
+                // Ensure settings panel is hidden
+                settingsPanel.classList.remove('show');
+                settingsPanel.style.display = 'none';
+                
+                // Show Password Modal
+                passwordModal.style.display = 'flex';
                 // Small timeout to allow display:block to apply before adding class (if we had transition)
                 setTimeout(() => { passwordModal.classList.add('show'); }, 10);
             }
