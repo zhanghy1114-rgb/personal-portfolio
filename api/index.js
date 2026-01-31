@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = 3000;
@@ -179,6 +180,39 @@ app.post('/api/verify-password', (req, res) => {
     } else {
         res.status(401).json({ success: false, message: 'Incorrect password' });
     }
+});
+
+// Deploy / Sync to GitHub
+app.post('/api/deploy', (req, res) => {
+    console.log("Starting deployment process...");
+    
+    // 1. Git Add
+    exec('git add .', { cwd: process.cwd() }, (err, stdout, stderr) => {
+        if (err) {
+            console.error("Git Add Failed:", stderr);
+            return res.status(500).json({ error: 'Git Add failed', details: stderr });
+        }
+
+        // 2. Git Commit
+        exec('git commit -m "Auto-deploy: Sync content from Admin Panel"', { cwd: process.cwd() }, (err, stdout, stderr) => {
+            // Ignore error if nothing to commit
+            if (err && !stdout.includes('nothing to commit') && !stderr.includes('nothing to commit')) {
+                console.error("Git Commit Failed:", stderr);
+                return res.status(500).json({ error: 'Git Commit failed', details: stderr });
+            }
+
+            // 3. Git Push
+            exec('git push', { cwd: process.cwd() }, (err, stdout, stderr) => {
+                if (err) {
+                    console.error("Git Push Failed:", stderr);
+                    return res.status(500).json({ error: 'Git Push failed. Please check server logs or network.', details: stderr });
+                }
+                
+                console.log("Git Push Success:", stdout);
+                res.json({ success: true, message: 'Sync Successful! Vercel deployment triggered.' });
+            });
+        });
+    });
 });
 
 // Delete Project
