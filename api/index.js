@@ -117,11 +117,22 @@ app.post('/api/upload/music', upload.single('file'), (req, res) => {
 });
 
 // Add Project (App Card)
-app.post('/api/projects', (req, res) => {
+app.post('/api/projects', upload.single('icon'), (req, res) => {
     const db = getDB();
+    let iconUrl = '';
+    
+    if (req.file) {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        iconUrl = `data:${req.file.mimetype};base64,${b64}`;
+    }
+
     const newProject = {
         id: Date.now(),
-        ...req.body
+        title: req.body.title,
+        description: req.body.description,
+        link: req.body.link,
+        category: req.body.category,
+        iconUrl: iconUrl
     };
     db.projects.push(newProject);
     saveDB(db);
@@ -148,11 +159,21 @@ app.post('/api/upload/media', upload.single('file'), (req, res) => {
 });
 
 // Add Tool
-app.post('/api/tools', (req, res) => {
+app.post('/api/tools', upload.single('icon'), (req, res) => {
     const db = getDB();
+    let iconUrl = '';
+    
+    if (req.file) {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        iconUrl = `data:${req.file.mimetype};base64,${b64}`;
+    }
+
     const newTool = {
         id: Date.now(),
-        ...req.body
+        name: req.body.name,
+        description: req.body.description,
+        link: req.body.link,
+        iconUrl: iconUrl
     };
     db.tools.push(newTool);
     saveDB(db);

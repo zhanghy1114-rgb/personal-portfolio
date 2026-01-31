@@ -1042,6 +1042,8 @@
                         <input type="text" id="projDesc" placeholder="简短描述">
                         <input type="text" id="projLink" placeholder="链接地址">
                         <input type="text" id="projCategory" placeholder="分类 (e.g. Web App)">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
+                        <input type="file" id="projIconInput" accept="image/*">
                         <button class="btn-upload" onclick="uploadProject()">添加应用</button>
                     </div>
                 </div>
@@ -1078,12 +1080,11 @@
                     <div class="form-group">
                         <input type="text" id="toolName" placeholder="工具名称 (e.g. VS Code)">
                         <input type="text" id="toolDesc" placeholder="描述">
-                        <input type="text" id="toolIcon" placeholder="图标类名 (e.g. fas fa-code)">
+                        <input type="text" id="toolLink" placeholder="工具链接 (可选)">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
+                        <input type="file" id="toolIconInput" accept="image/*">
                         <button class="btn-upload" onclick="addTool()">添加工具</button>
                     </div>
-                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:1rem;">
-                        提示: 图标使用 FontAwesome 类名。
-                    </p>
                 </div>
                 <div class="admin-section">
                     <h4>管理工具</h4>
@@ -1386,7 +1387,7 @@
             const html = (projects || []).map(p => `
                 <a href="${p.link || '#'}" class="project-card" target="_blank">
                     <div class="project-icon-wrapper">
-                         <i class="fas fa-layer-group"></i>
+                         ${p.iconUrl ? `<img src="${p.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-layer-group"></i>'}
                     </div>
                     <div class="project-info">
                         <h3>${p.title}</h3>
@@ -1421,26 +1422,12 @@
         }
 
         function renderTools(tools) {
-            const html = (tools || []).map(t => `
-                <div class="tool-item">
-                    <div class="tool-icon"><i class="${t.icon || 'fas fa-wrench'}"></i></div>
-                    <div class="tool-details">
-                        <h4>${t.name}</h4>
-                        <p>${t.description}</p>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Render to both sidebar (limit 4) and tools page (all)
-            // Note: Current HTML structure has static tools in sidebar. 
-            // We'll update the tools-section in sidebar if we want dynamic sidebar tools.
-            // For now let's update the main tools page.
-            
-            // Wait, the main tools page has a list? No, it has grid cards.
-            // Let's render grid cards for the Tools Section in main content.
+            // Render grid cards for the Tools Section in main content.
             const gridHtml = (tools || []).map(t => `
-                <div class="project-card">
-                    <div class="project-icon-wrapper"><i class="${t.icon || 'fas fa-wrench'}"></i></div>
+                <div class="project-card" ${t.link ? `onclick="window.open('${t.link}', '_blank')" style="cursor:pointer;"` : ''}>
+                    <div class="project-icon-wrapper">
+                        ${t.iconUrl ? `<img src="${t.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : `<i class="${t.icon || 'fas fa-wrench'}"></i>`}
+                    </div>
                     <h3>${t.name}</h3>
                     <p>${t.description}</p>
                     <span class="category-pill">Tool</span>
@@ -1505,17 +1492,20 @@
 
         // Upload Project
         async function uploadProject() {
-            const project = {
-                title: document.getElementById('projTitle').value,
-                description: document.getElementById('projDesc').value,
-                link: document.getElementById('projLink').value,
-                category: document.getElementById('projCategory').value
-            };
+            const formData = new FormData();
+            formData.append('title', document.getElementById('projTitle').value);
+            formData.append('description', document.getElementById('projDesc').value);
+            formData.append('link', document.getElementById('projLink').value);
+            formData.append('category', document.getElementById('projCategory').value);
+            
+            const iconFile = document.getElementById('projIconInput').files[0];
+            if (iconFile) {
+                formData.append('icon', iconFile);
+            }
             
             await fetch(`${API_URL}/projects`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(project)
+                body: formData
             });
             alert('应用添加成功！刷新页面查看。');
             fetchData();
@@ -1539,16 +1529,19 @@
 
         // Add Tool
         async function addTool() {
-            const tool = {
-                name: document.getElementById('toolName').value,
-                description: document.getElementById('toolDesc').value,
-                icon: document.getElementById('toolIcon').value
-            };
+            const formData = new FormData();
+            formData.append('name', document.getElementById('toolName').value);
+            formData.append('description', document.getElementById('toolDesc').value);
+            formData.append('link', document.getElementById('toolLink').value);
+            
+            const iconFile = document.getElementById('toolIconInput').files[0];
+            if (iconFile) {
+                formData.append('icon', iconFile);
+            }
             
             await fetch(`${API_URL}/tools`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tool)
+                body: formData
             });
             alert('工具添加成功！');
             fetchData();
