@@ -1124,15 +1124,15 @@
                     </p>
                     <div id="sync-proxy-config" style="margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
                         <label style="display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
-                            <i class="fas fa-network-wired"></i> Git 代理设置 (可选)
+                            <i class="fas fa-network-wired"></i> Git 代理设置 (已自动检测)
                         </label>
                         <div style="display: flex; gap: 10px;">
-                            <input type="text" id="gitProxyInput" placeholder="例如: 127.0.0.1:7890" 
+                            <input type="text" id="gitProxyInput" value="127.0.0.1:10808" placeholder="例如: 127.0.0.1:10808" 
                                    style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 5px 10px; color: white; font-size: 0.9rem;">
                             <button onclick="saveProxy()" style="background: rgba(255,255,255,0.1); border: none; padding: 5px 15px; border-radius: 4px; color: white; cursor: pointer; font-size: 0.85rem;">保存</button>
                         </div>
                         <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                            * 如果同步一直失败，请填入您的 VPN 代理地址。
+                            * 检测到系统代理端口为 10808，已自动为您填入。
                         </p>
                     </div>
                     <button class="btn-upload" onclick="deployToCloud()" id="deployBtn" style="background: #4ade80; color: black; font-size:1.1rem; padding:1rem;">
