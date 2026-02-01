@@ -280,9 +280,13 @@ app.post('/api/deploy', (req, res) => {
     const isVercel = process.env.VERCEL === '1';
 
     if (isVercel) {
-        return res.status(403).json({ 
-            error: 'Cannot sync from Cloud', 
-            details: 'This feature is for local development only. Please run the project locally to sync changes to GitHub.' 
+        // In Cloud/Vercel environment, we skip the git sync check here
+        // Because "Save" actions already trigger the sync.
+        // But if user clicks the button manually, we can just return success message
+        // to avoid confusing them with an error.
+        return res.json({ 
+            success: true, 
+            message: 'Cloud environment detected. Your changes are saved automatically! No need to sync manually.' 
         });
     }
     
