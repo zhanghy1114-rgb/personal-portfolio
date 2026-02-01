@@ -274,6 +274,7 @@ app.post('/api/verify-password', (req, res) => {
 // Deploy / Sync to GitHub
 app.post('/api/deploy', async (req, res) => {
     console.log("Starting deployment process...");
+    const { proxy } = req.body;
 
     // Determine environment (Vercel vs Local)
     const isVercel = process.env.VERCEL === '1';
@@ -306,6 +307,19 @@ app.post('/api/deploy', async (req, res) => {
     };
 
     try {
+        // 0. Configure Proxy if provided
+        if (proxy) {
+            console.log(`Setting Git proxy to: ${proxy}`);
+            await execPromise(`${gitPath} config --global http.proxy http://${proxy}`);
+            await execPromise(`${gitPath} config --global https.proxy http://${proxy}`);
+        } else {
+            // Unset proxy if not provided to avoid using old/broken ones
+            try {
+                await execPromise(`${gitPath} config --global --unset http.proxy`);
+                await execPromise(`${gitPath} config --global --unset https.proxy`);
+            } catch (e) {}
+        }
+
         // 1. Git Add
         await execPromise(`${gitPath} add .`);
 
@@ -313,55 +327,41 @@ app.post('/api/deploy', async (req, res) => {
         try {
             await execPromise(`${gitPath} commit -m "Auto-deploy: Sync content from Admin Panel"`);
         } catch (e) {
-            // Ignore "nothing to commit" errors
             if (!e.stdout.includes('nothing to commit') && !e.stderr.includes('nothing to commit')) {
                 throw e;
             }
-            console.log("Nothing to commit, proceeding to sync...");
         }
 
-        // 3. Git Pull (Rebase) - Handle Conflicts & Ensure Up-to-date
-        // We try this to avoid "non-fast-forward" errors during push
+        // 3. Git Pull (Rebase)
         try {
-            console.log("Pulling latest changes...");
             await execPromise(`${gitPath} pull --rebase`);
         } catch (e) {
-            console.warn("Pull warning (might be network issue or no upstream):", e.stderr);
             if (e.stderr.includes('conflict')) {
-                return res.status(409).json({ error: '同步冲突：云端有新修改与本地冲突，请手动解决。', details: e.stderr });
+                return res.status(409).json({ error: '同步冲突：请手动解决冲突后再同步。', details: e.stderr });
             }
         }
 
-        // 4. Git Push with Retry Mechanism (Robustness for weak network)
+        // 4. Git Push with Retry
         let lastError = null;
-        const maxRetries = 3;
-        
-        for (let i = 1; i <= maxRetries; i++) {
+        for (let i = 1; i <= 3; i++) {
             try {
-                console.log(`Pushing to remote (Attempt ${i}/${maxRetries})...`);
-                const { stdout } = await execPromise(`${gitPath} push`);
-                console.log("Git Push Success:", stdout);
-                return res.json({ success: true, message: '同步成功！GitHub 已接收更新，Vercel 正在部署。' });
+                await execPromise(`${gitPath} push`);
+                return res.json({ success: true, message: '同步成功！GitHub 已接收更新。' });
             } catch (e) {
-                console.error(`Push failed (Attempt ${i}):`, e.stderr);
                 lastError = e;
-                if (i < maxRetries) {
-                    // Exponential backoff or fixed delay? Fixed 2s for simplicity in UI context
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
+                if (i < 3) await new Promise(r => setTimeout(r, 2000));
             }
         }
 
-        // If all retries failed
-        let userMsg = '同步失败：多次重试均无法连接到 GitHub。';
-        if (lastError.stderr.includes('Could not connect to server') || lastError.stderr.includes('Connection was reset')) {
-            userMsg = '网络连接失败：请检查您的 VPN 或代理设置是否允许终端访问 GitHub。';
-        }
-        res.status(500).json({ error: userMsg, details: lastError.stderr });
+        throw lastError;
 
     } catch (err) {
-        console.error("Deployment Critical Error:", err);
-        res.status(500).json({ error: '同步进程发生内部错误', details: err.message });
+        console.error("Deployment Error:", err);
+        let userMsg = '同步失败：连接 GitHub 超时。';
+        if (err.stderr && (err.stderr.includes('Could not connect') || err.stderr.includes('Connection was reset'))) {
+            userMsg = '网络连接失败。请检查您的代理设置（如 127.0.0.1:7890）。';
+        }
+        res.status(500).json({ error: userMsg, details: err.stderr || err.message });
     }
 });
 
