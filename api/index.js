@@ -314,7 +314,12 @@ app.post('/api/deploy', (req, res) => {
             exec(`${gitPath} push`, { cwd: process.cwd() }, (err, stdout, stderr) => {
                 if (err) {
                     console.error("Git Push Failed:", stderr);
-                    return res.status(500).json({ error: 'Git Push failed. Please check server logs or network.', details: stderr });
+                    // Provide a more friendly error message for network issues
+                    let userMsg = 'Git Push failed. Please check server logs or network.';
+                    if (stderr.includes('Could not connect to server') || stderr.includes('Connection was reset')) {
+                        userMsg = '网络连接失败，无法连接到 GitHub。请检查您的网络设置（如 VPN/代理）。';
+                    }
+                    return res.status(500).json({ error: userMsg, details: stderr });
                 }
                 
                 console.log("Git Push Success:", stdout);
