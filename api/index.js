@@ -407,8 +407,10 @@ app.post('/api/chat', async (req, res) => {
     const db = getDB();
 
     // 1. Check for API Key (Support OPENAI_API_KEY or generic LLM_API_KEY)
-    const apiKey = process.env.OPENAI_API_KEY || process.env.LLM_API_KEY;
-    const apiBase = process.env.LLM_BASE_URL || 'https://api.openai.com/v1'; // Allow custom base URL (e.g. DeepSeek/Moonshot)
+    // Configuration for Xunfei Star MaaS (User Requested)
+    const apiKey = process.env.OPENAI_API_KEY || process.env.LLM_API_KEY || 'b5129d0cad2a3748249d5a18b663d339:YjkyOTdlMmYzNTdlY2VjNTQ0YzFjYzY2';
+    const apiBase = process.env.LLM_BASE_URL || 'https://maas-api.cn-huabei-1.xf-yun.com/v2'; 
+    const model = process.env.LLM_MODEL || 'xopf6a4d241'; // Model ID from screenshot
 
     if (!apiKey) {
         // Mock Mode
@@ -460,7 +462,7 @@ app.post('/api/chat', async (req, res) => {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: process.env.LLM_MODEL || 'gpt-3.5-turbo', // Allow custom model
+                model: model, 
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 500

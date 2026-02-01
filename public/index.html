@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>柒毓个人页面 - 柒毓's Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"> -->
     <style>
         /* Page Sections */
         .page-section {
@@ -1397,8 +1397,12 @@
             }
             if (settings.backgroundMusic) {
                 const audio = document.getElementById('bgMusic');
-                audio.src = settings.backgroundMusic;
-                document.getElementById('playerTitle').textContent = "Background Music";
+                // Only update if src is different to prevent ERR_ABORTED
+                // Note: audio.src is absolute, settings.backgroundMusic might be relative
+                if (!audio.src.endsWith(settings.backgroundMusic)) {
+                    audio.src = settings.backgroundMusic;
+                    document.getElementById('playerTitle').textContent = "Background Music";
+                }
             }
         }
 
