@@ -1119,10 +1119,11 @@
                 <div class="admin-section" style="margin-top:0; border-top:none; text-align:center;">
                     <h4>同步发布到云端</h4>
                     <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
-                        将本地的所有修改（配置、内容、文件）同步到 GitHub 仓库，并自动触发 Vercel 更新上线。
+                        <b>本地开发时：</b> 将本地的所有修改同步到 GitHub 仓库。<br>
+                        <b>线上访问时：</b> 不需要点击此按钮。所有修改会自动保存并触发更新（约1-2分钟生效）。
                     </p>
                     <button class="btn-upload" onclick="deployToCloud()" id="deployBtn" style="background: #4ade80; color: black; font-size:1.1rem; padding:1rem;">
-                        <i class="fas fa-cloud-upload-alt"></i> 立即同步发布
+                        <i class="fas fa-cloud-upload-alt"></i> 立即同步发布 (本地专用)
                     </button>
                     <div id="deployLog" style="margin-top:1.5rem; text-align:left; font-family:monospace; font-size:0.85rem; color:#a0a0a0; background:rgba(0,0,0,0.3); padding:1rem; border-radius:4px; display:none; white-space: pre-wrap;"></div>
                 </div>

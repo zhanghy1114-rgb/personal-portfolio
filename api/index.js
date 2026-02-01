@@ -6,6 +6,11 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
+// GitHub Config
+const REPO_OWNER = 'zhanghy1114-rgb';
+const REPO_NAME = 'personal-portfolio';
+const FILE_PATH = 'data/db.json';
+
 const app = express();
 const PORT = 3000;
 
@@ -63,12 +68,72 @@ const getDB = () => {
     return memoryDB;
 };
 
+// Helper to save to GitHub (Cloud Mode)
+async function saveToGitHub(data) {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+        console.error("Missing GITHUB_TOKEN in environment variables");
+        return;
+    }
+
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+    const contentEncoded = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
+
+    try {
+        // 1. Get current file SHA
+        const getRes = await fetch(url, {
+            headers: { 
+                'Authorization': `token ${token}`,
+                'User-Agent': 'Vercel-Admin-App'
+            }
+        });
+        
+        if (!getRes.ok) throw new Error(`Failed to fetch file info: ${getRes.statusText}`);
+        
+        const getJson = await getRes.json();
+        const sha = getJson.sha;
+
+        // 2. Commit update
+        const putRes = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'User-Agent': 'Vercel-Admin-App',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'Update content via Web Admin (Mobile/Cloud)',
+                content: contentEncoded,
+                sha: sha
+            })
+        });
+
+        if (putRes.ok) {
+            console.log("✅ Successfully saved changes to GitHub!");
+        } else {
+            console.error("❌ GitHub Update Failed:", await putRes.text());
+        }
+    } catch (e) {
+        console.error("❌ GitHub API Error:", e.message);
+    }
+}
+
 const saveDB = (data) => {
     memoryDB = data; // Always update memory
+    
+    // Local Save
     try {
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+        if (!process.env.VERCEL) {
+            fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+        }
     } catch (e) {
-        console.log("Could not persist data to disk (read-only fs)");
+        console.log("Could not persist data to disk");
+    }
+
+    // Cloud Save (Trigger GitHub Update)
+    if (process.env.VERCEL) {
+        // Run asynchronously to not block response
+        saveToGitHub(data).catch(err => console.error("Async Save Error:", err));
     }
 };
 
@@ -206,9 +271,22 @@ app.post('/api/verify-password', (req, res) => {
 // Deploy / Sync to GitHub
 app.post('/api/deploy', (req, res) => {
     console.log("Starting deployment process...");
+
+    // Determine environment (Vercel vs Local)
+    // Vercel sets VERCEL=1 env var
+    const isVercel = process.env.VERCEL === '1';
+
+    if (isVercel) {
+        return res.status(403).json({ 
+            error: 'Cannot sync from Cloud', 
+            details: 'This feature is for local development only. Please run the project locally to sync changes to GitHub.' 
+        });
+    }
     
-    // Define Git Path (Common Windows Path or fallback to 'git')
-    const gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"';
+    // Define Git Path
+    // On Windows Local, use the absolute path. On Mac/Linux/Vercel(if enabled), use 'git'.
+    const isWindows = process.platform === 'win32';
+    const gitPath = isWindows ? '"C:\\Program Files\\Git\\cmd\\git.exe"' : 'git';
 
     // 1. Git Add
     exec(`${gitPath} add .`, { cwd: process.cwd() }, (err, stdout, stderr) => {
