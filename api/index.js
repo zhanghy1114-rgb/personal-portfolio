@@ -360,6 +360,83 @@ app.delete('/api/articles/:id', (req, res) => {
     res.json({ success: true });
 });
 
+// Chat Endpoint
+app.post('/api/chat', async (req, res) => {
+    const { message, history } = req.body;
+    const db = getDB();
+
+    // 1. Check for API Key (Support OPENAI_API_KEY or generic LLM_API_KEY)
+    const apiKey = process.env.OPENAI_API_KEY || process.env.LLM_API_KEY;
+    const apiBase = process.env.LLM_BASE_URL || 'https://api.openai.com/v1'; // Allow custom base URL (e.g. DeepSeek/Moonshot)
+
+    if (!apiKey) {
+        // Mock Mode
+        return res.json({ 
+            reply: "我现在处于演示模式（未配置 API Key）。\n\n我是您的个人智能助手！我可以为您介绍作品集中的项目、技能或回答关于作者的问题。\n\n请在 Vercel 环境变量中配置 `OPENAI_API_KEY` 以开启真实 AI 对话功能。" 
+        });
+    }
+
+    // 2. Construct System Context
+    const systemPrompt = `
+    You are the AI assistant for a personal portfolio website.
+    
+    **Portfolio Owner Profile:**
+    - Name: 柒毓 (Qi Yu)
+    - Role: 自由优化家 (Freelance Optimizer), AI/Automation Enthusiast
+    - Skills: Agent, n8n, RPA, Python, Vibe Coding
+    - Bio: 热爱开放与探索，追随的公正执拾。
+    
+    **Projects:**
+    ${db.projects.map(p => `- ${p.title}: ${p.description}`).join('\n')}
+    
+    **Tools:**
+    ${db.tools.map(t => `- ${t.name}: ${t.description}`).join('\n')}
+    
+    **Instructions:**
+    - Answer user questions based on the above information.
+    - If the user asks about something not in the list, politely say you don't know but can help with the portfolio content.
+    - Keep answers concise, professional, and friendly.
+    - Use Markdown formatting if needed.
+    - Respond in the same language as the user (mostly Chinese).
+    `;
+
+    // 3. Call LLM API
+    try {
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            ...(history || []), // Previous context
+            { role: 'user', content: message }
+        ];
+
+        const response = await fetch(`${apiBase}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: process.env.LLM_MODEL || 'gpt-3.5-turbo', // Allow custom model
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 500
+            })
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`LLM API Error: ${response.status} - ${errText}`);
+        }
+
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
+
+        res.json({ reply });
+    } catch (error) {
+        console.error("Chat Error:", error);
+        res.status(500).json({ reply: "抱歉，AI 服务暂时不可用，请稍后再试。" });
+    }
+});
+
 // Start Server
 if (require.main === module) {
     app.listen(PORT, () => {
