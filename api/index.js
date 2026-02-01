@@ -272,18 +272,13 @@ app.post('/api/verify-password', (req, res) => {
 });
 
 // Deploy / Sync to GitHub
-app.post('/api/deploy', (req, res) => {
+app.post('/api/deploy', async (req, res) => {
     console.log("Starting deployment process...");
 
     // Determine environment (Vercel vs Local)
-    // Vercel sets VERCEL=1 env var
     const isVercel = process.env.VERCEL === '1';
 
     if (isVercel) {
-        // In Cloud/Vercel environment, we skip the git sync check here
-        // Because "Save" actions already trigger the sync.
-        // But if user clicks the button manually, we can just return success message
-        // to avoid confusing them with an error.
         return res.json({ 
             success: true, 
             message: 'Cloud environment detected. Your changes are saved automatically! No need to sync manually.' 
@@ -291,42 +286,83 @@ app.post('/api/deploy', (req, res) => {
     }
     
     // Define Git Path
-    // On Windows Local, use the absolute path. On Mac/Linux/Vercel(if enabled), use 'git'.
     const isWindows = process.platform === 'win32';
     const gitPath = isWindows ? '"C:\\Program Files\\Git\\cmd\\git.exe"' : 'git';
+    const cwd = process.cwd();
 
-    // 1. Git Add
-    exec(`${gitPath} add .`, { cwd: process.cwd() }, (err, stdout, stderr) => {
-        if (err) {
-            console.error("Git Add Failed:", stderr);
-            return res.status(500).json({ error: 'Git Add failed', details: stderr });
-        }
-
-        // 2. Git Commit
-        exec(`${gitPath} commit -m "Auto-deploy: Sync content from Admin Panel"`, { cwd: process.cwd() }, (err, stdout, stderr) => {
-            // Ignore error if nothing to commit
-            if (err && !stdout.includes('nothing to commit') && !stderr.includes('nothing to commit')) {
-                console.error("Git Commit Failed:", stderr);
-                return res.status(500).json({ error: 'Git Commit failed', details: stderr });
-            }
-
-            // 3. Git Push
-            exec(`${gitPath} push`, { cwd: process.cwd() }, (err, stdout, stderr) => {
-                if (err) {
-                    console.error("Git Push Failed:", stderr);
-                    // Provide a more friendly error message for network issues
-                    let userMsg = 'Git Push failed. Please check server logs or network.';
-                    if (stderr.includes('Could not connect to server') || stderr.includes('Connection was reset')) {
-                        userMsg = '网络连接失败，无法连接到 GitHub。请检查您的网络设置（如 VPN/代理）。';
-                    }
-                    return res.status(500).json({ error: userMsg, details: stderr });
+    // Helper for Promisified Exec
+    const execPromise = (command) => {
+        return new Promise((resolve, reject) => {
+            exec(command, { cwd }, (error, stdout, stderr) => {
+                if (error) {
+                    error.stdout = stdout;
+                    error.stderr = stderr;
+                    reject(error);
+                } else {
+                    resolve({ stdout, stderr });
                 }
-                
-                console.log("Git Push Success:", stdout);
-                res.json({ success: true, message: 'Sync Successful! Vercel deployment triggered.' });
             });
         });
-    });
+    };
+
+    try {
+        // 1. Git Add
+        await execPromise(`${gitPath} add .`);
+
+        // 2. Git Commit
+        try {
+            await execPromise(`${gitPath} commit -m "Auto-deploy: Sync content from Admin Panel"`);
+        } catch (e) {
+            // Ignore "nothing to commit" errors
+            if (!e.stdout.includes('nothing to commit') && !e.stderr.includes('nothing to commit')) {
+                throw e;
+            }
+            console.log("Nothing to commit, proceeding to sync...");
+        }
+
+        // 3. Git Pull (Rebase) - Handle Conflicts & Ensure Up-to-date
+        // We try this to avoid "non-fast-forward" errors during push
+        try {
+            console.log("Pulling latest changes...");
+            await execPromise(`${gitPath} pull --rebase`);
+        } catch (e) {
+            console.warn("Pull warning (might be network issue or no upstream):", e.stderr);
+            if (e.stderr.includes('conflict')) {
+                return res.status(409).json({ error: '同步冲突：云端有新修改与本地冲突，请手动解决。', details: e.stderr });
+            }
+        }
+
+        // 4. Git Push with Retry Mechanism (Robustness for weak network)
+        let lastError = null;
+        const maxRetries = 3;
+        
+        for (let i = 1; i <= maxRetries; i++) {
+            try {
+                console.log(`Pushing to remote (Attempt ${i}/${maxRetries})...`);
+                const { stdout } = await execPromise(`${gitPath} push`);
+                console.log("Git Push Success:", stdout);
+                return res.json({ success: true, message: '同步成功！GitHub 已接收更新，Vercel 正在部署。' });
+            } catch (e) {
+                console.error(`Push failed (Attempt ${i}):`, e.stderr);
+                lastError = e;
+                if (i < maxRetries) {
+                    // Exponential backoff or fixed delay? Fixed 2s for simplicity in UI context
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        // If all retries failed
+        let userMsg = '同步失败：多次重试均无法连接到 GitHub。';
+        if (lastError.stderr.includes('Could not connect to server') || lastError.stderr.includes('Connection was reset')) {
+            userMsg = '网络连接失败：请检查您的 VPN 或代理设置是否允许终端访问 GitHub。';
+        }
+        res.status(500).json({ error: userMsg, details: lastError.stderr });
+
+    } catch (err) {
+        console.error("Deployment Critical Error:", err);
+        res.status(500).json({ error: '同步进程发生内部错误', details: err.message });
+    }
 });
 
 // Delete Project
