@@ -1488,12 +1488,51 @@
         document.getElementById('bgMusicInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Check file size (limit to 4MB for Vercel/GitHub compatibility)
+            if (file.size > 4 * 1024 * 1024) {
+                alert('文件过大！请上传小于 4MB 的音频文件。');
+                e.target.value = ''; // Clear input
+                return;
+            }
+
+            // Show loading state
+            const label = e.target.previousElementSibling;
+            const originalText = label.textContent;
+            label.textContent = '背景音乐 (正在上传...)';
+            e.target.disabled = true;
+
             const formData = new FormData();
             formData.append('file', file);
             
-            const res = await fetch(`${API_URL}/upload/music`, { method: 'POST', body: formData });
-            const data = await res.json();
-            document.getElementById('bgMusic').src = data.url;
+            try {
+                const res = await fetch(`${API_URL}/upload/music`, { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Upload failed');
+                
+                const data = await res.json();
+                const audio = document.getElementById('bgMusic');
+                audio.src = data.url;
+                document.getElementById('playerTitle').textContent = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+                
+                // Try to auto-play
+                try {
+                    await audio.play();
+                    document.getElementById('playerStatus').textContent = "Playing...";
+                    document.getElementById('sidebarPlayBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                    document.getElementById('musicToggleBtn').classList.add('music-active');
+                } catch (err) {
+                    console.log("Auto-play blocked, user interaction required");
+                }
+
+                alert('背景音乐上传成功！');
+            } catch (err) {
+                console.error(err);
+                alert('上传失败，请重试。');
+            } finally {
+                // Reset UI
+                label.textContent = originalText;
+                e.target.disabled = false;
+            }
         });
 
         // Upload Project

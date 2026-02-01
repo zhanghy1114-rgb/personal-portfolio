@@ -2,7 +2,7 @@
   "settings": {
     "backgroundColor": "#000000",
     "backgroundImage": "",
-    "backgroundMusic": "",
+    "backgroundMusic": "bgm.mp3",
     "particlesEnabled": true,
     "adminPassword": "admin"
   },

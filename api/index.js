@@ -16,7 +16,7 @@ const PORT = 3000;
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
@@ -139,7 +139,10 @@ const saveDB = (data) => {
 
 // Multer Storage Configuration (Use /tmp for Vercel if needed, or memory storage)
 const storage = multer.memoryStorage(); // Switch to memory storage for Vercel compatibility
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 // --- API Endpoints ---
 
