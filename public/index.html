@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>柒毓个人页面 - 柒毓's Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"> -->
     <style>
         /* Page Sections */
         .page-section {
@@ -1397,11 +1396,14 @@
             }
             if (settings.backgroundMusic) {
                 const audio = document.getElementById('bgMusic');
-                // Only update if src is different to prevent ERR_ABORTED
-                // Note: audio.src is absolute, settings.backgroundMusic might be relative
-                if (!audio.src.endsWith(settings.backgroundMusic)) {
-                    audio.src = settings.backgroundMusic;
-                    document.getElementById('playerTitle').textContent = "Background Music";
+                // Use a more robust check for the same music source
+                const currentSrc = audio.src;
+                const newSrc = settings.backgroundMusic;
+                
+                // If it's a data URI or a full URL, compare them carefully
+                if (currentSrc !== newSrc && !currentSrc.endsWith(newSrc)) {
+                    audio.src = newSrc;
+                    document.getElementById('playerTitle').textContent = "背景音乐";
                 }
             }
         }
@@ -1810,6 +1812,14 @@
 
         sidebarPlayBtn.addEventListener('click', togglePlay);
         topMusicBtn.addEventListener('click', togglePlay);
+
+        // Handle initial audio load error gracefully
+        bgMusic.addEventListener('error', (e) => {
+            console.warn("Audio load error (expected if autoplay blocked):", e);
+            playerStatus.textContent = "Click to Play";
+            sidebarPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
+            topMusicBtn.classList.remove('music-active');
+        });
 
 
         // --- Starry Mouse Trail ---
@@ -2285,6 +2295,7 @@
                 const loadingId = this.appendLoading();
 
                 try {
+                    // Use relative URL properly - should work in most cases but let's be robust
                     const res = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -2294,6 +2305,10 @@
                         })
                     });
                     
+                    if (!res.ok) {
+                        throw new Error(`Server error: ${res.status}`);
+                    }
+
                     const data = await res.json();
                     
                     // Remove loading
@@ -2305,9 +2320,14 @@
                     this.logEvent('message_sent');
 
                 } catch (err) {
-                    console.error(err);
+                    console.error("Chat fetch error:", err);
                     this.removeMessage(loadingId);
-                    this.appendMessage('bot', '抱歉，网络出了点小差错，请稍后再试。');
+                    // Check if it's a connection refused error
+                    let errorMsg = '抱歉，网络出了点小差错，请稍后再试。';
+                    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                        errorMsg = '无法连接到服务器。请确保后端服务正在运行 (npm start)。';
+                    }
+                    this.appendMessage('bot', errorMsg);
                 }
             },
 

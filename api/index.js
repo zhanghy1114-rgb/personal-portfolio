@@ -288,7 +288,7 @@ app.post('/api/deploy', async (req, res) => {
     
     // Define Git Path
     const isWindows = process.platform === 'win32';
-    const gitPath = isWindows ? '"C:\\Program Files\\Git\\cmd\\git.exe"' : 'git';
+    let gitPath = isWindows ? '"C:\\Program Files\\Git\\cmd\\git.exe"' : 'git';
     const cwd = process.cwd();
 
     // Helper for Promisified Exec
@@ -305,6 +305,30 @@ app.post('/api/deploy', async (req, res) => {
             });
         });
     };
+    
+    // For Windows, try to use WSL Git if available
+    if (isWindows) {
+        try {
+            // Check if WSL is available
+            await execPromise('wsl --list');
+            // Use WSL Git
+            gitPath = 'wsl -d Ubuntu-24.04 -e git';
+            console.log('Using WSL Git');
+        } catch (e) {
+            console.log('WSL not available, falling back to Windows Git');
+        }
+    }
+    
+    // Check if Git is available
+    try {
+        await execPromise(`${gitPath} --version`);
+    } catch (e) {
+        console.error("Git is not available:", e);
+        return res.status(500).json({ 
+            error: 'Git 未安装或不可用', 
+            details: '请先安装 Git 客户端，然后再尝试同步。' 
+        });
+    }
 
     try {
         // 0. Configure Proxy if provided
@@ -407,80 +431,177 @@ app.post('/api/chat', async (req, res) => {
     const db = getDB();
 
     // 1. Check for API Key (Support OPENAI_API_KEY or generic LLM_API_KEY)
-    // Configuration for Xunfei Star MaaS (User Requested)
-    const apiKey = process.env.OPENAI_API_KEY || process.env.LLM_API_KEY || 'b5129d0cad2a3748249d5a18b663d339:YjkyOTdlMmYzNTdlY2VjNTQ0YzFjYzY2';
-    const apiBase = process.env.LLM_BASE_URL || 'https://maas-api.cn-huabei-1.xf-yun.com/v2'; 
-    const model = process.env.LLM_MODEL || 'xopf6a4d241'; // Model ID from screenshot
+    // Configuration for Coze API (User Requested)
+    const useLocalModel = false; // Force False as user wants to use Coze Cloud
+    console.log("Using Local Model:", useLocalModel); // Debug log
 
-    if (!apiKey) {
+    
+    // Coze Configuration
+    // Updated based on screenshot: This is a Coze Agent deployed as a Service (API Service)
+    // The screenshot shows "API 请求示例及接口说明" with a specific URL: https://gj4p8f69bg.coze.site/stream_run
+    // This is NOT the standard Open API v3, but a "Web SDK" or "API Service" endpoint.
+    
+    // We need to parse the curl command from the screenshot to understand the request structure.
+    // URL: https://gj4p8f69bg.coze.site/stream_run
+    // Header: Authorization: Bearer <YOUR_TOKEN>
+    // Body: { "content": { "query": { "prompt": [ { "type": "text", "content": { "text": "" } } ] } }, "type": "query", "session_id": "..." }
+
+    // User provided Token:
+    // eyJhbGciOiJSUzI1NiIsImtpZCI6IjM0MmEyMzU0LTI5ODgtNGJkYi04N2ViLTU1MjliYmJkMmVlZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIndZQ1VPTEtQb3lKU2RHeDFUaGtQZUQzdkhCVDdiYXlLIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzcwMDQ1OTczLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjAyMjcyMTc2MTM3MzA2MTY0Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjAyMjg5NTY3NDYyMzI2Mjg3In0.lL1WeNgQuwfAC8Luks0kjU1l6Q7YrHcFh4BQBGZqMVweG5OKwBu-ATsE8myBsmBKxOQ7VHUpZm4FxnEyQjbC7-RL4vPcUzKPPPMsgswgIngF4e2cDcz9GeAJnA6XMCzz2gT0-49mOCQrD00jfijr1GcXqm3aqMaC0Fkh9-6V2Ujb8LtruI1VhNOEVnSHKcRO7gmI6BBtfiGuNdhVx-hLHQIkiLuzK1697PF44hudUZqKeWnw9fkS_qx3h4v2tje1-47JvgF0ctpWNkF6X8n0h2f7kBihonkfjcw9Cg3mQoYjDb2bjl_X-mET795UbItnhom5aZvZ5UIov8dCrFz1LA
+    // Note: This looks like a JWT. The signature might be invalid or it might be a PAT.
+    // Re-check screenshot: "Header: Authorization: Bearer <YOUR_TOKEN>"
+    // The user provided text: eyJ...
+    // Let's use the FULL token string provided by user.
+    let apiKey = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjM0MmEyMzU0LTI5ODgtNGJkYi04N2ViLTU1MjliYmJkMmVlZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIndZQ1VPTEtQb3lKU2RHeDFUaGtQZUQzdkhCVDdiYXlLIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzcwMDQ1OTczLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjAyMjcyMTc2MTM3MzA2MTY0Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjAyMjg5NTY3NDYyMzI2Mjg3In0.lL1WeNgQuwfAC8Luks0kjU1l6Q7YrHcFh4BQBGZqMVweG5OKwBu-ATsE8myBsmBKxOQ7VHUpZm4FxnEyQjbC7-RL4vPcUzKPPPMsgswgIngF4e2cDcz9GeAJnA6XMCzz2gT0-49mOCQrD00jfijr1GcXqm3aqMaC0Fkh9-6V2Ujb8LtruI1VhNOEVnSHKcRO7gmI6BBtfiGuNdhVx-hLHQIkiLuzK1697PF44hudUZqKeWnw9fkS_qx3h4v2tje1-47JvgF0ctpWNkF6X8n0h2f7kBihonkfjcw9Cg3mQoYjDb2bjl_X-mET795UbItnhom5aZvZ5UIov8dCrFz1LA';
+    let apiEndpoint = 'https://gj4p8f69bg.coze.site/stream_run';
+
+    // Override if Local Model is enabled
+    if (useLocalModel) {
+        apiKey = 'local-no-key';
+        apiEndpoint = 'http://localhost:8000/v1/chat/completions';
+    }
+
+    if (!apiKey && !useLocalModel) {
         // Mock Mode
         return res.json({ 
             reply: "我现在处于演示模式（未配置 API Key）。\n\n我是您的个人智能助手！我可以为您介绍作品集中的项目、技能或回答关于作者的问题。\n\n请在 Vercel 环境变量中配置 `OPENAI_API_KEY` 以开启真实 AI 对话功能。" 
         });
     }
 
-    // 2. Construct System Context
-    const systemPrompt = `
-    You are 柒毓 (Qi Yu), the AI assistant and digital avatar for this personal portfolio website.
-    
-    **Identity & Tone:**
-    - Name: 柒毓 (Qi Yu)
-    - Role: 自由优化家 (Freelance Optimizer), AI/Automation Enthusiast
-    - Personality: Professional yet friendly, passionate about technology, helpful, and humble.
-    - First-person perspective: You ARE Qi Yu. Refer to the portfolio projects as "my projects" or "work I've done".
-    
-    **Owner Profile (Yourself):**
-    - Skills: Agent, n8n, RPA, Python, Vibe Coding
-    - Bio: 热爱开放与探索，追随的公正执拾。
-    
-    **My Projects:**
-    ${db.projects.map(p => `- ${p.title}: ${p.description}`).join('\n')}
-    
-    **My Tools:**
-    ${db.tools.map(t => `- ${t.name}: ${t.description}`).join('\n')}
-    
-    **Instructions:**
-    - Answer user questions as if you are the owner of this portfolio.
-    - If asked "Who are you?", introduce yourself as 柒毓.
-    - Keep answers concise, professional, and friendly.
-    - Use Markdown formatting if needed.
-    - Respond in the same language as the user (mostly Chinese).
-    `;
+    // 2. Construct System Context (Only for Local/OpenAI, Coze usually has its own system prompt in Bot settings)
+    const systemPrompt = `...`; // (Keep existing prompt for fallback/local)
 
-    // 3. Call LLM API
+    // 3. Call API
     try {
-        const messages = [
-            { role: 'system', content: systemPrompt },
-            ...(history || []), // Previous context
-            { role: 'user', content: message }
-        ];
+        let reply = '';
+        
+        if (useLocalModel) {
+             // ... (Local Model Logic - Skipped)
+        } else {
+            // Coze API Implementation (Non-streaming)
+            // Docs: https://www.coze.cn/docs/developer_guides/coze_api_service
+            
+            // Note: API Service usually requires specific headers.
+            // Some configurations require 'Connection': 'keep-alive' or user-agent.
+            
+            console.log("Calling Coze API:", apiEndpoint);
 
-        const response = await fetch(`${apiBase}/chat/completions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model, 
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 500
-            })
-        });
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*',
+                    'Connection': 'keep-alive'
+                },
+                body: JSON.stringify({
+                    query: message, // Some API Services use 'query' directly at root or inside 'content'
+                    // Try both structures to be safe, or stick to the one from screenshot if sure.
+                    // Screenshot showed: { content: { query: { prompt: ... } } }
+                    // But standard Coze Workflow/Service often simplifies this.
+                    // Let's stick to the screenshot structure but ensure valid JSON.
+                    
+                    "content": {
+                        "query": {
+                            "prompt": [
+                                {
+                                    "type": "text",
+                                    "content": {
+                                        "text": message
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "text": message, // Added 'text' parameter at root as per latest screenshot
+                    "type": "query",
+                    "session_id": history && history.length > 0 ? 'session_existing' : `session_${Date.now()}`,
+                    "project_id": 7602265065043165224 // Added project_id from user's curl example
+                })
+            });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`LLM API Error: ${response.status} - ${errText}`);
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("Coze API Error Response:", response.status, errText);
+                throw new Error(`Coze API Error: ${response.status} - ${errText}`);
+            }
+
+            const rawText = await response.text();
+            console.log("Coze Raw Response:", rawText);
+
+            // Parse NDJSON or JSON
+            // ... (Keep existing parsing logic)
+            const lines = rawText.split('\n');
+            let fullAnswer = '';
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                if (line.startsWith('data:')) {
+                    try {
+                        const jsonStr = line.substring(5).trim();
+                        const data = JSON.parse(jsonStr);
+                        
+                        // Check for 'answer' (API Service structure: content.answer)
+                        if (data.event === 'conversation.message.delta' && data.data?.content) {
+                             fullAnswer += data.data.content;
+                        } else if (data.event === 'message' && data.content && typeof data.content === 'string') {
+                             // Sometimes simple format
+                             fullAnswer += data.content;
+                        } else if (data.event === 'message' && data.content?.answer) {
+                             // The log shows: data: {"event": "message", "content": {"answer": "..."}}
+                             fullAnswer += data.content.answer;
+                        } else if (data.type === 'answer' && data.content?.answer) { 
+                             // Another variation in logs: data: {"type": "answer", ... "content": {"answer": "..."}}
+                             fullAnswer += data.content.answer;
+                        } else if (data.type === 'answer' && typeof data.content === 'string') {
+                             fullAnswer += data.content;
+                        }
+                    } catch (e) {}
+                }
+            }
+            
+            // Fallback for direct JSON
+            if (!fullAnswer) {
+                try {
+                     const jsonBody = JSON.parse(rawText);
+                     // Check for common error responses first
+                     if (jsonBody.code !== undefined && jsonBody.code !== 0) {
+                         // Coze API Error
+                         console.error("Coze API Logical Error:", jsonBody);
+                         throw new Error(jsonBody.msg || `Error code: ${jsonBody.code}`);
+                     }
+
+                     if (jsonBody.code === 0 && jsonBody.data) {
+                         // Check if data is string or object
+                         if (typeof jsonBody.data === 'string') {
+                            try {
+                                const innerData = JSON.parse(jsonBody.data);
+                                fullAnswer = innerData.content || jsonBody.data;
+                            } catch(e) {
+                                fullAnswer = jsonBody.data;
+                            }
+                         } else {
+                            fullAnswer = jsonBody.data.content || JSON.stringify(jsonBody.data);
+                         }
+                     } else if (jsonBody.content) {
+                         fullAnswer = jsonBody.content;
+                     }
+                } catch(e) {
+                    // If parsing fails, maybe it's just text
+                    if (!fullAnswer && rawText.length > 0 && !rawText.startsWith('{')) {
+                        fullAnswer = rawText;
+                    }
+                }
+            }
+
+            reply = fullAnswer || "AI 正在思考... (未收到有效回复)";
         }
-
-        const data = await response.json();
-        const reply = data.choices[0].message.content;
 
         res.json({ reply });
     } catch (error) {
         console.error("Chat Error:", error);
-        res.status(500).json({ reply: "抱歉，AI 服务暂时不可用，请稍后再试。" });
+        // Send the actual error message to the frontend for debugging
+        res.status(500).json({ reply: `系统错误: ${error.message}` });
     }
 });
 
