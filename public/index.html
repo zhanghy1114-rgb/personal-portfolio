@@ -27,7 +27,7 @@
             top: 80px;
             right: 20px;
             bottom: 20px; /* Stretch to bottom with margin */
-            width: 450px; /* Slightly wider than original 350px/400px */
+            width: 600px; /* Increased width to fit all tabs */
             background: rgba(0, 0, 0, 0.95);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
@@ -60,22 +60,13 @@
             padding: 2rem;
             overflow-y: auto;
             flex: 1;
-            /* Custom Scrollbar */
-            scrollbar-width: thin;
-            scrollbar-color: var(--text-secondary) rgba(255, 255, 255, 0.05);
+            /* Hide Scrollbar */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
         }
 
         .settings-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .settings-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .settings-content::-webkit-scrollbar-thumb {
-            background-color: var(--text-secondary);
-            border-radius: 4px;
+            display: none; /* Chrome/Safari/Webkit */
         }
 
         /* Settings Tabs */
@@ -87,28 +78,39 @@
             border-bottom: 1px solid var(--border-color);
             overflow-x: auto;
             flex-shrink: 0;
+            /* Hide Scrollbar */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .settings-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .settings-tab {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
+            padding: 0.6rem 0.8rem; /* More compact padding */
+            border-radius: 20px;
             cursor: pointer;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* Slightly smaller font */
             font-weight: 600;
             white-space: nowrap;
             transition: all 0.2s;
-            border: 1px solid transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .settings-tab:hover {
             color: var(--text-main);
             background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-main);
         }
 
         .settings-tab.active {
             background: var(--text-main);
             color: black;
+            border-color: var(--text-main);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .settings-section {
@@ -127,6 +129,13 @@
             max-height: 200px;
             overflow-y: auto;
             margin-top: 1rem;
+            /* Hide Scrollbar */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .admin-list::-webkit-scrollbar {
+            display: none;
         }
 
         .admin-item {
@@ -289,7 +298,8 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at center, rgba(26,26,26,0.8) 0%, rgba(0,0,0,0.9) 100%);
+            /* Make it transparent so background image is clear */
+            background: transparent;
         }
 
         /* Navigation */
@@ -682,6 +692,88 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Feature Card (New Style) */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            position: relative;
+            height: 220px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            text-decoration: none;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            border-color: var(--text-main);
+        }
+
+        .feature-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+
+        .feature-card:hover .feature-card-bg {
+            transform: scale(1.05);
+        }
+
+        .feature-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%);
+        }
+
+        .feature-card-content {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 2;
+        }
+
+        .feature-card h3 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .feature-card span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-card {
+                height: 180px;
+            }
+        }
+
         .hero-greeting {
             font-size: 2.5rem;
             font-weight: 800;
@@ -851,14 +943,188 @@
             border-radius: 8px;
         }
 
-        /* Responsive */
+        /* Contact Card Styles */
+        .contact-section {
+            margin-top: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .contact-pill-icon {
+            width: 6px;
+            height: 24px;
+            background: var(--text-main);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .contact-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .contact-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* QR Grid */
+        .qr-grid {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: flex-start;
+        }
+
+        .qr-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .qr-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-main);
+        }
+
+        .qr-img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            background: white; /* QR needs contrast */
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .qr-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Info Pills */
+        .info-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .info-pill-row {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .info-pill-row:hover {
+            border-color: var(--text-main);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .info-label {
+            background: rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-value {
+            padding: 0.8rem 1.5rem;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
         @media (max-width: 900px) {
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .qr-grid {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .contact-header {
+                justify-content: center;
+                text-align: center;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-card {
+                height: 180px;
+            }
             .container {
                 grid-template-columns: 1fr;
                 margin-top: 80px; /* Less top margin on mobile */
                 padding: 0 1rem;
             }
             
+            /* Stack the 3-column layout on mobile */
+            #section-home > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+            }
+
             .sidebar {
                 position: relative;
                 top: 0;
@@ -975,8 +1241,6 @@
             <div class="nav-items">
                 <a href="#" class="nav-link active" data-target="home"><i class="fas fa-home"></i> 首页</a>
                 <a href="#" class="nav-link" data-target="works"><i class="fas fa-layer-group"></i> 作品</a>
-                <a href="#" class="nav-link" data-target="videos"><i class="fas fa-video"></i> 视频</a>
-                <a href="#" class="nav-link" data-target="photos"><i class="fas fa-image"></i> 图像</a>
                 <a href="#" class="nav-link" data-target="tools"><i class="fas fa-tools"></i> 工具</a>
                 <a href="#" class="nav-link" data-target="articles"><i class="fas fa-pen-nib"></i> 文章</a>
             </div>
@@ -1013,9 +1277,12 @@
         <div class="settings-tabs">
             <div class="settings-tab active" data-tab="general">通用</div>
             <div class="settings-tab" data-tab="projects">作品</div>
-            <div class="settings-tab" data-tab="media">媒体</div>
+            <div class="settings-tab" data-tab="certificates">证书</div>
+            <div class="settings-tab" data-tab="videos">我的视频</div>
+            <div class="settings-tab" data-tab="workflow">我的工作流</div>
             <div class="settings-tab" data-tab="tools">工具</div>
             <div class="settings-tab" data-tab="articles">文章</div>
+            <div class="settings-tab" data-tab="contact">联系信息</div>
             <div class="settings-tab" data-tab="deploy" style="color: #4ade80;">发布</div>
         </div>
 
@@ -1056,23 +1323,92 @@
                 </div>
             </div>
 
-            <!-- Media Settings -->
-            <div class="settings-section" id="tab-media">
+            <!-- Certificates Settings -->
+            <div class="settings-section" id="tab-certificates">
+                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
+                        <input type="text" id="settingCertLink" placeholder="https://..." onchange="updateGlobalSetting('certLink', this.value)">
+                        
+                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
+                        <input type="file" id="settingCertCover" accept="image/*" onchange="uploadCover('certCover', this)">
+                    </div>
+                </div>
+
                 <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>上传媒体 (视频/图像)</h4>
+                    <h4>添加证书 (列表)</h4>
                     <div class="form-group">
-                        <select id="mediaType">
-                            <option value="video">视频</option>
-                            <option value="image">图像</option>
-                        </select>
-                        <input type="text" id="mediaTitle" placeholder="标题">
-                        <input type="file" id="mediaFileInput">
-                        <button class="btn-upload" onclick="uploadMedia()">上传</button>
+                        <input type="text" id="certTitle" placeholder="证书名称">
+                        <input type="text" id="certIssuer" placeholder="颁发机构">
+                        <input type="text" id="certDate" placeholder="颁发日期">
+                        <input type="text" id="certLink" placeholder="跳转链接 (可选)">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传证书图片 (可选)</label>
+                        <input type="file" id="certImageInput" accept="image/*">
+                        <button class="btn-upload" onclick="uploadCertificate()">添加证书</button>
                     </div>
                 </div>
                 <div class="admin-section">
-                    <h4>管理媒体</h4>
-                    <div id="adminMediaList" class="admin-list"></div>
+                    <h4>管理证书</h4>
+                    <div id="adminCertificatesList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Videos Settings -->
+            <div class="settings-section" id="tab-videos">
+                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
+                        <input type="text" id="settingVideoLink" placeholder="https://..." onchange="updateGlobalSetting('videoLink', this.value)">
+                        
+                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
+                        <input type="file" id="settingVideoCover" accept="image/*" onchange="uploadCover('videoCover', this)">
+                    </div>
+                </div>
+
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>上传视频</h4>
+                    <div class="form-group">
+                        <input type="text" id="videoTitle" placeholder="视频标题">
+                        <input type="text" id="videoLink" placeholder="跳转链接 (可选)">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传视频文件 (MP4/WebM)</label>
+                        <input type="file" id="videoFileInput" accept="video/*">
+                        <button class="btn-upload" onclick="uploadVideo()">上传视频</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理视频</h4>
+                    <div id="adminVideosList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Workflow Settings -->
+            <div class="settings-section" id="tab-workflow">
+                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
+                        <input type="text" id="settingWorkflowLink" placeholder="https://..." onchange="updateGlobalSetting('workflowLink', this.value)">
+                        
+                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
+                        <input type="file" id="settingWorkflowCover" accept="image/*" onchange="uploadCover('workflowCover', this)">
+                    </div>
+                </div>
+
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>上传工作流 (图片)</h4>
+                    <div class="form-group">
+                        <input type="text" id="workflowTitle" placeholder="工作流标题">
+                        <input type="text" id="workflowLink" placeholder="跳转链接 (可选)">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传工作流图片</label>
+                        <input type="file" id="workflowFileInput" accept="image/*">
+                        <button class="btn-upload" onclick="uploadWorkflow()">上传工作流</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理工作流</h4>
+                    <div id="adminWorkflowList" class="admin-list"></div>
                 </div>
             </div>
 
@@ -1110,6 +1446,44 @@
                 <div class="admin-section">
                     <h4>管理文章</h4>
                     <div id="adminArticlesList" class="admin-list"></div>
+                </div>
+            </div>
+
+            <!-- Contact Settings -->
+            <div class="settings-section" id="tab-contact">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>联系信息配置</h4>
+                    <div class="form-group">
+                        <label style="color:var(--text-secondary); font-size:0.8rem;">邮箱地址</label>
+                        <input type="text" id="settingEmail" placeholder="e.g. email@example.com" onchange="updateGlobalSetting('contactEmail', this.value)">
+                        
+                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">全网 IP (Handle)</label>
+                        <input type="text" id="settingHandle" placeholder="e.g. 毓见Agent" onchange="updateGlobalSetting('contactHandle', this.value)">
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem;">社交账号二维码</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <!-- Douyin -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <label style="display:block; color:white; margin-bottom:0.5rem;">抖音</label>
+                            <img id="previewQrDouyin" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
+                            <input type="file" id="fileQrDouyin" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrDouyin', this)">
+                        </div>
+                        
+                        <!-- Xiaohongshu -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <label style="display:block; color:white; margin-bottom:0.5rem;">小红书</label>
+                            <img id="previewQrRed" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
+                            <input type="file" id="fileQrRed" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrXiaohongshu', this)">
+                        </div>
+
+                        <!-- Video Account -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <label style="display:block; color:white; margin-bottom:0.5rem;">视频号</label>
+                            <img id="previewQrVideo" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
+                            <input type="file" id="fileQrVideo" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrVideoAccount', this)">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1237,15 +1611,85 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 2rem;">
-                    <div class="section-header">
-                        <div class="section-tag"></div>
-                        <h2 class="section-title">精选作品</h2>
-                    </div>
-                    <div class="projects-grid" id="homeProjectsGrid">
-                        <!-- Loaded dynamically -->
+                <!-- 三栏卡片布局 -->
+                <div class="feature-grid">
+                    <!-- 我的图片 (Renamed to Certificates as per user request mapping, but wait, user image said 'My Images', 'My Videos', 'My Certificates'. User prompt says: "My Certificates, My Videos, My Workflow". I will follow user prompt mapping.) -->
+                    
+                    <!-- Card 1: 我的证书 -->
+                    <a href="#" id="feat-cert-link" class="feature-card" target="_blank">
+                        <div class="feature-card-bg" id="feat-cert-bg"></div>
+                        <div class="feature-card-overlay"></div>
+                        <div class="feature-card-content">
+                            <h3>我的证书</h3>
+                            <span>点击查看</span>
+                        </div>
+                    </a>
+
+                    <!-- Card 2: 我的视频 -->
+                    <a href="#" id="feat-video-link" class="feature-card" target="_blank">
+                        <div class="feature-card-bg" id="feat-video-bg"></div>
+                        <div class="feature-card-overlay"></div>
+                        <div class="feature-card-content">
+                            <h3>我的视频</h3>
+                            <span>点击查看</span>
+                        </div>
+                    </a>
+
+                    <!-- Card 3: 我的工作流 -->
+                    <a href="#" id="feat-workflow-link" class="feature-card" target="_blank">
+                        <div class="feature-card-bg" id="feat-workflow-bg"></div>
+                        <div class="feature-card-overlay"></div>
+                        <div class="feature-card-content">
+                            <h3>我的工作流</h3>
+                            <span>点击查看</span>
+                        </div>
+                    </a>
+                </div>
+                <!-- Contact / Social Section -->
+                <div class="contact-section">
+                    <div class="contact-card">
+                        <div class="contact-header">
+                            <div class="contact-title-group">
+                                <div class="contact-pill-icon"></div>
+                                <h2 class="contact-title">联系我</h2>
+                            </div>
+                            <div class="contact-subtitle">
+                                扫码关注我的社交账号，获取最新动态 <span style="color:#ffd700;">✨</span>
+                            </div>
+                        </div>
+
+                        <div class="contact-content">
+                            <!-- Left: QR Codes -->
+                            <div class="qr-grid">
+                                <div class="qr-item">
+                                    <img src="" id="displayQrDouyin" class="qr-img" alt="抖音">
+                                    <span class="qr-label">抖音</span>
+                                </div>
+                                <div class="qr-item">
+                                    <img src="" id="displayQrRed" class="qr-img" alt="小红书">
+                                    <span class="qr-label">小红书</span>
+                                </div>
+                                <div class="qr-item">
+                                    <img src="" id="displayQrVideo" class="qr-img" alt="视频号">
+                                    <span class="qr-label">视频号</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Info Pills -->
+                            <div class="info-stack">
+                                <div class="info-pill-row">
+                                    <div class="info-label">邮箱 EMAIL</div>
+                                    <div class="info-value" id="displayEmail">602682647@qq.com</div>
+                                </div>
+                                <div class="info-pill-row">
+                                    <div class="info-label">全网 IP</div>
+                                    <div class="info-value" id="displayHandle">毓见Agent</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Works Section -->
@@ -1259,27 +1703,7 @@
                 </div>
             </div>
 
-            <!-- Videos Section -->
-            <div id="section-videos" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">视频创作</h2>
-                </div>
-                <div class="projects-grid" id="videosGrid">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
 
-            <!-- Photos Section -->
-            <div id="section-photos" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">我的图像</h2>
-                </div>
-                <div class="projects-grid" id="photosGrid">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
 
             <!-- Tools Section (Static for now, can be dynamic too) -->
             <div id="section-tools" class="page-section">
@@ -1343,17 +1767,68 @@
                 
                 applySettings(data.settings);
                 renderProjects(data.projects);
+                renderCertificates(data.certificates);
                 renderMedia(data.media);
                 renderTools(data.tools);
                 renderArticles(data.articles);
 
                 // Render Admin Lists
                 renderAdminList('adminProjectsList', data.projects, 'projects');
-                renderAdminList('adminMediaList', data.media, 'media');
+                renderAdminList('adminCertificatesList', data.certificates, 'certificates');
+                
+                // Split Media into Videos and Workflow for Admin List
+                const videos = (data.media || []).filter(m => m.type === 'video');
+                const workflows = (data.media || []).filter(m => m.type === 'image');
+                
+                renderAdminList('adminVideosList', videos, 'media');
+                renderAdminList('adminWorkflowList', workflows, 'media');
+
                 renderAdminList('adminToolsList', data.tools, 'tools');
                 renderAdminList('adminArticlesList', data.articles, 'articles');
             } catch (err) {
                 console.error('Failed to fetch data:', err);
+            }
+        }
+
+        // --- New Feature Card Logic ---
+
+        async function updateGlobalSetting(key, value) {
+            await fetch(`${API_URL}/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [key]: value })
+            });
+            // Update UI immediately
+            applySettings({ [key]: value });
+        }
+
+        async function uploadCover(type, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Show loading
+            const originalLabel = input.previousElementSibling.textContent;
+            input.previousElementSibling.textContent = '正在上传...';
+            input.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/upload/${type}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                // Update UI
+                const settingKey = type; // e.g., 'certCover'
+                applySettings({ [settingKey]: data.url });
+                alert('封面更新成功！');
+            } catch (e) {
+                console.error(e);
+                alert('上传失败');
+            } finally {
+                input.previousElementSibling.textContent = originalLabel;
+                input.disabled = false;
+                input.value = ''; // Clear input
             }
         }
 
@@ -1389,23 +1864,91 @@
         function applySettings(settings) {
             if (settings.backgroundColor) {
                 document.documentElement.style.setProperty('--bg-color', settings.backgroundColor);
-                document.getElementById('bgColorInput').value = settings.backgroundColor;
+                const bgInput = document.getElementById('bgColorInput');
+                if(bgInput) bgInput.value = settings.backgroundColor;
             }
             if (settings.backgroundImage) {
                 document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
             }
             if (settings.backgroundMusic) {
                 const audio = document.getElementById('bgMusic');
-                // Use a more robust check for the same music source
                 const currentSrc = audio.src;
                 const newSrc = settings.backgroundMusic;
-                
-                // If it's a data URI or a full URL, compare them carefully
                 if (currentSrc !== newSrc && !currentSrc.endsWith(newSrc)) {
                     audio.src = newSrc;
                     document.getElementById('playerTitle').textContent = "背景音乐";
                 }
             }
+            
+            // --- Feature Cards Settings ---
+            
+            // Certificates
+            if (settings.certLink !== undefined) {
+                document.getElementById('feat-cert-link').href = settings.certLink || '#';
+                const input = document.getElementById('settingCertLink');
+                if (input && document.activeElement !== input) input.value = settings.certLink || '';
+            }
+            if (settings.certCover) {
+                document.getElementById('feat-cert-bg').style.backgroundImage = `url(${settings.certCover})`;
+            } else {
+                 // Default fallback gradient if no image
+                document.getElementById('feat-cert-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
+            }
+
+            // Videos
+            if (settings.videoLink !== undefined) {
+                document.getElementById('feat-video-link').href = settings.videoLink || '#';
+                const input = document.getElementById('settingVideoLink');
+                if (input && document.activeElement !== input) input.value = settings.videoLink || '';
+            }
+            if (settings.videoCover) {
+                document.getElementById('feat-video-bg').style.backgroundImage = `url(${settings.videoCover})`;
+            } else {
+                document.getElementById('feat-video-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
+            }
+
+            // Workflow
+            if (settings.workflowLink !== undefined) {
+                document.getElementById('feat-workflow-link').href = settings.workflowLink || '#';
+                const input = document.getElementById('settingWorkflowLink');
+                if (input && document.activeElement !== input) input.value = settings.workflowLink || '';
+            }
+            if (settings.workflowCover) {
+                document.getElementById('feat-workflow-bg').style.backgroundImage = `url(${settings.workflowCover})`;
+            } else {
+                document.getElementById('feat-workflow-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
+            }
+
+            // --- Contact Settings ---
+            if (settings.contactEmail) {
+                document.getElementById('displayEmail').textContent = settings.contactEmail;
+                const input = document.getElementById('settingEmail');
+                if(input && document.activeElement !== input) input.value = settings.contactEmail;
+            }
+            if (settings.contactHandle) {
+                document.getElementById('displayHandle').textContent = settings.contactHandle;
+                const input = document.getElementById('settingHandle');
+                if(input && document.activeElement !== input) input.value = settings.contactHandle;
+            }
+
+            // QRs
+            const setQr = (key, displayId, previewId, fallbackText) => {
+                const el = document.getElementById(displayId);
+                const prev = document.getElementById(previewId);
+                if (settings[key]) {
+                    if(el) el.src = settings[key];
+                    if(prev) prev.src = settings[key];
+                } else {
+                    // Fallback placeholder
+                    const placeholder = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${fallbackText}`;
+                    if(el) el.src = placeholder;
+                    if(prev) prev.src = placeholder;
+                }
+            };
+
+            setQr('qrDouyin', 'displayQrDouyin', 'previewQrDouyin', 'Douyin');
+            setQr('qrXiaohongshu', 'displayQrRed', 'previewQrRed', 'Xiaohongshu');
+            setQr('qrVideoAccount', 'displayQrVideo', 'previewQrVideo', 'WeChatVideo');
         }
 
         function renderProjects(projects) {
@@ -1422,28 +1965,60 @@
                 </a>
             `).join('');
             
-            document.getElementById('worksGrid').innerHTML = html;
+            const worksGrid = document.getElementById('worksGrid');
+            if(worksGrid) worksGrid.innerHTML = html;
             // Show first 2 on home
-            document.getElementById('homeProjectsGrid').innerHTML = html;
+            const homeProjectsGrid = document.getElementById('homeProjectsGrid');
+            if(homeProjectsGrid) homeProjectsGrid.innerHTML = html;
         }
 
         function renderMedia(mediaList) {
             const videos = (mediaList || []).filter(m => m.type === 'video');
-            const images = (mediaList || []).filter(m => m.type === 'image');
+            const products = (mediaList || []).filter(m => m.type === 'image');
 
-            document.getElementById('videosGrid').innerHTML = videos.map(v => `
-                <div class="project-card" style="height: auto;">
-                    <video src="${v.url}" controls style="width:100%; border-radius:8px;"></video>
-                    <h3 style="color:var(--text-main); margin-top:0.5rem;">${v.title}</h3>
-                </div>
-            `).join('') || '<p style="color:#888; text-align:center;">暂无视频</p>';
+            const videosGrid = document.getElementById('videosGrid');
+            if (videosGrid) {
+                videosGrid.innerHTML = videos.map(v => `
+                    <a href="${v.link || v.url}" class="project-card" target="_blank" style="text-decoration: none;">
+                        <div style="position: relative; width: 100%; margin-bottom: 1rem;">
+                            <video src="${v.url}" style="width:100%; border-radius:var(--radius-md); display: block;" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
+                                <i class="fas fa-play-circle" style="font-size: 3rem; color: rgba(255,255,255,0.8);"></i>
+                            </div>
+                        </div>
+                        <h3>${v.title}</h3>
+                        <span class="category-pill">Video</span>
+                    </a>
+                `).join('') || '<p style="color:#888; text-align:center;">暂无视频</p>';
+            }
 
-            document.getElementById('photosGrid').innerHTML = images.map(img => `
-                <div class="project-card" style="height: auto;">
-                    <img src="${img.url}" class="media-preview" onclick="window.open(this.src)">
-                    <h3 style="color:var(--text-main); margin-top:0.5rem;">${img.title}</h3>
-                </div>
-            `).join('') || '<p style="color:#888; text-align:center;">暂无图片</p>';
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.innerHTML = products.map(product => `
+                    <a href="${product.link || product.url}" class="project-card" target="_blank" style="text-decoration: none;">
+                        <img src="${product.url}" class="media-preview" style="border-radius:var(--radius-md); margin-bottom:1rem;">
+                        <h3>${product.title}</h3>
+                        <span class="category-pill">Workflow</span>
+                    </a>
+                `).join('') || '<p style="color:#888; text-align:center;">暂无我的工作流</p>';
+            }
+        }
+
+        function renderCertificates(certificates) {
+            const html = (certificates || []).map(c => `
+                <a href="${c.link || c.imageUrl || '#'}" class="project-card" target="_blank" style="text-decoration: none;">
+                    <div class="project-icon-wrapper">
+                        ${c.imageUrl ? `<img src="${c.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-certificate"></i>'}
+                    </div>
+                    <h3>${c.title}</h3>
+                    <p>${c.issuer}</p>
+                    <p style="font-size:0.8rem; color:var(--text-secondary);">${c.date}</p>
+                    <span class="category-pill">Certificate</span>
+                </a>
+            `).join('');
+            
+            const certificatesGrid = document.getElementById('certificatesGrid');
+            if(certificatesGrid) certificatesGrid.innerHTML = html || '<p style="color:#888;">暂无证书</p>';
         }
 
         function renderTools(tools) {
@@ -1495,12 +2070,34 @@
         document.getElementById('bgImageInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            
+            // Check file size (allow up to 20MB for high quality images)
+            if (file.size > 20 * 1024 * 1024) {
+                alert('文件过大！请上传小于 20MB 的图片文件。');
+                e.target.value = ''; // Clear input
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('file', file);
             
-            const res = await fetch(`${API_URL}/upload/background`, { method: 'POST', body: formData });
-            const data = await res.json();
-            document.body.style.backgroundImage = `url(${data.url})`;
+            // Show loading state
+            const label = e.target.previousElementSibling;
+            const originalText = label.textContent;
+            label.textContent = '背景图片 (正在上传...)';
+            
+            try {
+                const res = await fetch(`${API_URL}/upload/background`, { method: 'POST', body: formData });
+                const data = await res.json();
+                document.body.style.backgroundImage = `url(${data.url})`;
+                alert('背景图片上传成功！');
+            } catch (error) {
+                alert('背景图片上传失败，请重试。');
+                console.error('Background image upload failed:', error);
+            } finally {
+                // Restore original label text
+                label.textContent = originalText;
+            }
         });
 
         // Upload Music
@@ -1575,19 +2172,37 @@
             fetchData();
         }
 
-        // Upload Media
-        async function uploadMedia() {
-            const fileInput = document.getElementById('mediaFileInput');
+        // Upload Video
+        async function uploadVideo() {
+            const fileInput = document.getElementById('videoFileInput');
             const file = fileInput.files[0];
-            if (!file) return alert('请选择文件');
+            if (!file) return alert('请选择视频文件');
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('type', document.getElementById('mediaType').value);
-            formData.append('title', document.getElementById('mediaTitle').value);
+            formData.append('type', 'video');
+            formData.append('title', document.getElementById('videoTitle').value);
+            formData.append('link', document.getElementById('videoLink').value);
 
             await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
-            alert('上传成功！刷新页面查看。');
+            alert('视频上传成功！刷新页面查看。');
+            fetchData();
+        }
+
+        // Upload Workflow
+        async function uploadWorkflow() {
+            const fileInput = document.getElementById('workflowFileInput');
+            const file = fileInput.files[0];
+            if (!file) return alert('请选择图片文件');
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'image');
+            formData.append('title', document.getElementById('workflowTitle').value);
+            formData.append('link', document.getElementById('workflowLink').value);
+
+            await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
+            alert('工作流上传成功！刷新页面查看。');
             fetchData();
         }
 
@@ -1608,6 +2223,27 @@
                 body: formData
             });
             alert('工具添加成功！');
+            fetchData();
+        }
+
+        // Add Certificate
+        async function uploadCertificate() {
+            const formData = new FormData();
+            formData.append('title', document.getElementById('certTitle').value);
+            formData.append('issuer', document.getElementById('certIssuer').value);
+            formData.append('date', document.getElementById('certDate').value);
+            formData.append('link', document.getElementById('certLink').value);
+            
+            const imageFile = document.getElementById('certImageInput').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            
+            await fetch(`${API_URL}/certificates`, {
+                method: 'POST',
+                body: formData
+            });
+            alert('证书添加成功！');
             fetchData();
         }
 
@@ -2305,11 +2941,11 @@
                         })
                     });
                     
-                    if (!res.ok) {
-                        throw new Error(`Server error: ${res.status}`);
-                    }
-
                     const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.reply || data.error || `Server error: ${res.status}`);
+                    }
                     
                     // Remove loading
                     this.removeMessage(loadingId);
@@ -2324,7 +2960,11 @@
                     this.removeMessage(loadingId);
                     // Check if it's a connection refused error
                     let errorMsg = '抱歉，网络出了点小差错，请稍后再试。';
-                    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    
+                    // Use specific error message if available from backend (parsed above)
+                    if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
+                        errorMsg = err.message;
+                    } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
                         errorMsg = '无法连接到服务器。请确保后端服务正在运行 (npm start)。';
                     }
                     this.appendMessage('bot', errorMsg);

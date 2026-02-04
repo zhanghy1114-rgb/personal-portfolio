@@ -6,609 +6,457 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
-// GitHub Config
-const REPO_OWNER = 'zhanghy1114-rgb';
-const REPO_NAME = 'personal-portfolio';
-const FILE_PATH = 'data/db.json';
+// ==========================================
+// CONFIGURATION
+// ==========================================
+const CONFIG = {
+    PORT: 3000,
+    GITHUB: {
+        OWNER: 'zhanghy1114-rgb',
+        REPO: 'personal-portfolio',
+        FILE_PATH: 'data/db.json',
+        TOKEN: process.env.GITHUB_TOKEN // Optional: from env if available
+    },
+    COZE: {
+        // User provided token (JWT)
+        API_KEY: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjM0MmEyMzU0LTI5ODgtNGJkYi04N2ViLTU1MjliYmJkMmVlZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIndZQ1VPTEtQb3lKU2RHeDFUaGtQZUQzdkhCVDdiYXlLIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzcwMDQ1OTczLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjAyMjcyMTc2MTM3MzA2MTY0Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjAyMjg5NTY3NDYyMzI2Mjg3In0.lL1WeNgQuwfAC8Luks0kjU1l6Q7YrHcFh4BQBGZqMVweG5OKwBu-ATsE8myBsmBKxOQ7VHUpZm4FxnEyQjbC7-RL4vPcUzKPPPMsgswgIngF4e2cDcz9GeAJnA6XMCzz2gT0-49mOCQrD00jfijr1GcXqm3aqMaC0Fkh9-6V2Ujb8LtruI1VhNOEVnSHKcRO7gmI6BBtfiGuNdhVx-hLHQIkiLuzK1697PF44hudUZqKeWnw9fkS_qx3h4v2tje1-47JvgF0ctpWNkF6X8n0h2f7kBihonkfjcw9Cg3mQoYjDb2bjl_X-mET795UbItnhom5aZvZ5UIov8dCrFz1LA',
+        API_URL: 'https://gj4p8f69bg.coze.site/stream_run',
+        PROJECT_ID: '7602265065043165224' // Must be string to avoid precision loss
+    },
+    DIRS: {
+        DATA: path.join(process.cwd(), 'data'),
+        UPLOADS: path.join(process.cwd(), 'uploads')
+    }
+};
 
+const DB_FILE = path.join(CONFIG.DIRS.DATA, 'db.json');
+
+// ==========================================
+// SETUP & MIDDLEWARE
+// ==========================================
 const app = express();
-const PORT = 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
-// Ensure directories exist (Only for local dev or writable environments)
-// Use process.cwd() for Vercel compatibility
-const dataDir = path.join(process.cwd(), 'data');
-const uploadsDir = path.join(process.cwd(), 'uploads');
+// Ensure directories exist
 try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!fs.existsSync(CONFIG.DIRS.DATA)) fs.mkdirSync(CONFIG.DIRS.DATA, { recursive: true });
+    if (!fs.existsSync(CONFIG.DIRS.UPLOADS)) fs.mkdirSync(CONFIG.DIRS.UPLOADS, { recursive: true });
 } catch (e) {
-    console.log("Read-only file system detected or error creating dirs");
+    console.warn("Read-only file system detected or error creating dirs:", e.message);
 }
 
-// Data File Paths
-const DB_FILE = path.join(dataDir, 'db.json');
+// Multer Storage (Memory for Vercel compatibility)
+const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 } // 20MB
+});
 
-// In-memory fallback for read-only environments
-let memoryDB = {
+// ==========================================
+// DATABASE LAYER (With Caching)
+// ==========================================
+let dbCache = null;
+
+// Initial Default DB
+const defaultDB = {
     settings: {
         backgroundColor: '#000000',
-        backgroundImage: '',
+        backgroundImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', // High-res default
         backgroundMusic: '',
         particlesEnabled: true,
-        adminPassword: 'admin' // Default password
+        adminPassword: 'admin',
+        // Contact Info
+        contactEmail: '602682647@qq.com',
+        contactHandle: '毓见Agent',
+        qrDouyin: '',
+        qrXiaohongshu: '',
+        qrVideoAccount: ''
     },
     projects: [],
+    certificates: [],
     media: [],
     tools: [],
     articles: []
 };
 
-// Initialize DB if not exists (Try-Catch for Vercel)
-try {
-    if (fs.existsSync(DB_FILE)) {
-        memoryDB = JSON.parse(fs.readFileSync(DB_FILE));
-    } else {
-        fs.writeFileSync(DB_FILE, JSON.stringify(memoryDB, null, 2));
-    }
-} catch (e) {
-    console.log("Could not write/read DB file, using in-memory DB");
-}
-
-// Helper to read/write DB
-const getDB = () => {
+// Load DB
+function loadDB() {
+    if (dbCache) return dbCache;
+    
     try {
-        if (fs.existsSync(DB_FILE)) return JSON.parse(fs.readFileSync(DB_FILE));
-    } catch (e) {}
-    return memoryDB;
-};
-
-// Helper to save to GitHub (Cloud Mode)
-async function saveToGitHub(data) {
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-        console.error("Missing GITHUB_TOKEN in environment variables");
-        return;
-    }
-
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const contentEncoded = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-
-    try {
-        // 1. Get current file SHA
-        const getRes = await fetch(url, {
-            headers: { 
-                'Authorization': `token ${token}`,
-                'User-Agent': 'Vercel-Admin-App'
-            }
-        });
-        
-        if (!getRes.ok) throw new Error(`Failed to fetch file info: ${getRes.statusText}`);
-        
-        const getJson = await getRes.json();
-        const sha = getJson.sha;
-
-        // 2. Commit update
-        const putRes = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'User-Agent': 'Vercel-Admin-App',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'Update content via Web Admin (Mobile/Cloud)',
-                content: contentEncoded,
-                sha: sha
-            })
-        });
-
-        if (putRes.ok) {
-            console.log("✅ Successfully saved changes to GitHub!");
+        if (fs.existsSync(DB_FILE)) {
+            const data = fs.readFileSync(DB_FILE, 'utf8');
+            dbCache = JSON.parse(data);
         } else {
-            console.error("❌ GitHub Update Failed:", await putRes.text());
+            dbCache = { ...defaultDB };
+            // Try to write initial file
+            try { fs.writeFileSync(DB_FILE, JSON.stringify(dbCache, null, 2)); } catch(e){}
         }
     } catch (e) {
-        console.error("❌ GitHub API Error:", e.message);
+        console.error("Error loading DB:", e);
+        dbCache = { ...defaultDB };
     }
+    return dbCache;
 }
 
-const saveDB = (data) => {
-    memoryDB = data; // Always update memory
+// Save DB
+function saveDB(data) {
+    dbCache = data; // Update cache immediately
     
-    // Local Save
+    // Persist to disk (Local)
     try {
         if (!process.env.VERCEL) {
             fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
         }
     } catch (e) {
-        console.log("Could not persist data to disk");
+        console.error("Could not write to disk:", e.message);
     }
 
-    // Cloud Save (Trigger GitHub Update)
+    // Persist to Cloud (GitHub) - Async
     if (process.env.VERCEL) {
-        // Run asynchronously to not block response
-        saveToGitHub(data).catch(err => console.error("Async Save Error:", err));
+        syncToGitHub(data).catch(err => console.error("Async GitHub Save Error:", err));
     }
-};
+}
 
-// Multer Storage Configuration (Use /tmp for Vercel if needed, or memory storage)
-const storage = multer.memoryStorage(); // Switch to memory storage for Vercel compatibility
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
+// GitHub Sync Helper
+async function syncToGitHub(data) {
+    const token = CONFIG.GITHUB.TOKEN;
+    if (!token) return;
 
-// --- API Endpoints ---
+    const url = `https://api.github.com/repos/${CONFIG.GITHUB.OWNER}/${CONFIG.GITHUB.REPO}/contents/${CONFIG.GITHUB.FILE_PATH}`;
+    const contentEncoded = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
+
+    try {
+        const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'User-Agent': 'Vercel-App' } });
+        if (!getRes.ok) throw new Error(`Fetch failed: ${getRes.statusText}`);
+        const { sha } = await getRes.json();
+
+        await fetch(url, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${token}`, 'User-Agent': 'Vercel-App', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: 'Update via Web Admin', content: contentEncoded, sha })
+        });
+        console.log("✅ Changes saved to GitHub");
+    } catch (e) {
+        console.error("❌ GitHub Sync Failed:", e.message);
+    }
+}
+
+// ==========================================
+// API SERVICES
+// ==========================================
+
+/**
+ * Handle Coze API Calls
+ */
+async function callCozeService(message, history) {
+    console.log("Calling Coze API:", CONFIG.COZE.API_URL);
+
+    const response = await fetch(CONFIG.COZE.API_URL, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${CONFIG.COZE.API_KEY}`,
+            'Content-Type': 'application/json',
+            'Connection': 'keep-alive'
+        },
+        body: JSON.stringify({
+            "content": { "query": { "prompt": [{ "type": "text", "content": { "text": message } }] } },
+            "type": "query",
+            "text": message, // Redundant but safe
+            "session_id": history && history.length > 0 ? 'session_existing' : `session_${Date.now()}`,
+            "project_id": CONFIG.COZE.PROJECT_ID
+        })
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Coze API Error (${response.status}): ${errText}`);
+    }
+
+    const rawText = await response.text();
+    // console.log("Coze Raw Response:", rawText.substring(0, 200) + "..."); // Log first 200 chars
+
+    // Parse Response (NDJSON or JSON)
+    let fullAnswer = '';
+    const lines = rawText.split('\n');
+
+    for (const line of lines) {
+        if (!line.trim() || !line.startsWith('data:')) continue;
+        try {
+            const jsonStr = line.substring(5).trim();
+            const data = JSON.parse(jsonStr);
+            
+            // Extract answer from various Coze formats
+            if (data.event === 'conversation.message.delta' && data.data?.content) {
+                fullAnswer += data.data.content;
+            } else if (data.content?.answer) {
+                fullAnswer += data.content.answer;
+            } else if (typeof data.content === 'string') {
+                fullAnswer += data.content;
+            }
+        } catch (e) {}
+    }
+
+    // Fallback: Try parsing as single JSON object if streaming parsing failed
+    if (!fullAnswer) {
+        try {
+            const jsonBody = JSON.parse(rawText);
+            if (jsonBody.data) {
+                fullAnswer = typeof jsonBody.data === 'string' 
+                    ? (JSON.parse(jsonBody.data).content || jsonBody.data) 
+                    : (jsonBody.data.content || JSON.stringify(jsonBody.data));
+            } else if (jsonBody.content) {
+                fullAnswer = jsonBody.content;
+            }
+        } catch (e) {
+            if (rawText.length > 0 && !rawText.startsWith('{')) fullAnswer = rawText;
+        }
+    }
+
+    return fullAnswer || "AI 正在思考... (未收到有效回复)";
+}
+
+/**
+ * Handle Git Deployment
+ */
+async function executeGitDeploy(proxy) {
+    const isWindows = process.platform === 'win32';
+    let gitPath = 'git'; // Default
+
+    // Remove stale lock file if exists
+    const lockFile = path.join(process.cwd(), '.git', 'index.lock');
+    if (fs.existsSync(lockFile)) {
+        try {
+            fs.unlinkSync(lockFile);
+            console.log('Removed stale .git/index.lock file');
+        } catch (e) {
+            console.warn('Warning: Could not remove .git/index.lock:', e.message);
+        }
+    }
+
+    // Promisified Exec
+    const run = (cmd) => new Promise((resolve, reject) => {
+        exec(cmd, { cwd: process.cwd() }, (err, stdout, stderr) => {
+            if (err) {
+                err.stdout = stdout;
+                err.stderr = stderr;
+                reject(err);
+            } else resolve({ stdout, stderr });
+        });
+    });
+
+    // Detect WSL or Windows Git
+    if (isWindows) {
+        try {
+            await run('wsl --list');
+            gitPath = 'wsl -d Ubuntu-24.04 -e git'; // Prefer WSL if available
+            console.log('Using WSL Git');
+        } catch (e) {
+            gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"'; // Fallback to standard Windows path
+        }
+    }
+
+    // Check Git
+    try { await run(`${gitPath} --version`); } 
+    catch (e) { throw new Error('Git not found. Please install Git.'); }
+
+    // Configure Proxy
+    if (proxy) {
+        await run(`${gitPath} config --global http.proxy http://${proxy}`);
+        await run(`${gitPath} config --global https.proxy http://${proxy}`);
+    } else {
+        try {
+            await run(`${gitPath} config --global --unset http.proxy`);
+            await run(`${gitPath} config --global --unset https.proxy`);
+        } catch(e) {}
+    }
+
+    // Execute Git Flow
+    await run(`${gitPath} add .`);
+    try { await run(`${gitPath} commit -m "Auto-deploy: Sync content"`); } catch(e) {} // Ignore empty commit
+    try { await run(`${gitPath} pull --rebase`); } catch(e) { if(e.stderr.includes('conflict')) throw new Error('Merge conflict detected.'); }
+    
+    // Push with retry
+    let lastError;
+    for (let i = 0; i < 3; i++) {
+        try {
+            await run(`${gitPath} push`);
+            return "同步成功！GitHub 已接收更新。";
+        } catch(e) {
+            lastError = e;
+            await new Promise(r => setTimeout(r, 2000));
+        }
+    }
+    throw lastError;
+}
+
+// ==========================================
+// ROUTES
+// ==========================================
 
 // Get All Data
-app.get('/api/data', (req, res) => {
-    res.json(getDB());
-});
+app.get('/api/data', (req, res) => res.json(loadDB()));
 
 // Update Settings
 app.post('/api/settings', (req, res) => {
-    const db = getDB();
+    const db = loadDB();
     db.settings = { ...db.settings, ...req.body };
     saveDB(db);
     res.json(db.settings);
 });
 
-// Upload Background Image
-app.post('/api/upload/background', upload.single('file'), (req, res) => {
+// Generic Upload Handler Helper
+const handleUpload = (req, res, targetField, dbSection = 'settings') => {
     if (!req.file) return res.status(400).send('No file uploaded');
-    const db = getDB();
-    // In Vercel, we can't save files permanently. We'll return a data URI for demo purposes.
+    const db = loadDB();
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
     
-    db.settings.backgroundImage = dataURI;
-    saveDB(db);
-    res.json({ url: dataURI });
-});
-
-// Upload Music
-app.post('/api/upload/music', upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).send('No file uploaded');
-    const db = getDB();
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    if (dbSection === 'settings') {
+        db.settings[targetField] = dataURI;
+    } // Logic for other sections can be added if needed, but they use specific routes below
     
-    db.settings.backgroundMusic = dataURI;
     saveDB(db);
     res.json({ url: dataURI });
-});
+};
 
-// Add Project (App Card)
+// Specific Upload Routes
+app.post('/api/upload/background', upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundImage'));
+app.post('/api/upload/music', upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundMusic'));
+app.post('/api/upload/certCover', upload.single('file'), (req, res) => handleUpload(req, res, 'certCover'));
+app.post('/api/upload/videoCover', upload.single('file'), (req, res) => handleUpload(req, res, 'videoCover'));
+app.post('/api/upload/workflowCover', upload.single('file'), (req, res) => handleUpload(req, res, 'workflowCover'));
+app.post('/api/upload/qrDouyin', upload.single('file'), (req, res) => handleUpload(req, res, 'qrDouyin'));
+app.post('/api/upload/qrXiaohongshu', upload.single('file'), (req, res) => handleUpload(req, res, 'qrXiaohongshu'));
+app.post('/api/upload/qrVideoAccount', upload.single('file'), (req, res) => handleUpload(req, res, 'qrVideoAccount'));
+
+// Projects
 app.post('/api/projects', upload.single('icon'), (req, res) => {
-    const db = getDB();
-    let iconUrl = '';
-    
-    if (req.file) {
-        const b64 = Buffer.from(req.file.buffer).toString('base64');
-        iconUrl = `data:${req.file.mimetype};base64,${b64}`;
-    }
-
+    const db = loadDB();
     const newProject = {
         id: Date.now(),
-        title: req.body.title,
-        description: req.body.description,
-        link: req.body.link,
-        category: req.body.category,
-        iconUrl: iconUrl
+        ...req.body,
+        iconUrl: req.file ? `data:${req.file.mimetype};base64,${Buffer.from(req.file.buffer).toString('base64')}` : ''
     };
     db.projects.push(newProject);
     saveDB(db);
     res.json(newProject);
 });
 
-// Upload Media (Video/Photo)
+// Media
 app.post('/api/upload/media', upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).send('No file uploaded');
-    const db = getDB();
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-    
+    const db = loadDB();
     const newMedia = {
         id: Date.now(),
-        type: req.body.type, // 'video' or 'image'
-        url: dataURI,
-        title: req.body.title || req.file.originalname,
-        description: req.body.description || ''
+        type: req.body.type,
+        url: req.file ? `data:${req.file.mimetype};base64,${Buffer.from(req.file.buffer).toString('base64')}` : '',
+        title: req.body.title || req.file?.originalname || 'Untitled',
+        description: req.body.description || '',
+        link: req.body.link || ''
     };
     db.media.push(newMedia);
     saveDB(db);
     res.json(newMedia);
 });
 
-// Add Tool
+// Tools
 app.post('/api/tools', upload.single('icon'), (req, res) => {
-    const db = getDB();
-    let iconUrl = '';
-    
-    if (req.file) {
-        const b64 = Buffer.from(req.file.buffer).toString('base64');
-        iconUrl = `data:${req.file.mimetype};base64,${b64}`;
-    }
-
+    const db = loadDB();
     const newTool = {
         id: Date.now(),
-        name: req.body.name,
-        description: req.body.description,
-        link: req.body.link,
-        iconUrl: iconUrl
+        ...req.body,
+        iconUrl: req.file ? `data:${req.file.mimetype};base64,${Buffer.from(req.file.buffer).toString('base64')}` : ''
     };
     db.tools.push(newTool);
     saveDB(db);
     res.json(newTool);
 });
 
-// Add Article
-app.post('/api/articles', (req, res) => {
-    const db = getDB();
-    const newArticle = {
+// Certificates
+app.post('/api/certificates', upload.single('image'), (req, res) => {
+    const db = loadDB();
+    const newCert = {
         id: Date.now(),
-        ...req.body
+        ...req.body,
+        link: req.body.link || '',
+        imageUrl: req.file ? `data:${req.file.mimetype};base64,${Buffer.from(req.file.buffer).toString('base64')}` : ''
     };
+    db.certificates.push(newCert);
+    saveDB(db);
+    res.json(newCert);
+});
+
+// Articles
+app.post('/api/articles', (req, res) => {
+    const db = loadDB();
+    const newArticle = { id: Date.now(), ...req.body };
     db.articles.push(newArticle);
     saveDB(db);
     res.json(newArticle);
 });
 
+// Delete Route Factory
+const createDeleteRoute = (collection) => (req, res) => {
+    const db = loadDB();
+    const id = parseInt(req.params.id);
+    db[collection] = db[collection].filter(item => item.id !== id);
+    saveDB(db);
+    res.json({ success: true });
+};
+
+app.delete('/api/projects/:id', createDeleteRoute('projects'));
+app.delete('/api/media/:id', createDeleteRoute('media'));
+app.delete('/api/tools/:id', createDeleteRoute('tools'));
+app.delete('/api/certificates/:id', createDeleteRoute('certificates'));
+app.delete('/api/articles/:id', createDeleteRoute('articles'));
+
 // Verify Password
 app.post('/api/verify-password', (req, res) => {
-    const { password } = req.body;
-    const db = getDB();
-    if (password === (db.settings.adminPassword || 'admin')) {
+    const db = loadDB();
+    if (req.body.password === (db.settings.adminPassword || 'admin')) {
         res.json({ success: true });
     } else {
         res.status(401).json({ success: false, message: 'Incorrect password' });
     }
 });
 
-// Deploy / Sync to GitHub
+// Deploy Route
 app.post('/api/deploy', async (req, res) => {
-    console.log("Starting deployment process...");
-    const { proxy } = req.body;
-
-    // Determine environment (Vercel vs Local)
-    const isVercel = process.env.VERCEL === '1';
-
-    if (isVercel) {
-        return res.json({ 
-            success: true, 
-            message: 'Cloud environment detected. Your changes are saved automatically! No need to sync manually.' 
-        });
-    }
-    
-    // Define Git Path
-    const isWindows = process.platform === 'win32';
-    let gitPath = isWindows ? '"C:\\Program Files\\Git\\cmd\\git.exe"' : 'git';
-    const cwd = process.cwd();
-
-    // Helper for Promisified Exec
-    const execPromise = (command) => {
-        return new Promise((resolve, reject) => {
-            exec(command, { cwd }, (error, stdout, stderr) => {
-                if (error) {
-                    error.stdout = stdout;
-                    error.stderr = stderr;
-                    reject(error);
-                } else {
-                    resolve({ stdout, stderr });
-                }
-            });
-        });
-    };
-    
-    // For Windows, try to use WSL Git if available
-    if (isWindows) {
-        try {
-            // Check if WSL is available
-            await execPromise('wsl --list');
-            // Use WSL Git
-            gitPath = 'wsl -d Ubuntu-24.04 -e git';
-            console.log('Using WSL Git');
-        } catch (e) {
-            console.log('WSL not available, falling back to Windows Git');
-        }
-    }
-    
-    // Check if Git is available
-    try {
-        await execPromise(`${gitPath} --version`);
-    } catch (e) {
-        console.error("Git is not available:", e);
-        return res.status(500).json({ 
-            error: 'Git 未安装或不可用', 
-            details: '请先安装 Git 客户端，然后再尝试同步。' 
-        });
+    if (process.env.VERCEL) {
+        return res.json({ success: true, message: 'Cloud environment detected. Changes saved automatically.' });
     }
 
     try {
-        // 0. Configure Proxy if provided
-        if (proxy) {
-            console.log(`Setting Git proxy to: ${proxy}`);
-            await execPromise(`${gitPath} config --global http.proxy http://${proxy}`);
-            await execPromise(`${gitPath} config --global https.proxy http://${proxy}`);
-        } else {
-            // Unset proxy if not provided to avoid using old/broken ones
-            try {
-                await execPromise(`${gitPath} config --global --unset http.proxy`);
-                await execPromise(`${gitPath} config --global --unset https.proxy`);
-            } catch (e) {}
-        }
-
-        // 1. Git Add
-        await execPromise(`${gitPath} add .`);
-
-        // 2. Git Commit
-        try {
-            await execPromise(`${gitPath} commit -m "Auto-deploy: Sync content from Admin Panel"`);
-        } catch (e) {
-            if (!e.stdout.includes('nothing to commit') && !e.stderr.includes('nothing to commit')) {
-                throw e;
-            }
-        }
-
-        // 3. Git Pull (Rebase)
-        try {
-            await execPromise(`${gitPath} pull --rebase`);
-        } catch (e) {
-            if (e.stderr.includes('conflict')) {
-                return res.status(409).json({ error: '同步冲突：请手动解决冲突后再同步。', details: e.stderr });
-            }
-        }
-
-        // 4. Git Push with Retry
-        let lastError = null;
-        for (let i = 1; i <= 3; i++) {
-            try {
-                await execPromise(`${gitPath} push`);
-                return res.json({ success: true, message: '同步成功！GitHub 已接收更新。' });
-            } catch (e) {
-                lastError = e;
-                if (i < 3) await new Promise(r => setTimeout(r, 2000));
-            }
-        }
-
-        throw lastError;
-
+        const message = await executeGitDeploy(req.body.proxy);
+        res.json({ success: true, message });
     } catch (err) {
         console.error("Deployment Error:", err);
         let userMsg = '同步失败：连接 GitHub 超时。';
         if (err.stderr && (err.stderr.includes('Could not connect') || err.stderr.includes('Connection was reset'))) {
-            userMsg = '网络连接失败。请检查您的代理设置（如 127.0.0.1:7890）。';
+            userMsg = '网络连接失败。请检查您的代理设置。';
         }
         res.status(500).json({ error: userMsg, details: err.stderr || err.message });
     }
 });
 
-// Delete Project
-app.delete('/api/projects/:id', (req, res) => {
-    const db = getDB();
-    const id = parseInt(req.params.id);
-    db.projects = db.projects.filter(p => p.id !== id);
-    saveDB(db);
-    res.json({ success: true });
-});
-
-// Delete Media
-app.delete('/api/media/:id', (req, res) => {
-    const db = getDB();
-    const id = parseInt(req.params.id);
-    db.media = db.media.filter(m => m.id !== id);
-    saveDB(db);
-    res.json({ success: true });
-});
-
-// Delete Tool
-app.delete('/api/tools/:id', (req, res) => {
-    const db = getDB();
-    const id = parseInt(req.params.id);
-    db.tools = db.tools.filter(t => t.id !== id);
-    saveDB(db);
-    res.json({ success: true });
-});
-
-// Delete Article
-app.delete('/api/articles/:id', (req, res) => {
-    const db = getDB();
-    const id = parseInt(req.params.id);
-    db.articles = db.articles.filter(a => a.id !== id);
-    saveDB(db);
-    res.json({ success: true });
-});
-
-// Chat Endpoint
+// Chat Route
 app.post('/api/chat', async (req, res) => {
-    const { message, history } = req.body;
-    const db = getDB();
-
-    // 1. Check for API Key (Support OPENAI_API_KEY or generic LLM_API_KEY)
-    // Configuration for Coze API (User Requested)
-    const useLocalModel = false; // Force False as user wants to use Coze Cloud
-    console.log("Using Local Model:", useLocalModel); // Debug log
-
-    
-    // Coze Configuration
-    // Updated based on screenshot: This is a Coze Agent deployed as a Service (API Service)
-    // The screenshot shows "API 请求示例及接口说明" with a specific URL: https://gj4p8f69bg.coze.site/stream_run
-    // This is NOT the standard Open API v3, but a "Web SDK" or "API Service" endpoint.
-    
-    // We need to parse the curl command from the screenshot to understand the request structure.
-    // URL: https://gj4p8f69bg.coze.site/stream_run
-    // Header: Authorization: Bearer <YOUR_TOKEN>
-    // Body: { "content": { "query": { "prompt": [ { "type": "text", "content": { "text": "" } } ] } }, "type": "query", "session_id": "..." }
-
-    // User provided Token:
-    // eyJhbGciOiJSUzI1NiIsImtpZCI6IjM0MmEyMzU0LTI5ODgtNGJkYi04N2ViLTU1MjliYmJkMmVlZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIndZQ1VPTEtQb3lKU2RHeDFUaGtQZUQzdkhCVDdiYXlLIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzcwMDQ1OTczLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjAyMjcyMTc2MTM3MzA2MTY0Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjAyMjg5NTY3NDYyMzI2Mjg3In0.lL1WeNgQuwfAC8Luks0kjU1l6Q7YrHcFh4BQBGZqMVweG5OKwBu-ATsE8myBsmBKxOQ7VHUpZm4FxnEyQjbC7-RL4vPcUzKPPPMsgswgIngF4e2cDcz9GeAJnA6XMCzz2gT0-49mOCQrD00jfijr1GcXqm3aqMaC0Fkh9-6V2Ujb8LtruI1VhNOEVnSHKcRO7gmI6BBtfiGuNdhVx-hLHQIkiLuzK1697PF44hudUZqKeWnw9fkS_qx3h4v2tje1-47JvgF0ctpWNkF6X8n0h2f7kBihonkfjcw9Cg3mQoYjDb2bjl_X-mET795UbItnhom5aZvZ5UIov8dCrFz1LA
-    // Note: This looks like a JWT. The signature might be invalid or it might be a PAT.
-    // Re-check screenshot: "Header: Authorization: Bearer <YOUR_TOKEN>"
-    // The user provided text: eyJ...
-    // Let's use the FULL token string provided by user.
-    let apiKey = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjM0MmEyMzU0LTI5ODgtNGJkYi04N2ViLTU1MjliYmJkMmVlZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIndZQ1VPTEtQb3lKU2RHeDFUaGtQZUQzdkhCVDdiYXlLIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzcwMDQ1OTczLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjAyMjcyMTc2MTM3MzA2MTY0Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjAyMjg5NTY3NDYyMzI2Mjg3In0.lL1WeNgQuwfAC8Luks0kjU1l6Q7YrHcFh4BQBGZqMVweG5OKwBu-ATsE8myBsmBKxOQ7VHUpZm4FxnEyQjbC7-RL4vPcUzKPPPMsgswgIngF4e2cDcz9GeAJnA6XMCzz2gT0-49mOCQrD00jfijr1GcXqm3aqMaC0Fkh9-6V2Ujb8LtruI1VhNOEVnSHKcRO7gmI6BBtfiGuNdhVx-hLHQIkiLuzK1697PF44hudUZqKeWnw9fkS_qx3h4v2tje1-47JvgF0ctpWNkF6X8n0h2f7kBihonkfjcw9Cg3mQoYjDb2bjl_X-mET795UbItnhom5aZvZ5UIov8dCrFz1LA';
-    let apiEndpoint = 'https://gj4p8f69bg.coze.site/stream_run';
-
-    // Override if Local Model is enabled
-    if (useLocalModel) {
-        apiKey = 'local-no-key';
-        apiEndpoint = 'http://localhost:8000/v1/chat/completions';
-    }
-
-    if (!apiKey && !useLocalModel) {
-        // Mock Mode
-        return res.json({ 
-            reply: "我现在处于演示模式（未配置 API Key）。\n\n我是您的个人智能助手！我可以为您介绍作品集中的项目、技能或回答关于作者的问题。\n\n请在 Vercel 环境变量中配置 `OPENAI_API_KEY` 以开启真实 AI 对话功能。" 
-        });
-    }
-
-    // 2. Construct System Context (Only for Local/OpenAI, Coze usually has its own system prompt in Bot settings)
-    const systemPrompt = `...`; // (Keep existing prompt for fallback/local)
-
-    // 3. Call API
     try {
-        let reply = '';
-        
-        if (useLocalModel) {
-             // ... (Local Model Logic - Skipped)
-        } else {
-            // Coze API Implementation (Non-streaming)
-            // Docs: https://www.coze.cn/docs/developer_guides/coze_api_service
-            
-            // Note: API Service usually requires specific headers.
-            // Some configurations require 'Connection': 'keep-alive' or user-agent.
-            
-            console.log("Calling Coze API:", apiEndpoint);
-
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'Accept': '*/*',
-                    'Connection': 'keep-alive'
-                },
-                body: JSON.stringify({
-                    query: message, // Some API Services use 'query' directly at root or inside 'content'
-                    // Try both structures to be safe, or stick to the one from screenshot if sure.
-                    // Screenshot showed: { content: { query: { prompt: ... } } }
-                    // But standard Coze Workflow/Service often simplifies this.
-                    // Let's stick to the screenshot structure but ensure valid JSON.
-                    
-                    "content": {
-                        "query": {
-                            "prompt": [
-                                {
-                                    "type": "text",
-                                    "content": {
-                                        "text": message
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "text": message, // Added 'text' parameter at root as per latest screenshot
-                    "type": "query",
-                    "session_id": history && history.length > 0 ? 'session_existing' : `session_${Date.now()}`,
-                    "project_id": 7602265065043165224 // Added project_id from user's curl example
-                })
-            });
-
-            if (!response.ok) {
-                const errText = await response.text();
-                console.error("Coze API Error Response:", response.status, errText);
-                throw new Error(`Coze API Error: ${response.status} - ${errText}`);
-            }
-
-            const rawText = await response.text();
-            console.log("Coze Raw Response:", rawText);
-
-            // Parse NDJSON or JSON
-            // ... (Keep existing parsing logic)
-            const lines = rawText.split('\n');
-            let fullAnswer = '';
-
-            for (const line of lines) {
-                if (!line.trim()) continue;
-                if (line.startsWith('data:')) {
-                    try {
-                        const jsonStr = line.substring(5).trim();
-                        const data = JSON.parse(jsonStr);
-                        
-                        // Check for 'answer' (API Service structure: content.answer)
-                        if (data.event === 'conversation.message.delta' && data.data?.content) {
-                             fullAnswer += data.data.content;
-                        } else if (data.event === 'message' && data.content && typeof data.content === 'string') {
-                             // Sometimes simple format
-                             fullAnswer += data.content;
-                        } else if (data.event === 'message' && data.content?.answer) {
-                             // The log shows: data: {"event": "message", "content": {"answer": "..."}}
-                             fullAnswer += data.content.answer;
-                        } else if (data.type === 'answer' && data.content?.answer) { 
-                             // Another variation in logs: data: {"type": "answer", ... "content": {"answer": "..."}}
-                             fullAnswer += data.content.answer;
-                        } else if (data.type === 'answer' && typeof data.content === 'string') {
-                             fullAnswer += data.content;
-                        }
-                    } catch (e) {}
-                }
-            }
-            
-            // Fallback for direct JSON
-            if (!fullAnswer) {
-                try {
-                     const jsonBody = JSON.parse(rawText);
-                     // Check for common error responses first
-                     if (jsonBody.code !== undefined && jsonBody.code !== 0) {
-                         // Coze API Error
-                         console.error("Coze API Logical Error:", jsonBody);
-                         throw new Error(jsonBody.msg || `Error code: ${jsonBody.code}`);
-                     }
-
-                     if (jsonBody.code === 0 && jsonBody.data) {
-                         // Check if data is string or object
-                         if (typeof jsonBody.data === 'string') {
-                            try {
-                                const innerData = JSON.parse(jsonBody.data);
-                                fullAnswer = innerData.content || jsonBody.data;
-                            } catch(e) {
-                                fullAnswer = jsonBody.data;
-                            }
-                         } else {
-                            fullAnswer = jsonBody.data.content || JSON.stringify(jsonBody.data);
-                         }
-                     } else if (jsonBody.content) {
-                         fullAnswer = jsonBody.content;
-                     }
-                } catch(e) {
-                    // If parsing fails, maybe it's just text
-                    if (!fullAnswer && rawText.length > 0 && !rawText.startsWith('{')) {
-                        fullAnswer = rawText;
-                    }
-                }
-            }
-
-            reply = fullAnswer || "AI 正在思考... (未收到有效回复)";
-        }
-
+        const reply = await callCozeService(req.body.message, req.body.history);
         res.json({ reply });
     } catch (error) {
         console.error("Chat Error:", error);
-        // Send the actual error message to the frontend for debugging
         res.status(500).json({ reply: `系统错误: ${error.message}` });
     }
 });
 
 // Start Server
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Server running at http://localhost:${PORT}`);
+    app.listen(CONFIG.PORT, () => {
+        console.log(`Server running at http://localhost:${CONFIG.PORT}`);
     });
 }
 

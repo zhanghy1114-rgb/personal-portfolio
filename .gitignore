@@ -2,3 +2,13 @@ node_modules/
 .env
 # data/
 uploads/
+local_model/
+train_output.zip
+dataset.json
+*.log
+
+# Ignore root images but keep public images
+*.jpg
+*.png
+!public/*.jpg
+!public/*.png
