@@ -68,6 +68,13 @@ const defaultDB = {
         backgroundMusic: '',
         particlesEnabled: true,
         adminPassword: 'admin',
+        // Feature Cards Links
+        certLink: '',
+        videoLink: '',
+        workflowLink: '',
+        certCover: '',
+        videoCover: '',
+        workflowCover: '',
         // Contact Info
         contactEmail: '602682647@qq.com',
         contactHandle: '毓见Agent',

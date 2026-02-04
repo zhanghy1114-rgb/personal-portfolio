@@ -1678,12 +1678,16 @@
                             <!-- Right: Info Pills -->
                             <div class="info-stack">
                                 <div class="info-pill-row">
-                                    <div class="info-label">邮箱 EMAIL</div>
-                                    <div class="info-value" id="displayEmail">602682647@qq.com</div>
+                                    <div class="info-label">抖&emsp;音</div>
+                                    <div class="info-value display-handle">毓见Agent</div>
                                 </div>
                                 <div class="info-pill-row">
-                                    <div class="info-label">全网 IP</div>
-                                    <div class="info-value" id="displayHandle">毓见Agent</div>
+                                    <div class="info-label">小红书</div>
+                                    <div class="info-value display-handle">毓见Agent</div>
+                                </div>
+                                <div class="info-pill-row">
+                                    <div class="info-label">视频号</div>
+                                    <div class="info-value display-handle">毓见Agent</div>
                                 </div>
                             </div>
                         </div>
@@ -1758,6 +1762,9 @@
     <script>
         // Use relative path for production (Vercel) compatibility
         const API_URL = '/api';
+        
+        // Global Settings State to prevent partial updates from resetting other fields
+        let globalSettings = {};
 
         // --- Data Fetching ---
         async function fetchData() {
@@ -1861,7 +1868,11 @@
             }
         }
 
-        function applySettings(settings) {
+        function applySettings(newSettings) {
+            // Merge new settings into global state
+            globalSettings = { ...globalSettings, ...newSettings };
+            const settings = globalSettings;
+
             if (settings.backgroundColor) {
                 document.documentElement.style.setProperty('--bg-color', settings.backgroundColor);
                 const bgInput = document.getElementById('bgColorInput');
@@ -1883,11 +1894,10 @@
             // --- Feature Cards Settings ---
             
             // Certificates
-            if (settings.certLink !== undefined) {
-                document.getElementById('feat-cert-link').href = settings.certLink || '#';
-                const input = document.getElementById('settingCertLink');
-                if (input && document.activeElement !== input) input.value = settings.certLink || '';
-            }
+            document.getElementById('feat-cert-link').href = settings.certLink || '#';
+            const inputCert = document.getElementById('settingCertLink');
+            if (inputCert && document.activeElement !== inputCert) inputCert.value = settings.certLink || '';
+
             if (settings.certCover) {
                 document.getElementById('feat-cert-bg').style.backgroundImage = `url(${settings.certCover})`;
             } else {
@@ -1896,11 +1906,10 @@
             }
 
             // Videos
-            if (settings.videoLink !== undefined) {
-                document.getElementById('feat-video-link').href = settings.videoLink || '#';
-                const input = document.getElementById('settingVideoLink');
-                if (input && document.activeElement !== input) input.value = settings.videoLink || '';
-            }
+            document.getElementById('feat-video-link').href = settings.videoLink || '#';
+            const inputVideo = document.getElementById('settingVideoLink');
+            if (inputVideo && document.activeElement !== inputVideo) inputVideo.value = settings.videoLink || '';
+
             if (settings.videoCover) {
                 document.getElementById('feat-video-bg').style.backgroundImage = `url(${settings.videoCover})`;
             } else {
@@ -1908,11 +1917,10 @@
             }
 
             // Workflow
-            if (settings.workflowLink !== undefined) {
-                document.getElementById('feat-workflow-link').href = settings.workflowLink || '#';
-                const input = document.getElementById('settingWorkflowLink');
-                if (input && document.activeElement !== input) input.value = settings.workflowLink || '';
-            }
+            document.getElementById('feat-workflow-link').href = settings.workflowLink || '#';
+            const inputWorkflow = document.getElementById('settingWorkflowLink');
+            if (inputWorkflow && document.activeElement !== inputWorkflow) inputWorkflow.value = settings.workflowLink || '';
+
             if (settings.workflowCover) {
                 document.getElementById('feat-workflow-bg').style.backgroundImage = `url(${settings.workflowCover})`;
             } else {
@@ -1921,12 +1929,20 @@
 
             // --- Contact Settings ---
             if (settings.contactEmail) {
-                document.getElementById('displayEmail').textContent = settings.contactEmail;
+                const emailEl = document.getElementById('displayEmail');
+                if (emailEl) emailEl.textContent = settings.contactEmail;
                 const input = document.getElementById('settingEmail');
                 if(input && document.activeElement !== input) input.value = settings.contactEmail;
             }
             if (settings.contactHandle) {
-                document.getElementById('displayHandle').textContent = settings.contactHandle;
+                // Update all handle displays
+                document.querySelectorAll('.display-handle').forEach(el => {
+                    el.textContent = settings.contactHandle;
+                });
+                // Fallback for ID if it still exists elsewhere
+                const handleEl = document.getElementById('displayHandle');
+                if (handleEl) handleEl.textContent = settings.contactHandle;
+
                 const input = document.getElementById('settingHandle');
                 if(input && document.activeElement !== input) input.value = settings.contactHandle;
             }
@@ -2058,7 +2074,8 @@
         // Change Background Color
         document.getElementById('bgColorInput').addEventListener('change', async (e) => {
             const color = e.target.value;
-            document.documentElement.style.setProperty('--bg-color', color);
+            applySettings({ backgroundColor: color });
+            
             await fetch(`${API_URL}/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2089,7 +2106,7 @@
             try {
                 const res = await fetch(`${API_URL}/upload/background`, { method: 'POST', body: formData });
                 const data = await res.json();
-                document.body.style.backgroundImage = `url(${data.url})`;
+                applySettings({ backgroundImage: data.url });
                 alert('背景图片上传成功！');
             } catch (error) {
                 alert('背景图片上传失败，请重试。');
@@ -2126,8 +2143,10 @@
                 if (!res.ok) throw new Error('Upload failed');
                 
                 const data = await res.json();
+                applySettings({ backgroundMusic: data.url });
+                
                 const audio = document.getElementById('bgMusic');
-                audio.src = data.url;
+                // audio.src is updated by applySettings
                 document.getElementById('playerTitle').textContent = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
                 
                 // Try to auto-play
