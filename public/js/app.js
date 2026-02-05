@@ -987,7 +987,6 @@
         const chatWidget = {
             isOpen: false,
             isDragging: false,
-            isChasing: false,
             history: [],
             moveTimer: null,
             bubbleTimer: null,
@@ -1088,39 +1087,38 @@
                 this.btn.addEventListener('mousedown', onDragStart);
                 this.btn.addEventListener('touchstart', onDragStart);
                 
-                // 3D Tilt & Mouse Tracking
+                // 3D Tilt & Interaction (Only when touching)
                 document.addEventListener('mousemove', (e) => {
                     if (this.isOpen || this.isDragging) return;
 
                     const rect = this.btn.getBoundingClientRect();
-                    const petX = rect.left + rect.width / 2;
-                    const petY = rect.top + rect.height / 2;
-                    
-                    const dist = Math.hypot(e.clientX - petX, e.clientY - petY);
+                    const isInside = (
+                        e.clientX >= rect.left && 
+                        e.clientX <= rect.right && 
+                        e.clientY >= rect.top && 
+                        e.clientY <= rect.bottom
+                    );
 
-                    // If mouse is close, start chasing!
-                    if (dist < 250 && dist > 80 && !this.isChasing) {
-                        this.startChase(e.clientX, e.clientY);
-                    } else if (dist <= 80) {
-                        this.stopChase();
+                    if (isInside) {
                         this.handleHover(e, rect);
                     } else {
-                        this.stopChase();
                         this.resetTilt();
+                    }
+                });
+
+                this.btn.addEventListener('mouseenter', () => {
+                    if (!this.isOpen) {
+                        this.btn.classList.add('pet-happy');
+                        this.avatarImg.classList.add('pet-catching'); 
+                        this.jump(); 
+                        this.showBubble("抓到你啦！(✿◡‿◡)");
+                        setTimeout(() => this.avatarImg.classList.remove('pet-catching'), 500);
                     }
                 });
 
                 this.btn.addEventListener('mouseleave', () => {
                     this.btn.classList.remove('pet-happy');
                     this.resetTilt();
-                });
-
-                this.btn.addEventListener('mouseenter', () => {
-                    if (!this.isOpen) {
-                        this.btn.classList.add('pet-happy');
-                        this.jump(); // Jump when touched!
-                        this.showBubble("抓到你啦！(✿◡‿◡)");
-                    }
                 });
             },
 
@@ -1153,14 +1151,14 @@
 
             initPetLogic() {
                 this.startIdleBehavior();
-                setTimeout(() => this.showBubble("主人，来跟我玩抓人游戏吧！"), 1000);
+                setTimeout(() => this.showBubble("主人，快来抓我呀！"), 1000);
             },
 
             startIdleBehavior() {
                 const scheduleNext = () => {
                     const delay = 15000 + Math.random() * 20000;
                     this.moveTimer = setTimeout(() => {
-                        if (!this.isOpen && !this.isDragging && !this.isChasing) {
+                        if (!this.isOpen && !this.isDragging) {
                             Math.random() > 0.5 ? this.randomMove() : this.jump();
                             this.randomTalk();
                         }
@@ -1168,50 +1166,6 @@
                     }, delay);
                 };
                 scheduleNext();
-            },
-
-            startChase(mx, my) {
-                this.isChasing = true;
-                this.avatarImg.classList.add('pet-running');
-                this.showBubble("别跑！我要抓到你！🏃‍♂️");
-                
-                const updateChase = () => {
-                    if (!this.isChasing) return;
-                    
-                    const rect = this.container.getBoundingClientRect();
-                    const px = rect.left + rect.width / 2;
-                    const py = rect.top + rect.height / 2;
-                    
-                    // Move towards mouse
-                    const dx = mx - px;
-                    const dy = my - py;
-                    
-                    let newRight = parseFloat(this.container.style.right || 30) - dx * 0.05;
-                    let newBottom = parseFloat(this.container.style.bottom || 30) - dy * 0.05;
-                    
-                    this.container.style.right = `${newRight}px`;
-                    this.container.style.bottom = `${newBottom}px`;
-                    this.container.style.transition = 'none';
-                    
-                    requestAnimationFrame(updateChase);
-                };
-                // Use a non-once listener for chase coordinates
-                const updateCoords = (e) => {
-                    mx = e.clientX;
-                    my = e.clientY;
-                };
-                document.addEventListener('mousemove', updateCoords);
-                this._stopCoords = () => document.removeEventListener('mousemove', updateCoords);
-                
-                updateChase();
-            },
-
-            stopChase() {
-                if (!this.isChasing) return;
-                this.isChasing = false;
-                if (this._stopCoords) this._stopCoords();
-                this.avatarImg.classList.remove('pet-running');
-                this.container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
             },
 
             jump() {
