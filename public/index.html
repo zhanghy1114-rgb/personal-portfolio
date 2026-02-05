@@ -2256,12 +2256,18 @@
                 formData.append('icon', iconFile);
             }
             
-            await fetch(`${API_URL}/projects`, {
-                method: 'POST',
-                body: formData
-            });
-            alert('应用添加成功！刷新页面查看。');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/projects`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Failed to upload project');
+                alert('应用添加成功！刷新页面查看。');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('添加失败，请重试。');
+            }
         }
 
         // Add Agent
@@ -2276,12 +2282,18 @@
                 formData.append('icon', iconFile);
             }
             
-            await fetch(`${API_URL}/agents`, {
-                method: 'POST',
-                body: formData
-            });
-            alert('智能体添加成功！');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/agents`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Failed to add agent');
+                alert('智能体添加成功！');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('添加失败，请重试。');
+            }
         }
 
         // Upload Video
@@ -2296,9 +2308,15 @@
             formData.append('title', document.getElementById('videoTitle').value);
             formData.append('link', document.getElementById('videoLink').value);
 
-            await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
-            alert('视频上传成功！刷新页面查看。');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Upload failed');
+                alert('视频上传成功！刷新页面查看。');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('上传失败，请重试。');
+            }
         }
 
         // Upload Workflow
@@ -2313,9 +2331,15 @@
             formData.append('title', document.getElementById('workflowTitle').value);
             formData.append('link', document.getElementById('workflowLink').value);
 
-            await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
-            alert('工作流上传成功！刷新页面查看。');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Upload failed');
+                alert('工作流上传成功！刷新页面查看。');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('上传失败，请重试。');
+            }
         }
 
         // Add Tool
@@ -2330,12 +2354,18 @@
                 formData.append('icon', iconFile);
             }
             
-            await fetch(`${API_URL}/tools`, {
-                method: 'POST',
-                body: formData
-            });
-            alert('工具添加成功！');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/tools`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Failed to add tool');
+                alert('工具添加成功！');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('添加失败，请重试。');
+            }
         }
 
         // Add Certificate
@@ -2351,12 +2381,18 @@
                 formData.append('image', imageFile);
             }
             
-            await fetch(`${API_URL}/certificates`, {
-                method: 'POST',
-                body: formData
-            });
-            alert('证书添加成功！');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/certificates`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Failed to add certificate');
+                alert('证书添加成功！');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('添加失败，请重试。');
+            }
         }
 
         // Add Article
@@ -2368,13 +2404,19 @@
                 category: document.getElementById('articleCategory').value
             };
             
-            await fetch(`${API_URL}/articles`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(article)
-            });
-            alert('文章发布成功！');
-            fetchData();
+            try {
+                const res = await fetch(`${API_URL}/articles`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(article)
+                });
+                if (!res.ok) throw new Error('Failed to add article');
+                alert('文章发布成功！');
+                fetchData();
+            } catch (e) {
+                console.error(e);
+                alert('发布失败，请重试。');
+            }
         }
 
         // Deploy to Cloud

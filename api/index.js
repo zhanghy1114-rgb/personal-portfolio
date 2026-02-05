@@ -97,7 +97,20 @@ function loadDB() {
     try {
         if (fs.existsSync(DB_FILE)) {
             const data = fs.readFileSync(DB_FILE, 'utf8');
-            dbCache = JSON.parse(data);
+            try {
+                dbCache = JSON.parse(data);
+            } catch (parseError) {
+                console.error("CRITICAL: Error parsing db.json:", parseError);
+                // Try to load backup if exists
+                if (fs.existsSync(DB_FILE + '.bak')) {
+                    console.log("Attempting to load from backup...");
+                    const backupData = fs.readFileSync(DB_FILE + '.bak', 'utf8');
+                    dbCache = JSON.parse(backupData);
+                    console.log("Restored from backup.");
+                } else {
+                    throw new Error("Database file is corrupted and no backup found.");
+                }
+            }
         } else {
             dbCache = { ...defaultDB };
             // Try to write initial file
@@ -105,6 +118,14 @@ function loadDB() {
         }
     } catch (e) {
         console.error("Error loading DB:", e);
+        // If we can't load, we shouldn't return a empty DB as it might overwrite good data later.
+        // But for express to run, we might need something.
+        // Let's return defaultDB but maybe flag it? 
+        // Better: if it's a critical error (like corruption), we should probably let the request fail 
+        // rather than serving empty data that leads to data loss.
+        if (e.message.includes("corrupted")) {
+            throw e; // Re-throw to handle in route
+        }
         dbCache = { ...defaultDB };
     }
     return dbCache;
@@ -117,6 +138,10 @@ function saveDB(data) {
     // Persist to disk (Local)
     try {
         if (!process.env.VERCEL) {
+            // Create backup before writing
+            if (fs.existsSync(DB_FILE)) {
+                try { fs.copyFileSync(DB_FILE, DB_FILE + '.bak'); } catch(e) { console.warn("Backup failed:", e); }
+            }
             fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
         }
     } catch (e) {
