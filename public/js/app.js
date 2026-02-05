@@ -1085,6 +1085,29 @@
                 this.btn.addEventListener('mousedown', onDragStart);
                 this.btn.addEventListener('touchstart', onDragStart);
                 
+                // 3D Tilt Effect
+                this.btn.addEventListener('mousemove', (e) => {
+                    if (this.isDragging || this.isOpen) return;
+                    const rect = this.btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 5;
+                    const rotateY = (centerX - x) / 5;
+                    
+                    const avatarInner = this.btn.querySelector('.avatar-container');
+                    avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+
+                this.btn.addEventListener('mouseleave', () => {
+                    this.btn.classList.remove('pet-happy');
+                    const avatarInner = this.btn.querySelector('.avatar-container');
+                    avatarInner.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                });
+
                 // Interaction
                 this.btn.addEventListener('mouseenter', () => {
                     if (!this.isOpen) {
