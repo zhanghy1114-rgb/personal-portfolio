@@ -1393,54 +1393,49 @@
     75% { transform: translate3d(-50%, -2px, 25px) rotate(-1deg); }
 }
 
-/* Rotating Rings with 3D Orbiting Effect (Surrounding the whole person) */
+/* Simple Energy Rings (Grounding effect at feet) */
 .avatar-ring {
     position: absolute;
-    /* Centering around the character's torso */
-    top: -50px; 
-    left: -50px;
-    right: -50px;
-    bottom: -50px;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
     border-radius: 50%;
-    border: 1.5px dashed var(--neon-blue);
-    animation: spin 10s linear infinite;
-    /* Shift center up to align with person's center */
-    transform: translateZ(10px) translateY(-30px) rotateX(85deg); 
-    pointer-events: none;
-    opacity: 0.3;
-    filter: drop-shadow(0 0 8px var(--neon-blue));
+    border: 2px solid transparent;
+    border-top-color: var(--neon-blue);
+    border-bottom-color: var(--neon-purple);
+    animation: spin 4s linear infinite;
+    z-index: -1;
+    transform: translateZ(-10px) rotateX(20deg);
 }
 
 .avatar-ring.delay {
-    border: 1px solid var(--neon-purple);
-    border-right: 5px solid var(--neon-purple);
-    animation: spin-reverse 15s linear infinite;
-    top: -80px;
-    left: -80px;
-    right: -80px;
-    bottom: -80px;
-    opacity: 0.2;
-    /* Vertical orbit surrounding the whole height */
-    transform: translateZ(50px) translateY(-30px) rotateX(75deg) rotateY(15deg);
+    border: 2px solid transparent;
+    border-left-color: var(--neon-blue);
+    border-right-color: var(--neon-purple);
+    animation: spin-reverse 6s linear infinite;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    opacity: 0.6;
+    transform: translateZ(-20px) rotateY(30deg);
 }
 
-/* Third Vertical Orbiting Ring (Data Stream Style) */
+/* 3D Glass Reflection Effect (Subtle) */
 .avatar-container::after {
     content: '';
     position: absolute;
-    top: -70px;
-    left: -70px;
-    right: -70px;
-    bottom: -70px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     border-radius: 50%;
-    border: 1px solid rgba(0, 243, 255, 0.05);
-    border-top: 3px solid var(--neon-blue);
-    animation: spin 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    /* Purely vertical orbit, shifted up */
-    transform: translateZ(30px) translateY(-30px) rotateY(90deg); 
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 40%, rgba(0,243,255,0.1) 100%);
     pointer-events: none;
-    box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+    transform: translateZ(10px);
     opacity: 0.4;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* --- Chat Window (Tech UI) --- */
