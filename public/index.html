@@ -24,263 +24,117 @@
         /* Settings Panel Styles */
         .settings-panel {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            width: 900px;
-            max-width: 95vw;
-            height: 85vh;
-            background: rgba(10, 10, 10, 0.95);
+            top: 80px;
+            right: 20px;
+            bottom: 20px; /* Stretch to bottom with margin */
+            width: 600px; /* Increased width to fit all tabs */
+            background: rgba(0, 0, 0, 0.95);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-md);
             padding: 0;
             z-index: 2001;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateX(120%); /* Slide from right */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: -10px 10px 40px rgba(0,0,0,0.5);
             display: flex;
-            flex-direction: row; /* Horizontal Layout */
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            overflow: hidden;
+            flex-direction: column;
+            opacity: 1; /* Reset opacity from previous change */
+            visibility: visible; /* Reset visibility */
         }
 
         .settings-panel.show {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
+            transform: translateX(0);
         }
 
-        /* Left Sidebar (Tabs) */
-        .settings-left {
-            width: 240px;
-            background: rgba(255, 255, 255, 0.02);
-            border-right: 1px solid var(--border-color);
+        .settings-header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
         }
 
-        .settings-left-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .settings-left-header h3 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--text-main);
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        .settings-tabs {
-            flex: 1;
+        .settings-content {
+            padding: 1.5rem; /* Optimized padding */
             overflow-y: auto;
-            padding: 1rem 0.8rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            /* Scrollbar styling */
+            flex: 1;
+            /* Custom Scrollbar */
             scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.1) transparent;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        .settings-content::-webkit-scrollbar {
+            width: 6px;
+            display: block;
+        }
+
+        .settings-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .settings-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .settings-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Settings Tabs */
+        .settings-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            flex-shrink: 0;
+            /* Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
         }
 
         .settings-tabs::-webkit-scrollbar {
-            width: 4px;
+            height: 4px;
+            display: block;
         }
+
+        .settings-tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
         .settings-tabs::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
         }
 
         .settings-tab {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.2s;
+            padding: 0.6rem 0.8rem; /* More compact padding */
+            border-radius: 20px;
             cursor: pointer;
-            border: 1px solid transparent;
-            background: transparent;
-            width: 100%;
-            text-align: left;
-        }
-
-        .settings-tab i {
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-            transition: transform 0.2s;
+            color: var(--text-secondary);
+            font-size: 0.8rem; /* Slightly smaller font */
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .settings-tab:hover {
-            background: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
-        }
-
-        .settings-tab:hover i {
-            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-main);
         }
 
         .settings-tab.active {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        /* Special style for Deploy tab */
-        .settings-tab[data-tab="deploy"] {
-            margin-top: auto; /* Push to bottom */
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-radius: 0;
-            padding: 1.2rem 1rem;
-        }
-        .settings-tab[data-tab="deploy"]:hover {
-            background: rgba(74, 222, 128, 0.1);
-            color: #4ade80;
-        }
-
-        /* Right Content Area */
-        .settings-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: transparent;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .settings-header {
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.3);
-            flex-shrink: 0;
-        }
-
-        .settings-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--text-main);
-        }
-
-        .settings-content {
-            padding: 2rem;
-            overflow-y: auto;
-            flex: 1;
-            /* Improved scrollbar */
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.2) transparent;
-        }
-        
-        .settings-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .settings-content::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-        }
-        
-        /* Close Button */
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .close-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            transform: rotate(90deg);
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .settings-panel {
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-                transform: none !important;
-                border-radius: 0;
-                flex-direction: column;
-                max-width: none;
-            }
-            
-            .settings-left {
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            
-            .settings-left-header {
-                padding: 1rem;
-                justify-content: space-between;
-            }
-
-            .settings-tabs {
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 0.5rem;
-                gap: 0.5rem;
-                border-bottom: 1px solid var(--border-color);
-                height: 60px;
-                align-items: center;
-            }
-
-            .settings-tab {
-                width: auto;
-                white-space: nowrap;
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,255,255,0.1);
-            }
-            
-            .settings-tab i {
-                display: none; /* Hide icons on mobile tabs to save space */
-            }
-
-            .settings-tab[data-tab="deploy"] {
-                margin-top: 0;
-                border-top: 1px solid rgba(255,255,255,0.1);
-                border-radius: 8px;
-            }
-            
-            .settings-header {
-                display: none; /* Hide internal header on mobile, use sidebar header? No, need close btn */
-            }
-            
-            /* Re-add close button to left header for mobile */
-            .settings-left-header .close-btn-mobile {
-                display: block;
-            }
-            
-            .settings-right {
-                flex: 1;
-            }
+            background: var(--text-main);
+            color: black;
+            border-color: var(--text-main);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .settings-section {
@@ -299,13 +153,24 @@
             max-height: 200px;
             overflow-y: auto;
             margin-top: 1rem;
-            /* Hide Scrollbar */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            padding-right: 5px; /* Space for scrollbar */
+            /* Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
         }
 
         .admin-list::-webkit-scrollbar {
-            display: none;
+            width: 4px;
+            display: block;
+        }
+        
+        .admin-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .admin-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
         }
 
         .admin-item {
@@ -1424,12 +1289,12 @@
     </nav>
 
     <!-- Password Modal (Sidebar Style) -->
-    <div id="passwordModal" class="settings-panel" style="z-index: 2002; height: auto; bottom: auto; width: 400px; min-height: auto; flex-direction: column; padding: 0;">
-        <div class="settings-header" style="border-bottom: 1px solid var(--border-color); padding: 1rem 1.5rem; width: 100%;">
-            <h3 style="margin:0;">Admin Access</h3>
+    <div id="passwordModal" class="settings-panel" style="z-index: 2002; height: auto; bottom: auto;">
+        <div class="settings-header">
+            <h3>Admin Access</h3>
             <button class="close-btn" id="closePasswordModal"><i class="fas fa-times"></i></button>
         </div>
-        <div class="settings-content" style="padding: 2rem; overflow: visible;">
+        <div class="settings-content" style="padding: 2rem;">
             <div class="form-group">
                 <input type="password" id="adminPasswordInput" placeholder="Enter Password" style="margin-bottom: 1.5rem;">
                 <button class="btn-upload" onclick="verifyPassword()" style="width:100%; padding: 1rem;">Unlock Settings</button>
@@ -1438,77 +1303,42 @@
         </div>
     </div>
 
-    <!-- Settings Panel (Optimized Vertical Layout) -->
+    <!-- Settings Panel -->
     <div class="settings-panel" id="settingsPanel">
-        <!-- Left Sidebar -->
-        <div class="settings-left">
-            <div class="settings-left-header">
-                <h3><i class="fas fa-cog"></i> 页面设置</h3>
-                <!-- Mobile Close Button (Hidden on Desktop) -->
-                <button class="close-btn close-btn-mobile" id="closeSettingsBtnMobile" style="display:none; margin-left:auto;"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="settings-tabs">
-                <div class="settings-tab active" data-tab="general">
-                    <i class="fas fa-sliders-h"></i> <span>通用设置</span>
-                </div>
-                <div class="settings-tab" data-tab="projects">
-                    <i class="fas fa-layer-group"></i> <span>作品管理</span>
-                </div>
-                <div class="settings-tab" data-tab="agents">
-                    <i class="fas fa-robot"></i> <span>智能体</span>
-                </div>
-                <div class="settings-tab" data-tab="certificates">
-                    <i class="fas fa-certificate"></i> <span>证书展示</span>
-                </div>
-                <div class="settings-tab" data-tab="videos">
-                    <i class="fas fa-video"></i> <span>视频管理</span>
-                </div>
-                <div class="settings-tab" data-tab="workflow">
-                    <i class="fas fa-project-diagram"></i> <span>工作流</span>
-                </div>
-                <div class="settings-tab" data-tab="tools">
-                    <i class="fas fa-tools"></i> <span>工具清单</span>
-                </div>
-                <div class="settings-tab" data-tab="articles">
-                    <i class="fas fa-pen-nib"></i> <span>文章发布</span>
-                </div>
-                <div class="settings-tab" data-tab="contact">
-                    <i class="fas fa-address-card"></i> <span>联系信息</span>
-                </div>
-                <div class="settings-tab" data-tab="deploy" style="color: #4ade80;">
-                    <i class="fas fa-cloud-upload-alt"></i> <span>同步发布</span>
-                </div>
-            </div>
+        <div class="settings-header">
+            <h3>设置</h3>
+            <button class="close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="settings-tabs">
+            <div class="settings-tab" data-tab="general">通用</div>
+            <div class="settings-tab" data-tab="projects">作品</div>
+            <div class="settings-tab" data-tab="agents">智能体</div>
+            <div class="settings-tab" data-tab="certificates">证书</div>
+            <div class="settings-tab" data-tab="videos">我的视频</div>
+            <div class="settings-tab" data-tab="workflow">我的工作流</div>
+            <div class="settings-tab" data-tab="tools">工具</div>
+            <div class="settings-tab" data-tab="articles">文章</div>
+            <div class="settings-tab" data-tab="contact">联系信息</div>
+            <div class="settings-tab" data-tab="deploy" style="color: #4ade80;">发布</div>
         </div>
 
-        <!-- Right Content -->
-        <div class="settings-right">
-            <div class="settings-header">
-                <h3 id="settings-content-title">通用设置</h3>
-                <button class="close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="settings-content">
-                <!-- Content Sections -->
-                <!-- General Settings -->
-                <div class="settings-section active" id="tab-general">
-                    <div class="admin-section" style="margin-top:0; border-top:none;">
-                        <h4>个性化主题</h4>
-                        <div class="setting-item">
-                            <label>背景颜色</label>
-                            <input type="color" id="bgColorInput" value="#000000">
-                        </div>
-                        <div class="setting-item">
-                            <label>背景图片</label>
-                            <input type="file" id="bgImageInput" accept="image/*">
-                        </div>
-                        <div class="setting-item">
-                            <label>背景音乐</label>
-                            <input type="file" id="bgMusicInput" accept="audio/*">
-                        </div>
-                    </div>
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div class="settings-section active" id="tab-general">
+                <div class="setting-item">
+                    <label>背景颜色</label>
+                    <input type="color" id="bgColorInput" value="#000000">
                 </div>
+                <div class="setting-item">
+                    <label>背景图片</label>
+                    <input type="file" id="bgImageInput" accept="image/*">
+                </div>
+                <div class="setting-item">
+                    <label>背景音乐</label>
+                    <input type="file" id="bgMusicInput" accept="audio/*">
+                </div>
+            </div>
 
             <!-- Projects Settings -->
             <div class="settings-section" id="tab-projects">
@@ -2668,16 +2498,10 @@
             setTimeout(() => { passwordModal.style.display = 'none'; }, 300);
         });
 
-        // Close Settings Panel
-        const closeSettingsAction = () => {
+        closeSettingsBtn.addEventListener('click', () => {
             settingsPanel.classList.remove('show');
-            // Allow transition to finish before hiding (optional, handled by CSS visibility)
-        };
-        
-        closeSettingsBtn.addEventListener('click', closeSettingsAction);
-        
-        const closeMobile = document.getElementById('closeSettingsBtnMobile');
-        if(closeMobile) closeMobile.addEventListener('click', closeSettingsAction);
+            setTimeout(() => { settingsPanel.style.display = 'none'; }, 300);
+        });
 
         // Settings Tabs Logic
         document.querySelectorAll('.settings-tab').forEach(tab => {
@@ -2686,13 +2510,6 @@
                 document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
                 // Add active class to clicked tab
                 tab.classList.add('active');
-                
-                // Update Header Title
-                const titleSpan = tab.querySelector('span');
-                const headerTitle = document.getElementById('settings-content-title');
-                if(titleSpan && headerTitle) {
-                    headerTitle.textContent = titleSpan.textContent;
-                }
                 
                 // Hide all sections
                 document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
