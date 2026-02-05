@@ -1247,7 +1247,13 @@
             appendMessage(role, text) {
                 const div = document.createElement('div');
                 div.className = `message ${role}-message`;
-                div.textContent = text;
+                
+                if (role === 'bot') {
+                    div.innerHTML = marked.parse(text);
+                } else {
+                    div.textContent = text;
+                }
+                
                 this.messages.appendChild(div);
                 this.scrollToBottom();
                 return div;
@@ -1275,10 +1281,14 @@
                 this.scrollToBottom();
 
                 let i = 0;
-                const speed = 30;
+                const speed = 20; // Slightly faster for smoother Markdown rendering
+                let currentText = "";
+
                 const type = () => {
                     if (i < text.length) {
-                        div.textContent += text.charAt(i);
+                        currentText += text.charAt(i);
+                        // Parse current partial text as Markdown
+                        div.innerHTML = marked.parse(currentText);
                         i++;
                         this.scrollToBottom();
                         setTimeout(type, speed);

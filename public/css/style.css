@@ -1671,8 +1671,36 @@
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.6;
     position: relative;
+    word-wrap: break-word;
+}
+
+/* Markdown Support inside Messages */
+.message p {
+    margin-bottom: 0.8rem;
+}
+
+.message p:last-child {
+    margin-bottom: 0;
+}
+
+.message ul, .message ol {
+    margin-bottom: 0.8rem;
+    padding-left: 1.2rem;
+}
+
+.message li {
+    margin-bottom: 0.3rem;
+}
+
+.message strong {
+    color: var(--neon-blue);
+    font-weight: 700;
+}
+
+.bot-message strong {
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
 }
 
 .bot-message {
