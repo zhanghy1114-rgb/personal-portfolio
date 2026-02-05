@@ -576,24 +576,49 @@
     <div id="chat-widget-container">
         <!-- Chat Button -->
         <button id="chat-toggle-btn" class="chat-fab">
-            <i class="fas fa-robot"></i>
+            <div class="avatar-container">
+                <img src="柒毓.webp" alt="AI" class="chat-avatar-img">
+                <div class="avatar-ring"></div>
+                <div class="avatar-ring delay"></div>
+            </div>
         </button>
 
         <!-- Chat Window -->
         <div id="chat-window" class="chat-window hidden">
+            <!-- Holographic Background Effect -->
+            <div class="holo-grid-bg"></div>
+            
             <div id="chat-header" class="chat-header">
-                <span><i class="fas fa-robot"></i> 柒毓 (AI)</span>
+                <div class="header-profile">
+                    <div class="header-avatar-frame">
+                        <img src="柒毓.webp" alt="AI" class="header-avatar">
+                        <div class="status-indicator online"></div>
+                    </div>
+                    <div class="header-info">
+                        <span class="header-name">柒毓 <span class="version-tag">v2.0</span></span>
+                        <span class="header-status">SYSTEM ONLINE</span>
+                    </div>
+                </div>
                 <div class="chat-controls">
                     <button id="chat-close-btn"><i class="fas fa-times"></i></button>
                 </div>
             </div>
+            
+            <!-- Large Hologram Visualization (Optional, subtle background) -->
+            <div class="holo-viz-container">
+                <img src="柒毓.webp" class="holo-avatar-large">
+                <div class="scanline"></div>
+            </div>
+
             <div id="chat-messages" class="chat-messages">
                 <!-- Messages will appear here -->
-                <div class="message bot-message">你好！我是柒毓。欢迎来到我的个人主页，有什么我可以帮你的吗？</div>
+                <div class="message bot-message">
+                    <div class="message-content">你好！我是柒毓。欢迎来到我的数字空间，有什么我可以帮你的吗？</div>
+                </div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="输入您的问题..." autocomplete="off">
-                <button id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="chat-input" placeholder="输入指令..." autocomplete="off">
+                <button id="chat-send-btn"><i class="fas fa-location-arrow"></i></button>
             </div>
         </div>
     </div>
