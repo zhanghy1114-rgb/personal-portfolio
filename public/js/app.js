@@ -983,15 +983,26 @@
     
 
 
-        // Chat Widget Logic
+        // --- Pet Agent Logic (QQ Pet Style) ---
         const chatWidget = {
             isOpen: false,
-            history: [], // Conversation history
+            isDragging: false,
+            history: [],
+            moveTimer: null,
+            bubbleTimer: null,
+            idleMessages: [
+                "主人，今天也要加油哦！✨",
+                "摸摸头，心情会变好～",
+                "在看我的作品吗？(●'◡'●)",
+                "呼叫主人！你在哪里？",
+                "AI 进化中... 哔哔...",
+                "我想喝赛博奶茶了 🥤"
+            ],
             
             init() {
                 this.cacheDOM();
                 this.bindEvents();
-                this.makeDraggable();
+                this.initPetLogic();
             },
 
             cacheDOM() {
@@ -1003,27 +1014,151 @@
                 this.input = document.getElementById('chat-input');
                 this.sendBtn = document.getElementById('chat-send-btn');
                 this.header = document.getElementById('chat-header');
+                this.bubble = document.getElementById('pet-bubble');
             },
 
             bindEvents() {
-                this.btn.addEventListener('click', () => this.toggleChat());
+                // Toggle Chat
+                this.btn.addEventListener('click', (e) => {
+                    if (!this.isDragging) this.toggleChat();
+                });
+                
                 this.closeBtn.addEventListener('click', () => this.toggleChat());
                 this.sendBtn.addEventListener('click', () => this.sendMessage());
                 this.input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.sendMessage();
                 });
+
+                // Dragging Logic for the PET
+                let startX, startY, initialRight, initialBottom;
+                
+                const onDragStart = (e) => {
+                    if (this.isOpen) return;
+                    this.isDragging = false;
+                    const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                    
+                    const rect = this.container.getBoundingClientRect();
+                    initialRight = window.innerWidth - rect.right;
+                    initialBottom = window.innerHeight - rect.bottom;
+                    
+                    document.addEventListener('mousemove', onDragging);
+                    document.addEventListener('mouseup', onDragEnd);
+                    document.addEventListener('touchmove', onDragging);
+                    document.addEventListener('touchend', onDragEnd);
+                    
+                    clearTimeout(this.moveTimer); // Stop random move while dragging
+                };
+
+                const onDragging = (e) => {
+                    this.isDragging = true;
+                    const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                    const dx = touch.clientX - startX;
+                    const dy = touch.clientY - startY;
+                    
+                    const newRight = initialRight - dx;
+                    const newBottom = initialBottom - dy;
+                    
+                    this.container.style.right = `${newRight}px`;
+                    this.container.style.bottom = `${newBottom}px`;
+                    this.container.style.transition = 'none'; // Smooth move
+                    
+                    this.showBubble("放开我，主人！(っ °Д °;)っ");
+                };
+
+                const onDragEnd = () => {
+                    document.removeEventListener('mousemove', onDragging);
+                    document.removeEventListener('mouseup', onDragEnd);
+                    document.removeEventListener('touchmove', onDragging);
+                    document.removeEventListener('touchend', onDragEnd);
+                    
+                    this.container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                    this.startIdleBehavior();
+                    
+                    if (this.isDragging) {
+                        this.showBubble("好晕啊... @﹏@");
+                        setTimeout(() => this.isDragging = false, 100);
+                    }
+                };
+
+                this.btn.addEventListener('mousedown', onDragStart);
+                this.btn.addEventListener('touchstart', onDragStart);
+                
+                // Interaction
+                this.btn.addEventListener('mouseenter', () => {
+                    if (!this.isOpen) {
+                        this.btn.classList.add('pet-happy');
+                        this.showBubble("贴贴！(✿◡‿◡)");
+                    }
+                });
+                this.btn.addEventListener('mouseleave', () => {
+                    this.btn.classList.remove('pet-happy');
+                });
+            },
+
+            initPetLogic() {
+                this.startIdleBehavior();
+                // Say hello on load
+                setTimeout(() => this.showBubble("主人，你终于来看我啦！"), 1000);
+            },
+
+            startIdleBehavior() {
+                const scheduleNext = () => {
+                    const delay = 10000 + Math.random() * 20000; // 10-30s
+                    this.moveTimer = setTimeout(() => {
+                        if (!this.isOpen && !this.isDragging) {
+                            this.randomMove();
+                            this.randomTalk();
+                        }
+                        scheduleNext();
+                    }, delay);
+                };
+                scheduleNext();
+            },
+
+            randomMove() {
+                const range = 100; // Max pixels to move from current
+                const rect = this.container.getBoundingClientRect();
+                
+                let dr = (Math.random() - 0.5) * range * 2;
+                let db = (Math.random() - 0.5) * range * 2;
+                
+                let newRight = parseFloat(this.container.style.right || 30) + dr;
+                let newBottom = parseFloat(this.container.style.bottom || 30) + db;
+                
+                // Boundary check
+                newRight = Math.max(20, Math.min(window.innerWidth - 100, newRight));
+                newBottom = Math.max(20, Math.min(window.innerHeight - 100, newBottom));
+                
+                this.container.style.right = `${newRight}px`;
+                this.container.style.bottom = `${newBottom}px`;
+            },
+
+            randomTalk() {
+                const msg = this.idleMessages[Math.floor(Math.random() * this.idleMessages.length)];
+                this.showBubble(msg);
+            },
+
+            showBubble(text) {
+                this.bubble.textContent = text;
+                this.bubble.classList.add('show');
+                clearTimeout(this.bubbleTimer);
+                this.bubbleTimer = setTimeout(() => {
+                    this.bubble.classList.remove('show');
+                }, 3000);
             },
 
             toggleChat() {
                 this.isOpen = !this.isOpen;
                 if (this.isOpen) {
                     this.window.classList.remove('hidden');
-                    this.btn.style.display = 'none'; // Hide FAB when open
+                    this.btn.style.opacity = '0.3'; // Dim FAB
                     this.scrollToBottom();
-                    this.logEvent('chat_opened');
+                    this.showBubble("有什么想聊的吗？");
                 } else {
                     this.window.classList.add('hidden');
-                    this.btn.style.display = 'flex';
+                    this.btn.style.opacity = '1';
                 }
             },
 
@@ -1031,52 +1166,38 @@
                 const text = this.input.value.trim();
                 if (!text) return;
 
-                // User Message
                 this.appendMessage('user', text);
                 this.input.value = '';
                 this.history.push({ role: 'user', content: text });
 
-                // Loading State
                 const loadingId = this.appendLoading();
 
                 try {
-                    // Use relative URL properly - should work in most cases but let's be robust
                     const res = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             message: text,
-                            history: this.history.slice(-10) // Keep last 10 turns context
+                            history: this.history.slice(-10)
                         })
                     });
                     
                     const data = await res.json();
-
-                    if (!res.ok) {
-                        throw new Error(data.reply || data.error || `Server error: ${res.status}`);
-                    }
+                    if (!res.ok) throw new Error(data.reply || data.error);
                     
-                    // Remove loading
                     this.removeMessage(loadingId);
-                    
-                    // Bot Message with Typewriter
                     this.typeWriter(data.reply);
                     this.history.push({ role: 'assistant', content: data.reply });
-                    this.logEvent('message_sent');
+                    
+                    // Reactive behavior
+                    if (data.reply.length > 20) {
+                        this.btn.classList.add('pet-happy');
+                        setTimeout(() => this.btn.classList.remove('pet-happy'), 2000);
+                    }
 
                 } catch (err) {
-                    console.error("Chat fetch error:", err);
                     this.removeMessage(loadingId);
-                    // Check if it's a connection refused error
-                    let errorMsg = '抱歉，网络出了点小差错，请稍后再试。';
-                    
-                    // Use specific error message if available from backend (parsed above)
-                    if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
-                        errorMsg = err.message;
-                    } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-                        errorMsg = '无法连接到服务器。请确保后端服务正在运行 (npm start)。';
-                    }
-                    this.appendMessage('bot', errorMsg);
+                    this.appendMessage('bot', "连接断开了，主人可以检查一下后端服务器哦~");
                 }
             },
 
@@ -1092,7 +1213,7 @@
             appendLoading() {
                 const div = document.createElement('div');
                 div.className = 'message bot-message';
-                div.innerHTML = '<i class="fas fa-ellipsis-h fa-fade"></i>'; // FontAwesome loading
+                div.innerHTML = '<i class="fas fa-ellipsis-h fa-fade"></i>';
                 div.id = 'msg-' + Date.now();
                 this.messages.appendChild(div);
                 this.scrollToBottom();
@@ -1111,8 +1232,7 @@
                 this.scrollToBottom();
 
                 let i = 0;
-                const speed = 30; // ms per char
-
+                const speed = 30;
                 const type = () => {
                     if (i < text.length) {
                         div.textContent += text.charAt(i);
@@ -1128,61 +1248,6 @@
 
             scrollToBottom() {
                 this.messages.scrollTop = this.messages.scrollHeight;
-            },
-
-            makeDraggable() {
-                // Only on desktop
-                if (window.innerWidth <= 600) return;
-
-                let isDragging = false;
-                let currentX;
-                let currentY;
-                let initialX;
-                let initialY;
-                let xOffset = 0;
-                let yOffset = 0;
-
-                const dragStart = (e) => {
-                    initialX = e.clientX - xOffset;
-                    initialY = e.clientY - yOffset;
-
-                    if (e.target === this.header || this.header.contains(e.target)) {
-                        isDragging = true;
-                    }
-                };
-
-                const dragEnd = () => {
-                    initialX = currentX;
-                    initialY = currentY;
-                    isDragging = false;
-                };
-
-                const drag = (e) => {
-                    if (isDragging) {
-                        e.preventDefault();
-                        currentX = e.clientX - initialX;
-                        currentY = e.clientY - initialY;
-
-                        xOffset = currentX;
-                        yOffset = currentY;
-
-                        setTranslate(currentX, currentY, this.window);
-                    }
-                };
-
-                const setTranslate = (xPos, yPos, el) => {
-                    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-                };
-
-                this.header.addEventListener("mousedown", dragStart);
-                document.addEventListener("mouseup", dragEnd);
-                document.addEventListener("mousemove", drag);
-            },
-            
-            logEvent(eventName) {
-                // Placeholder for Analytics (A/B Testing)
-                console.log(`[Analytics] Event: ${eventName}`);
-                // Example: gtag('event', eventName, { ... });
             }
         };
 
