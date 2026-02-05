@@ -1676,24 +1676,48 @@
     word-wrap: break-word;
 }
 
-/* Markdown Support inside Messages */
+/* Markdown Support inside Messages - Tech UI Polish */
 .message p {
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
 }
 
 .message p:last-child {
     margin-bottom: 0;
 }
 
+/* Styled Lists as "Data Nodes" */
 .message ul, .message ol {
-    margin-bottom: 0.8rem;
-    padding-left: 1.2rem;
+    margin-bottom: 1.2rem;
+    padding-left: 0;
+    list-style: none;
 }
 
 .message li {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.8rem;
+    padding: 10px 14px;
+    background: rgba(0, 243, 255, 0.05);
+    border-left: 3px solid var(--neon-blue);
+    border-radius: 4px 12px 12px 4px;
+    font-size: 0.9rem;
+    position: relative;
+    transition: all 0.3s;
 }
 
+.message li:hover {
+    background: rgba(0, 243, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.message li strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--neon-blue);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Headers & Strong Text */
 .message strong {
     color: var(--neon-blue);
     font-weight: 700;
@@ -1701,6 +1725,25 @@
 
 .bot-message strong {
     text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+}
+
+/* Blockquote as "System Alert" */
+.message blockquote {
+    border-left: 4px solid var(--neon-purple);
+    background: rgba(188, 19, 254, 0.05);
+    padding: 10px 15px;
+    margin: 1rem 0;
+    font-style: italic;
+    border-radius: 0 8px 8px 0;
+}
+
+/* Code Blocks */
+.message code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #ff79c6;
 }
 
 .bot-message {
