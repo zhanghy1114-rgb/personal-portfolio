@@ -1,0 +1,123 @@
+{
+  "settings": {
+    "backgroundColor": "#080708",
+    "backgroundImage": "bg-highres.jpg",
+    "backgroundMusic": "bgm.mp3",
+    "particlesEnabled": true,
+    "adminPassword": "admin",
+    "certLink": "https://xnqfxp3scj.feishu.cn/wiki/Gk2Gw3nsairNrbk3xuScKFu7nxe?from=from_copylink",
+    "certCover": "我的证书背景图片.jpg",
+    "videoLink": "https://xnqfxp3scj.feishu.cn/wiki/SjN7wVngYicUc5k57yRcBfI3nTh?from=from_copylink",
+    "workflowCover": "我的工作流背景图片.jpg",
+    "workflowLink": "https://xnqfxp3scj.feishu.cn/wiki/JS8bwgSkHiCEIJkbQuacvAs2ngh?from=from_copylink",
+    "videoCover": "我的视频.jpg",
+    "contactEmail": "1031824819@qq.com",
+    "qrDouyin": "qr_douyin.png",
+    "qrXiaohongshu": "qr_xiaohongshu.png",
+    "qrVideoAccount": "qr_video.png",
+    "contactHandle": "毓见Agent"
+  },
+  "projects": [
+    {
+      "id": 1769830445950,
+      "title": "用飞书多维表格生成书单号 IP 人物形象",
+      "description": "随着书单号业务的发展，需要一个高效的工作流来管理书单号 IP 人物形象。飞书作为一款功能强大的办公协同工具，将书单号 IP 人物形象工作流集成到飞书中，能够让团队成员在统一的平台上进行沟通、协作和任务管理，减少信息传递的成本，提高工作效率，更好地打造和推广书单号 IP 人物形象，实现业务目标。",
+      "link": "https://xnqfxp3scj.feishu.cn/wiki/Ar0awP647ijcSvkkQ95crdtpnac",
+      "category": "",
+      "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAAgCAYAAACPb1E+AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAKzSURBVFhH7dVLTxNRGMZxvokaF34BFyZSXWhcuIC4EImaGAiN9zYaFBWNYKKouNOphIW3khiLGyOKtlAEQYOgZSRQy62tkoKV2tZOzywfcyDVYd52blTDgsVv08685z+XnpZkmYzVrkT9wWq0FlkspiNbIiKuTQ0adjv8CaHUApljhunImVQCzvE3qBr1GuYc78GCJJFZRpmO5GZ/pXAu1E9itLRGRTLHKEuRHL8zDRPvSYyWkcQ8mWOE5UguKWVxY3qIxBTC31H1DCNWFMllsgxCOECC8qke9WIukyYz9Kw4kpOYjCuTxh7989gUZueSEIMxvB2K4Mt0HOlMlsxU0ox0d8q430E/z4f/mI6MdZOoHHvAB8ddH2wVj7Bu651l1tsElNV44B+YJnM53cgdToYmtwwpS79X64t/JXGcw+/Htko3iVMqt3uQTOffpgxFcmcFGck0PUZNiIwsCzze5sWmnS0kSu1zMEZm5RiO5A7fZPieoMcpJaQMTgd7FwNPtnctPkp1kJqj8TWZo2Qqktt3iaF7mB6rJCbmccLjw8btLhJElAoYC2nvn6Yjc+pcMqJz9BzO5R6mMQUcu9hJzlezHMntrmV47GN/flTxH2nYz3eQkEI22Fy6d1E3su2VdmSO/TqDx5vE5rJ7JERLc+sHsmY+RYnMKa+No7p+EFv2PCRBajUXvEiktDfxfxKptPfMJCpP9cBW0fY3rlTArkPtOFgfwkSUrleIZqTeO2kFf4/fiXQtLZqRT7roIitRVscgTtJ19GhG8i3mQCNdzIr9DQxT3+gaRmhGchlJxssBGVVXrT36ystL29TPFJ1tlG5kDt8L/R8Zjt6iIfnUNC1dHL9I9SyzDEcq8f/vsRmG3gDD0x6GBy9kPOuT0S/KCIb1/9/NshT5v61FFstaZLH8BjPB+4BIApGpAAAAAElFTkSuQmCC"
+    },
+    {
+      "id": 1769830613081,
+      "title": "AI短剧生成平台",
+      "description": "打造一个具备剧本管理和项目管理功能的 AI 短剧生成平台。剧本管理可对剧本进行操作，项目管理能依据剧本创建具体项目，涵盖剧本基本信息、演员列表、服装列表、道具列表、场景列表等内容。同时，剧本包含分镜头，分镜头包含当前演员、场景、剧情说明、AI 生成图像参考列表、AI 生成视频参考列表，方便用户创作 AI 短剧。",
+      "link": "https://app-7wxdpp3waqdd.appmiaoda.com",
+      "category": "",
+      "iconUrl": "短剧拉片智能体.png"
+    },
+    {
+      "id": 1769830726749,
+      "title": "Ai短剧全流程教程",
+      "description": "面对万亿规模市场中飞速崛起的千亿级短剧赛道，本作品提供了从0到1的AI短剧全流程制作指南，帮助您抓住新机遇。",
+      "link": "https://xnqfxp3scj.feishu.cn/wiki/FNNbwaJmMiijWTk114wcCDiAnLb",
+      "category": "",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769830859748,
+      "title": "MindFlow Al",
+      "description": "构建一个以用户为中心的AI原生学习伴侣，通过智能捕获、自动结构化、知识网络化、主动复习四大支柱，将用户从信息处理“苦力”中解放，真正转向知识内化与创造，极大提升学习沉浸感、深度与长期记忆保留率。",
+      "link": "https://df181ab686dc4102a6c22fbff2558a3a.prod.enter.pro",
+      "category": "",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769975364934,
+      "title": "商业Prompt资源库",
+      "description": "这是一个专为商业场景深度优化的高质量AI指令集合。不同于网络上零散的通用提示语，这里的每一条Prompt都经过精心设计与实战验证，旨在解决具体的商业问题、提升专业工作效率。",
+      "link": "https://xnqfxp3scj.feishu.cn/wiki/NiGSwRyrhidEXnkeMhUcJB5tnbh?from=from_copylink",
+      "category": "",
+      "iconUrl": ""
+    }
+  ],
+  "media": [],
+  "agents": [],
+  "tools": [
+    {
+      "id": 1769830103137,
+      "name": "WaytoAGI",
+      "description": "通往AGI之路",
+      "link": "https://www.waytoagi.com/zh",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769831030684,
+      "name": "刺猬星球",
+      "description": "AI-社区导航（有免费商用字体）",
+      "link": "https://www.super-i.cn/",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769831207612,
+      "name": "Agent Skills 社区",
+      "description": "Skills 社区导航",
+      "link": "https://skillsmp.com/zh",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769831575977,
+      "name": "哩布哩布AI",
+      "description": "AI-整合平台",
+      "link": "https://www.liblib.art/",
+      "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADUAAAA+CAYAAACLIVOzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAMASURBVGhD7ZnZaxNBHMf7D4mKJ4r44IWCgoiQiKAi0nqRVGk9qChKkBYfRDStAasgHogUo2JRVCpWi4qKxlqQ1rPaWneTzbWbt5GJrt3MbNyZ2fktbJmHz8vuZDIfduc7v5ltqFQqaKrRQF6YCiipsKCkwoKSCgtKKiwoKRF6HpfQuiNZ6jokoFLjmoXm7dLRtG0aejNcpu5DASrV1m1UhTBdtwrUfSjApN6OlP8JYTZ35Kg2UIBJRRK5GqkZjRrK5S2qHQQgUtcflWqEbO6/LFFtIZAupRsWWtT8JxxIEpfyVHsIpEu1XylQMjZrDgUT7VKlhkdNNLOJlnEypsHPK6lSW0/UhoMb1/rg55U0qXsv3MOBZG+XQf1WNlKkSuUKWtbqHg4kC2I6siy6D5lIkepM1w8HN159gCuZUqmUf6nRCQvN2cn2lGw6b8KVTJFIxL9Uy9k8NWgvNrXDlUy+pZ4PmdSAWcCFLtmXLHxJ4cmO90nkgL2Yv1uvbknI/mQRjUbFpS4/KFIDZuF8b5HqSybCUhNZCy2M8YUDBpdJpkn3JxNhqWMX+cMB8+y9SfUlGyGpoc8mmt5ID9iLeBIuHJwISW08zh8Os7br1fWM7AsCbqnbA2z1HcnpG3CLLQm31JIW/nBYeSCYPZQNl9SpHr76zibdDxvhJMxSX8YsNHsH/1PCNCcN1N1bRE8yZSa+//I395ilYmcmz++8WH80h+b+PcAUYWmrjj79EBdjkurP1J7fOVm8R68WtPj0aPDj5BoUTfAnpJMV+3X0dVxMjElqg2OA+BVsOmmgc3eK1cNKsi0Gn8SSgxRh+T4xMSYp/Ool0wU0MOgu4eTCXbF6sB44Ob/95BNjkmLl6kO5QjarDma5wkOaFJSQDY+YFCloIRssxrIP8y0VlJDN6jZvMV9SQQvZeIkJS+FTVvLPgmTt4SzSDHexeDzOL9X3uv5iHCRb/vMRj1tKy1no6TuTqtmCJjNSfxfNLRUGlFRYUFJhQUmFBSUVFpRUWFBSYeE3d8vGpeekTSMAAAAASUVORK5CYII="
+    },
+    {
+      "id": 1769831762960,
+      "name": "RunningHub",
+      "description": "AI-整合平台",
+      "link": "https://www.runninghub.cn/",
+      "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAvCAYAAACc5fiSAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAMfSURBVGhD7ZjdS1NhHMfn5ktmabrp5nzZcqaZztLNSNPQVZpaZqnLFF9n1ugiiAwUi0LwwhsLsxScaZYSQTfdSSBEQViQ9P7f/OKRDp6e79km0c4zw4vPzXm+3x+fnbOznfNoEhJTaCui4Q9sFbbF1eb/Fd+TZKQkoxmOhwJjlg2O+cOvuNFmo2LPeap/fIv6fi6pQtcHHzUujZDzSgsZMizgFFTcWuqg6vs3YLCa1E4Nks1VBm5+xdnlqp0ehEEiYB7JmVaQVhR3Xm6BASIp8V4AaUXxOt8wlEXS+GIUpBXFW19PQFkkPWvzZMrNCS7u+fYMyjxpZXZKzE7/TRrFW0wUZ9JTst1GqSV5f5BZVUz2nnpyjV+jro+zMGszKP0c/7W4RqMBjgx1Uu3sEKUczIY1hjYqkva7XdT+9hHMDIQq4my99+tTsp48DOsScal6ci+Pw1x/qCbO8HxfJIvLARmJWH0Cta5s7n5SVZzR8/kJ7TIbICehz7PAbCVUF2ccveOBnJzqRwPQ4REi3r02t35T8lkJ9nXiOzxCxBkZxw5BVkIXE0W9XxagI0eYeGHfGcjKaXo1Bh05wsRLh7shK+fUTOCHOmHiRd5zkJXT+HIUOnKEiQf6M4rQRlD3pznoyBEizm68yB3RkJVILy+EDo8Q8YqRfsjJOTFxHTo8qosH/ec8YKW+H4swn0dVcfaskllZDBmJWH08XVx5ALOVUE2cPR1ajjthXYJdBffyPZjrD1XEq6cGyFCQBWsMrU5H+85WUPu7aZgZiJCLG/L3whuQNlIHudzmKmp78xDm+iPk4vzNyYjevRNyjJj4OGp4PgJ5JcJKnMHeWfm8EmEnzqgcuwodnrAUN5cWQIcnLMUZHasz0JPzT8U39lU2UBLnM0qwLQ2+J2dT4h3vA396ERjSM4OLs+1dviiShoW7lJSSGlzccakJyiJxeltAWlHcnJ9HNZPBtwzUoGbypuKGp6I4I6PIvl7iB6lJvW+YsspLwC2gOIOdeUd/M9VND1Lnqg8Gh4K2lUk6PX+bnF43mXKUz3RQ8XBnW1xttqz4L9N0ZepFOeBaAAAAAElFTkSuQmCC"
+    },
+    {
+      "id": 1769831863075,
+      "name": "魔搭社区",
+      "description": "AI-整合平台",
+      "link": "https://modelscope.cn/home",
+      "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAE4AAAA5CAYAAACYjR1kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAOZSURBVHhe7ZnZTxNRFIf9/4wPEJ9ckECjMRIXNBqNEPcVteISH1SM4vJgELeokKjB6INiNAJCKVB2IsVC6XQ6M52Zn7k1LnNPC/SIicv5ku+lmbnLx0w6HZZAYLFE/0BYGBKOiYRjIuGYSDgmEo6JhGMi4ZhIOCYSjomEYyLhmCxauE/jHi6GHdTV2gGP11jkM+XJPTbMtK8Pw+Zxc5bMkZu/Vs0fXMPpAzZev3D1IYpi0cIN9nnYFrJQttRckOXLTMwmFy/cxbBN5ijk2uUZPLid1YcoCgnHRMIxkXBMig43kbHwMv6Z2PQmgQ3labLIvdUWLtXbxIYzNixLH51PW6tL5lCePWwjVBpcU0WpifqGGbTF48QPMzOwPU8fnlB0uOef4ljf/o5Yce8jylYlSbgnzb/2l/1VxoZ9bFytXXUlBirCw2QPyvrePiRsWx+GIOEkXH4kHBMJx+SPCfd0IIHQ3W5i5ZV+VG9OYce6TMAXrYXDRVMpdCVniaOmiXwPKq7vo98wyPHKWDqtH55jcsLH8RobtZus79ZUZ7D5zDjZg/LUqyEkTEcfhlB0uJZWC6vKpokbqpJoe+6gp8MNmIjnS/CVQx97sPHte2Lj4DAcj55nui6OdkfI8cpwpE8/PEfWASZGfIwO/jDW56GhwSR7UB6rM5BI/IbHkdb7WXI7KrdWWhgfmX/Cn9nb2U1uFeWV2BAcn4ZLuy4OdOU/p64nqh9eENvy0dTokD0o1UuJxBSdW0fCSTgJ92+Ge/bIzf32092+LoP+iI9UMqgzxzd7XU8vtr/v0OxE48AokikPpoGAU7NZnOiO5jmnA+ejA/rwOdTPTiMVXNP0Z+D2VYfsQXlq328KNzXp4cNbl9jW4iK838bhnVbA9peF37QOGmn0poyAkaSBh8/SOLLbwpFdQcMHLbQPBI//5ohp6sPnmJr0ce5ocF3Hdlu4c90he1DGol7um3g+ig5XiEKvlZ7cLfwclw91hbTcy2LNMnobVa0wMTo0/9XwM2PDHraUB8cJlWbQfHMBdeZAwjGRcEwkHBMJx2RRw22tzJDNXrvgINLp5dXK0Ajq8a23y8Otyw5uXQqqvgmT0/oZX5kYo+MrXz11UbUyuK5QiYnmG39QuHxX3FyOxGg4LsX8s6ayxETTdQmXQ8IxkXBMJByTvzbc/4aEYyLhmEg4JhKOiYRjIuGYSDgmEo6JhGMi4ZhIOCYSjomEY/IFPxDM56se1PoAAAAASUVORK5CYII="
+    },
+    {
+      "id": 1769831911448,
+      "name": "扣子空间",
+      "description": "AI-整合平台",
+      "link": "https://www.coze.cn/",
+      "iconUrl": ""
+    },
+    {
+      "id": 1769831983078,
+      "name": "秒哒",
+      "description": "AI-整合平台",
+      "link": "https://www.miaoda.cn/",
+      "iconUrl": ""
+    }
+  ],
+  "articles": []
+}
