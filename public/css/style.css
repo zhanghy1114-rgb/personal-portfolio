@@ -1393,49 +1393,100 @@
     75% { transform: translate3d(-50%, -2px, 25px) rotate(-1deg); }
 }
 
-/* Simple Energy Rings (Grounding effect at feet) */
-.avatar-ring {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
+/* Avatar Container in FAB - Premium Tech Polish */
+.avatar-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
     border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: var(--neon-blue);
-    border-bottom-color: var(--neon-purple);
-    animation: spin 4s linear infinite;
-    z-index: -1;
-    transform: translateZ(-10px) rotateX(20deg);
+    /* Soft holographic floor */
+    background: radial-gradient(circle at 50% 100%, 
+        rgba(0, 243, 255, 0.4) 0%, 
+        rgba(188, 19, 254, 0.15) 30%, 
+        transparent 70%);
+    overflow: visible; 
+    border: 2px solid rgba(0, 243, 255, 0.5);
+    box-shadow: 
+        0 0 25px rgba(0, 243, 255, 0.3),
+        inset 0 0 15px rgba(0, 243, 255, 0.2);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.avatar-ring.delay {
-    border: 2px solid transparent;
-    border-left-color: var(--neon-blue);
-    border-right-color: var(--neon-purple);
-    animation: spin-reverse 6s linear infinite;
+/* Character Energy Aura (Backglow) */
+.avatar-container::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 60%;
+    background: var(--neon-blue);
+    filter: blur(30px);
+    opacity: 0.3;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translateZ(5px);
+    animation: aura-pulse 3s infinite ease-in-out;
+}
+
+@keyframes aura-pulse {
+    0%, 100% { opacity: 0.2; transform: translateZ(5px) scale(1); }
+    50% { opacity: 0.4; transform: translateZ(5px) scale(1.2); }
+}
+
+.chat-avatar-img {
+    width: 160%; /* Slightly larger for presence */
+    height: 160%;
+    object-fit: contain;
+    position: absolute;
+    bottom: -10px; /* Sits deeper in the 3D space */
+    left: 50%;
+    transform: translate3d(-50%, 0, 40px); /* Significant 3D lift */
+    
+    /* Rim light effect using multiple shadows */
+    filter: 
+        brightness(1.1) 
+        drop-shadow(0 0 5px rgba(0, 243, 255, 0.5))
+        drop-shadow(0 15px 20px rgba(0,0,0,0.6));
+    
+    animation: avatar-float 5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes avatar-float {
+    0%, 100% { transform: translate3d(-50%, 0, 40px); }
+    50% { transform: translate3d(-50%, -15px, 50px); }
+}
+
+/* Reactive Energy Rings */
+.avatar-ring {
+    position: absolute;
     top: -10px;
     left: -10px;
     right: -10px;
     bottom: -10px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top: 3px solid var(--neon-blue);
+    border-bottom: 3px solid var(--neon-purple);
+    animation: spin 4s linear infinite;
+    transform: translateZ(10px) rotateX(75deg);
     opacity: 0.6;
-    transform: translateZ(-20px) rotateY(30deg);
+    filter: blur(1px);
 }
 
-/* 3D Glass Reflection Effect (Subtle) */
-.avatar-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 40%, rgba(0,243,255,0.1) 100%);
-    pointer-events: none;
-    transform: translateZ(10px);
-    opacity: 0.4;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.avatar-ring.delay {
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    border: 1px solid var(--neon-blue);
+    border-left: 4px solid var(--neon-blue);
+    animation: spin-reverse 7s linear infinite;
+    transform: translateZ(20px) rotateX(60deg) rotateY(10deg);
+    opacity: 0.3;
 }
 
 /* --- Chat Window (Tech UI) --- */

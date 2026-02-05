@@ -1099,18 +1099,23 @@
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
                     
-                    // Increased sensitivity and smoother feel
-                    const rotateX = (y - centerY) / 4;
-                    const rotateY = (centerX - x) / 4;
+                    const rotateX = (y - centerY) / 3; // More reactive
+                    const rotateY = (centerX - x) / 3;
                     
                     const avatarInner = this.btn.querySelector('.avatar-container');
                     const avatarImg = this.btn.querySelector('.chat-avatar-img');
                     
                     avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
                     
-                    // Parallax for the character image itself
-                    avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX/2}px, 50px) rotateY(${rotateY/2}deg)`;
-                    avatarImg.style.filter = `brightness(1.2) drop-shadow(${rotateY}px ${rotateX + 15}px 15px rgba(0,0,0,0.8))`;
+                    // Advanced Parallax: Image moves further than container
+                    avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX}px, 60px) rotateY(${rotateY/2}deg)`;
+                    
+                    // Dynamic lighting: shadow shifts with tilt
+                    avatarImg.style.filter = `
+                        brightness(1.2) 
+                        drop-shadow(${rotateY * 0.5}px ${rotateX * 0.5 + 10}px 10px rgba(0, 243, 255, 0.4))
+                        drop-shadow(${rotateY}px ${rotateX + 20}px 25px rgba(0,0,0,0.7))
+                    `;
                 });
 
                 this.btn.addEventListener('mouseleave', () => {
