@@ -1325,6 +1325,25 @@
                 </div>
             </div>
 
+            <!-- Agents Settings -->
+            <div class="settings-section" id="tab-agents">
+                <div class="admin-section" style="margin-top:0; border-top:none;">
+                    <h4>添加智能体</h4>
+                    <div class="form-group">
+                        <input type="text" id="agentTitle" placeholder="智能体名称">
+                        <input type="text" id="agentDesc" placeholder="简短描述">
+                        <input type="text" id="agentLink" placeholder="链接地址">
+                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
+                        <input type="file" id="agentIconInput" accept="image/*">
+                        <button class="btn-upload" onclick="addAgent()">添加智能体</button>
+                    </div>
+                </div>
+                <div class="admin-section">
+                    <h4>管理智能体</h4>
+                    <div id="adminAgentsList" class="admin-list"></div>
+                </div>
+            </div>
+
             <!-- Certificates Settings -->
             <div class="settings-section" id="tab-certificates">
                 <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
@@ -1784,6 +1803,7 @@
 
                 // Render Admin Lists
                 renderAdminList('adminProjectsList', data.projects, 'projects');
+                renderAdminList('adminAgentsList', data.agents, 'agents');
                 renderAdminList('adminCertificatesList', data.certificates, 'certificates');
                 
                 // Split Media into Videos and Workflow for Admin List
