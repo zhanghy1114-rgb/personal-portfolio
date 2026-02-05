@@ -1365,8 +1365,36 @@
     object-position: top;
     border-radius: 50%;
     animation: avatar-breathe 4s infinite ease-in-out;
-    transform: translateZ(20px); /* Lift image off background */
+    transform: translateZ(20px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    
+    /* 数字抠图效果：边缘羽化，让背景不那么突兀 */
+    -webkit-mask-image: radial-gradient(circle, black 55%, transparent 100%);
+    mask-image: radial-gradient(circle, black 55%, transparent 100%);
+    
+    /* 增加亮度调节，使其更像发光体 */
+    filter: brightness(1.1) contrast(1.1);
+}
+
+/* 增加头像内部的动态扫描线 */
+.avatar-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 243, 255, 0.2) 50%,
+        transparent 100%
+    );
+    background-size: 100% 200%;
+    animation: scanline-move 3s linear infinite;
+    z-index: 10;
+    pointer-events: none;
+    border-radius: 50%;
 }
 
 /* 3D Glass Reflection Effect */
