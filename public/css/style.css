@@ -1404,36 +1404,39 @@
     75% { transform: translate3d(-50%, -2px, 25px) rotate(-1deg); }
 }
 
-/* 3D Glass Reflection Effect (Subtle) */
+/* 3D Orbiting Ring (replacing reflection) */
 .avatar-container::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 40%, rgba(0,243,255,0.1) 100%);
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    border-left: 3px solid var(--neon-blue);
+    animation: spin 5s linear infinite;
+    transform: translateZ(30px) rotateX(45deg) rotateY(45deg);
     pointer-events: none;
-    transform: translateZ(10px);
-    opacity: 0.4;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px var(--neon-blue);
+    opacity: 0.8;
 }
 
-/* Rotating Rings with 3D Offset */
+/* Rotating Rings with 3D Surround Effect */
 .avatar-ring {
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
     border-radius: 50%;
     border: 2px solid transparent;
     border-top-color: var(--neon-blue);
     border-bottom-color: var(--neon-purple);
     animation: spin 4s linear infinite;
-    z-index: -1;
-    transform: translateZ(-10px) rotateX(20deg);
+    /* No z-index, using translateZ to position in 3D space */
+    transform: translateZ(10px) rotateX(75deg);
+    pointer-events: none;
 }
 
 .avatar-ring.delay {
@@ -1441,12 +1444,12 @@
     border-left-color: var(--neon-blue);
     border-right-color: var(--neon-purple);
     animation: spin-reverse 6s linear infinite;
-    top: -15px;
-    left: -15px;
-    right: -15px;
-    bottom: -15px;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
     opacity: 0.6;
-    transform: translateZ(-20px) rotateY(30deg);
+    transform: translateZ(50px) rotateY(75deg);
 }
 
 /* --- Chat Window (Tech UI) --- */
