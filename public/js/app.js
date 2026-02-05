@@ -996,7 +996,11 @@
                 "在看我的作品吗？(●'◡'●)",
                 "呼叫主人！你在哪里？",
                 "AI 进化中... 哔哔...",
-                "我想喝赛博奶茶了 🥤"
+                "我想喝赛博奶茶了 🥤",
+                "嘿！发现隐藏菜单了吗？",
+                "正在扫描您的心情... 状态：优秀！",
+                "我可以帮你优化代码吗？(虽然我现在只想玩)",
+                "别忘了喝水哦，人类的硬件很脆弱的~"
             ],
             
             init() {
@@ -1095,17 +1099,28 @@
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
                     
-                    const rotateX = (y - centerY) / 5;
-                    const rotateY = (centerX - x) / 5;
+                    // Increased sensitivity and smoother feel
+                    const rotateX = (y - centerY) / 4;
+                    const rotateY = (centerX - x) / 4;
                     
                     const avatarInner = this.btn.querySelector('.avatar-container');
+                    const avatarImg = this.btn.querySelector('.chat-avatar-img');
+                    
                     avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    
+                    // Parallax for the character image itself
+                    avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX/2}px, 50px) rotateY(${rotateY/2}deg)`;
+                    avatarImg.style.filter = `brightness(1.2) drop-shadow(${rotateY}px ${rotateX + 15}px 15px rgba(0,0,0,0.8))`;
                 });
 
                 this.btn.addEventListener('mouseleave', () => {
                     this.btn.classList.remove('pet-happy');
                     const avatarInner = this.btn.querySelector('.avatar-container');
+                    const avatarImg = this.btn.querySelector('.chat-avatar-img');
+                    
                     avatarInner.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                    avatarImg.style.transform = `translate3d(-50%, -5px, 30px)`;
+                    avatarImg.style.filter = `brightness(1.1) drop-shadow(0 15px 10px rgba(0,0,0,0.7))`;
                 });
 
                 // Interaction
