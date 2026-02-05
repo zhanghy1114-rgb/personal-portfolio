@@ -987,6 +987,7 @@
         const chatWidget = {
             isOpen: false,
             isDragging: false,
+            isChasing: false,
             history: [],
             moveTimer: null,
             bubbleTimer: null,
@@ -1012,6 +1013,7 @@
             cacheDOM() {
                 this.container = document.getElementById('chat-widget-container');
                 this.btn = document.getElementById('chat-toggle-btn');
+                this.avatarImg = this.btn.querySelector('.chat-avatar-img');
                 this.window = document.getElementById('chat-window');
                 this.closeBtn = document.getElementById('chat-close-btn');
                 this.messages = document.getElementById('chat-messages');
@@ -1024,7 +1026,7 @@
             bindEvents() {
                 // Toggle Chat
                 this.btn.addEventListener('click', (e) => {
-                    if (!this.isDragging) this.toggleChat();
+                    if (!this.isDragging && !this.isChasing) this.toggleChat();
                 });
                 
                 this.closeBtn.addEventListener('click', () => this.toggleChat());
@@ -1033,7 +1035,7 @@
                     if (e.key === 'Enter') this.sendMessage();
                 });
 
-                // Dragging Logic for the PET
+                // Dragging Logic
                 let startX, startY, initialRight, initialBottom;
                 
                 const onDragStart = (e) => {
@@ -1052,7 +1054,7 @@
                     document.addEventListener('touchmove', onDragging);
                     document.addEventListener('touchend', onDragEnd);
                     
-                    clearTimeout(this.moveTimer); // Stop random move while dragging
+                    clearTimeout(this.moveTimer);
                 };
 
                 const onDragging = (e) => {
@@ -1061,12 +1063,9 @@
                     const dx = touch.clientX - startX;
                     const dy = touch.clientY - startY;
                     
-                    const newRight = initialRight - dx;
-                    const newBottom = initialBottom - dy;
-                    
-                    this.container.style.right = `${newRight}px`;
-                    this.container.style.bottom = `${newBottom}px`;
-                    this.container.style.transition = 'none'; // Smooth move
+                    this.container.style.right = `${initialRight - dx}px`;
+                    this.container.style.bottom = `${initialBottom - dy}px`;
+                    this.container.style.transition = 'none';
                     
                     this.showBubble("放开我，主人！(っ °Д °;)っ");
                 };
@@ -1089,69 +1088,80 @@
                 this.btn.addEventListener('mousedown', onDragStart);
                 this.btn.addEventListener('touchstart', onDragStart);
                 
-                // 3D Tilt Effect
-                this.btn.addEventListener('mousemove', (e) => {
-                    if (this.isDragging || this.isOpen) return;
+                // 3D Tilt & Mouse Tracking
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isOpen || this.isDragging) return;
+
                     const rect = this.btn.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+                    const petX = rect.left + rect.width / 2;
+                    const petY = rect.top + rect.height / 2;
                     
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    
-                    const rotateX = (y - centerY) / 3; // More reactive
-                    const rotateY = (centerX - x) / 3;
-                    
-                    const avatarInner = this.btn.querySelector('.avatar-container');
-                    const avatarImg = this.btn.querySelector('.chat-avatar-img');
-                    
-                    avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    
-                    // Advanced Parallax: Image moves further than container
-                    avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX}px, 60px) rotateY(${rotateY/2}deg)`;
-                    
-                    // Dynamic lighting: shadow shifts with tilt
-                    avatarImg.style.filter = `
-                        brightness(1.2) 
-                        drop-shadow(${rotateY * 0.5}px ${rotateX * 0.5 + 10}px 10px rgba(0, 243, 255, 0.4))
-                        drop-shadow(${rotateY}px ${rotateX + 20}px 25px rgba(0,0,0,0.7))
-                    `;
+                    const dist = Math.hypot(e.clientX - petX, e.clientY - petY);
+
+                    // If mouse is close, start chasing!
+                    if (dist < 250 && dist > 80 && !this.isChasing) {
+                        this.startChase(e.clientX, e.clientY);
+                    } else if (dist <= 80) {
+                        this.stopChase();
+                        this.handleHover(e, rect);
+                    } else {
+                        this.stopChase();
+                        this.resetTilt();
+                    }
                 });
 
                 this.btn.addEventListener('mouseleave', () => {
                     this.btn.classList.remove('pet-happy');
-                    const avatarInner = this.btn.querySelector('.avatar-container');
-                    const avatarImg = this.btn.querySelector('.chat-avatar-img');
-                    
-                    avatarInner.style.transform = `rotateX(0deg) rotateY(0deg)`;
-                    avatarImg.style.transform = `translate3d(-50%, -5px, 30px)`;
-                    avatarImg.style.filter = `brightness(1.1) drop-shadow(0 15px 10px rgba(0,0,0,0.7))`;
+                    this.resetTilt();
                 });
 
-                // Interaction
                 this.btn.addEventListener('mouseenter', () => {
                     if (!this.isOpen) {
                         this.btn.classList.add('pet-happy');
-                        this.showBubble("贴贴！(✿◡‿◡)");
+                        this.jump(); // Jump when touched!
+                        this.showBubble("抓到你啦！(✿◡‿◡)");
                     }
                 });
-                this.btn.addEventListener('mouseleave', () => {
-                    this.btn.classList.remove('pet-happy');
-                });
+            },
+
+            handleHover(e, rect) {
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 3;
+                const rotateY = (centerX - x) / 3;
+                
+                const avatarInner = this.btn.querySelector('.avatar-container');
+                avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                
+                this.avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX}px, 60px) rotateY(${rotateY/2}deg)`;
+                this.avatarImg.style.filter = `
+                    brightness(1.2) 
+                    drop-shadow(${rotateY * 0.5}px ${rotateX * 0.5 + 10}px 10px rgba(0, 243, 255, 0.4))
+                    drop-shadow(${rotateY}px ${rotateX + 20}px 25px rgba(0,0,0,0.7))
+                `;
+            },
+
+            resetTilt() {
+                const avatarInner = this.btn.querySelector('.avatar-container');
+                avatarInner.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                this.avatarImg.style.transform = `translate3d(-50%, -5px, 40px)`;
+                this.avatarImg.style.filter = `brightness(1.1) drop-shadow(0 15px 10px rgba(0,0,0,0.7))`;
             },
 
             initPetLogic() {
                 this.startIdleBehavior();
-                // Say hello on load
-                setTimeout(() => this.showBubble("主人，你终于来看我啦！"), 1000);
+                setTimeout(() => this.showBubble("主人，来跟我玩抓人游戏吧！"), 1000);
             },
 
             startIdleBehavior() {
                 const scheduleNext = () => {
-                    const delay = 10000 + Math.random() * 20000; // 10-30s
+                    const delay = 15000 + Math.random() * 20000;
                     this.moveTimer = setTimeout(() => {
-                        if (!this.isOpen && !this.isDragging) {
-                            this.randomMove();
+                        if (!this.isOpen && !this.isDragging && !this.isChasing) {
+                            Math.random() > 0.5 ? this.randomMove() : this.jump();
                             this.randomTalk();
                         }
                         scheduleNext();
@@ -1160,9 +1170,60 @@
                 scheduleNext();
             },
 
+            startChase(mx, my) {
+                this.isChasing = true;
+                this.avatarImg.classList.add('pet-running');
+                this.showBubble("别跑！我要抓到你！🏃‍♂️");
+                
+                const updateChase = () => {
+                    if (!this.isChasing) return;
+                    
+                    const rect = this.container.getBoundingClientRect();
+                    const px = rect.left + rect.width / 2;
+                    const py = rect.top + rect.height / 2;
+                    
+                    // Move towards mouse
+                    const dx = mx - px;
+                    const dy = my - py;
+                    
+                    let newRight = parseFloat(this.container.style.right || 30) - dx * 0.05;
+                    let newBottom = parseFloat(this.container.style.bottom || 30) - dy * 0.05;
+                    
+                    this.container.style.right = `${newRight}px`;
+                    this.container.style.bottom = `${newBottom}px`;
+                    this.container.style.transition = 'none';
+                    
+                    requestAnimationFrame(updateChase);
+                };
+                // Use a non-once listener for chase coordinates
+                const updateCoords = (e) => {
+                    mx = e.clientX;
+                    my = e.clientY;
+                };
+                document.addEventListener('mousemove', updateCoords);
+                this._stopCoords = () => document.removeEventListener('mousemove', updateCoords);
+                
+                updateChase();
+            },
+
+            stopChase() {
+                if (!this.isChasing) return;
+                this.isChasing = false;
+                if (this._stopCoords) this._stopCoords();
+                this.avatarImg.classList.remove('pet-running');
+                this.container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+            },
+
+            jump() {
+                if (this.isOpen) return;
+                this.avatarImg.classList.add('pet-jumping');
+                setTimeout(() => this.avatarImg.classList.remove('pet-jumping'), 800);
+                if (Math.random() > 0.7) this.showBubble("嘿咻！跳得高吗？🚀");
+            },
+
             randomMove() {
-                const range = 100; // Max pixels to move from current
-                const rect = this.container.getBoundingClientRect();
+                const range = 150;
+                this.avatarImg.classList.add('pet-running');
                 
                 let dr = (Math.random() - 0.5) * range * 2;
                 let db = (Math.random() - 0.5) * range * 2;
@@ -1170,12 +1231,13 @@
                 let newRight = parseFloat(this.container.style.right || 30) + dr;
                 let newBottom = parseFloat(this.container.style.bottom || 30) + db;
                 
-                // Boundary check
                 newRight = Math.max(20, Math.min(window.innerWidth - 100, newRight));
                 newBottom = Math.max(20, Math.min(window.innerHeight - 100, newBottom));
                 
                 this.container.style.right = `${newRight}px`;
                 this.container.style.bottom = `${newBottom}px`;
+                
+                setTimeout(() => this.avatarImg.classList.remove('pet-running'), 1000);
             },
 
             randomTalk() {

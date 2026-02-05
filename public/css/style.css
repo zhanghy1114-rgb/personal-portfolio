@@ -1318,14 +1318,49 @@
     transform: translateX(50%) translateY(-10px);
 }
 
-/* Interaction Effects */
-.chat-fab.pet-happy {
-    animation: bounce-happy 0.5s ease infinite;
+/* --- Pet Animations (Run, Jump, Catch) --- */
+
+/* Running Animation: Slight tilt and leg-swing simulation */
+.pet-running {
+    animation: pet-run-cycle 0.4s infinite linear !important;
 }
 
-@keyframes bounce-happy {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+@keyframes pet-run-cycle {
+    0%, 100% { transform: translate3d(-50%, -5px, 40px) rotate(5deg); }
+    50% { transform: translate3d(-50%, -15px, 45px) rotate(-5deg); }
+}
+
+/* Jumping Animation: Quick launch and landing */
+.pet-jumping {
+    animation: pet-jump-cycle 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) !important;
+}
+
+@keyframes pet-jump-cycle {
+    0% { transform: translate3d(-50%, 0, 40px) scaleY(0.9); }
+    40% { transform: translate3d(-50%, -60px, 60px) scaleY(1.1); }
+    70% { transform: translate3d(-50%, 0, 40px) scaleY(0.95); }
+    100% { transform: translate3d(-50%, 0, 40px) scaleY(1); }
+}
+
+/* Catching/Grabbing Animation: Leaning forward */
+.pet-catching {
+    animation: pet-catch-cycle 0.5s ease-out !important;
+}
+
+@keyframes pet-catch-cycle {
+    0% { transform: translate3d(-50%, 0, 40px) scale(1); }
+    50% { transform: translate3d(-50%, -10px, 80px) scale(1.1) rotateX(-20deg); }
+    100% { transform: translate3d(-50%, 0, 40px) scale(1); }
+}
+
+/* Happy Bounce */
+.pet-happy .chat-avatar-img {
+    animation: pet-happy-bounce 0.5s ease infinite !important;
+}
+
+@keyframes pet-happy-bounce {
+    0%, 100% { transform: translate3d(-50%, 0, 40px); }
+    50% { transform: translate3d(-50%, -20px, 50px); }
 }
 
 .chat-fab:hover {
