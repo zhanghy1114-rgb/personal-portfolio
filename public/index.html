@@ -1241,6 +1241,7 @@
             <div class="nav-items">
                 <a href="#" class="nav-link active" data-target="home"><i class="fas fa-home"></i> 首页</a>
                 <a href="#" class="nav-link" data-target="works"><i class="fas fa-layer-group"></i> 作品</a>
+                <a href="#" class="nav-link" data-target="agents"><i class="fas fa-robot"></i> 智能体</a>
                 <a href="#" class="nav-link" data-target="tools"><i class="fas fa-tools"></i> 工具</a>
                 <a href="#" class="nav-link" data-target="articles"><i class="fas fa-pen-nib"></i> 文章</a>
             </div>
@@ -1275,8 +1276,9 @@
         </div>
         
         <div class="settings-tabs">
-            <div class="settings-tab active" data-tab="general">通用</div>
+            <div class="settings-tab" data-tab="general">通用</div>
             <div class="settings-tab" data-tab="projects">作品</div>
+            <div class="settings-tab" data-tab="agents">智能体</div>
             <div class="settings-tab" data-tab="certificates">证书</div>
             <div class="settings-tab" data-tab="videos">我的视频</div>
             <div class="settings-tab" data-tab="workflow">我的工作流</div>
@@ -1774,6 +1776,7 @@
                 
                 applySettings(data.settings);
                 renderProjects(data.projects);
+                renderAgents(data.agents);
                 renderCertificates(data.certificates);
                 renderMedia(data.media);
                 renderTools(data.tools);
@@ -1982,10 +1985,25 @@
             `).join('');
             
             const worksGrid = document.getElementById('worksGrid');
-            if(worksGrid) worksGrid.innerHTML = html;
-            // Show first 2 on home
-            const homeProjectsGrid = document.getElementById('homeProjectsGrid');
-            if(homeProjectsGrid) homeProjectsGrid.innerHTML = html;
+            if(worksGrid) worksGrid.innerHTML = html || '<p style="color:#888;">暂无作品</p>';
+        }
+
+        function renderAgents(agents) {
+            const html = (agents || []).map(a => `
+                <a href="${a.link || '#'}" class="project-card" target="_blank">
+                    <div class="project-icon-wrapper">
+                         ${a.iconUrl ? `<img src="${a.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-robot"></i>'}
+                    </div>
+                    <div class="project-info">
+                        <h3>${a.title}</h3>
+                        <p>${a.description}</p>
+                    </div>
+                    <span class="category-pill">Agent</span>
+                </a>
+            `).join('');
+            
+            const agentsGrid = document.getElementById('agentsGrid');
+            if(agentsGrid) agentsGrid.innerHTML = html || '<p style="color:#888;">暂无智能体</p>';
         }
 
         function renderMedia(mediaList) {
@@ -2188,6 +2206,26 @@
                 body: formData
             });
             alert('应用添加成功！刷新页面查看。');
+            fetchData();
+        }
+
+        // Add Agent
+        async function addAgent() {
+            const formData = new FormData();
+            formData.append('title', document.getElementById('agentTitle').value);
+            formData.append('description', document.getElementById('agentDesc').value);
+            formData.append('link', document.getElementById('agentLink').value);
+            
+            const iconFile = document.getElementById('agentIconInput').files[0];
+            if (iconFile) {
+                formData.append('icon', iconFile);
+            }
+            
+            await fetch(`${API_URL}/agents`, {
+                method: 'POST',
+                body: formData
+            });
+            alert('智能体添加成功！');
             fetchData();
         }
 

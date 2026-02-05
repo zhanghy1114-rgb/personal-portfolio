@@ -83,6 +83,7 @@ const defaultDB = {
         qrVideoAccount: ''
     },
     projects: [],
+    agents: [],
     certificates: [],
     media: [],
     tools: [],
@@ -353,6 +354,19 @@ app.post('/api/projects', upload.single('icon'), (req, res) => {
     res.json(newProject);
 });
 
+// Agents
+app.post('/api/agents', upload.single('icon'), (req, res) => {
+    const db = loadDB();
+    const newAgent = {
+        id: Date.now(),
+        ...req.body,
+        iconUrl: req.file ? `data:${req.file.mimetype};base64,${Buffer.from(req.file.buffer).toString('base64')}` : ''
+    };
+    db.agents.push(newAgent);
+    saveDB(db);
+    res.json(newAgent);
+});
+
 // Media
 app.post('/api/upload/media', upload.single('file'), (req, res) => {
     const db = loadDB();
@@ -415,6 +429,7 @@ const createDeleteRoute = (collection) => (req, res) => {
 };
 
 app.delete('/api/projects/:id', createDeleteRoute('projects'));
+app.delete('/api/agents/:id', createDeleteRoute('agents'));
 app.delete('/api/media/:id', createDeleteRoute('media'));
 app.delete('/api/tools/:id', createDeleteRoute('tools'));
 app.delete('/api/certificates/:id', createDeleteRoute('certificates'));
