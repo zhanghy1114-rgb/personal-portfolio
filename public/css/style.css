@@ -1349,8 +1349,8 @@
     height: 100%;
     position: relative;
     border-radius: 50%;
-    background: #000;
-    overflow: visible; /* Changed to visible for 3D elements */
+    background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+    overflow: visible; /* Essential for pop-out */
     border: 2px solid var(--neon-blue);
     box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
     transform-style: preserve-3d;
@@ -1359,21 +1359,15 @@
 }
 
 .chat-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top;
-    border-radius: 50%;
+    width: 140%; /* Scale up for pop-out effect */
+    height: 140%;
+    object-fit: contain;
+    position: absolute;
+    bottom: 5px; /* Stand on the bottom edge */
+    left: 50%;
+    transform: translate3d(-50%, 0, 20px); /* Parallax lift */
+    filter: brightness(1.1) drop-shadow(0 5px 15px rgba(0,0,0,0.5));
     animation: avatar-breathe 4s infinite ease-in-out;
-    transform: translateZ(20px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    
-    /* 数字抠图效果：边缘羽化，让背景不那么突兀 */
-    -webkit-mask-image: radial-gradient(circle, black 55%, transparent 100%);
-    mask-image: radial-gradient(circle, black 55%, transparent 100%);
-    
-    /* 增加亮度调节，使其更像发光体 */
-    filter: brightness(1.1) contrast(1.1);
 }
 
 /* 增加头像内部的动态扫描线 */
@@ -1397,7 +1391,7 @@
     border-radius: 50%;
 }
 
-/* 3D Glass Reflection Effect */
+/* 3D Glass Reflection Effect (Subtle) */
 .avatar-container::after {
     content: '';
     position: absolute;
@@ -1406,10 +1400,10 @@
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
     pointer-events: none;
-    transform: translateZ(30px);
-    opacity: 0.5;
+    transform: translateZ(10px);
+    opacity: 0.3;
 }
 
 /* Rotating Rings with 3D Offset */
