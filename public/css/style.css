@@ -3013,6 +3013,47 @@ body.ai-controlled-site {
     display: grid;
 }
 
+.admin-sync-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(100, 255, 218, 0.065);
+    border: 1px solid rgba(100, 255, 218, 0.16);
+}
+
+.admin-sync-bar strong {
+    display: block;
+    font-size: 0.94rem;
+}
+
+.admin-sync-bar span {
+    display: block;
+    margin-top: 2px;
+    color: rgba(245, 245, 247, 0.56);
+    font-size: 0.75rem;
+}
+
+.admin-sync-bar button {
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #06100d;
+    background: var(--accent);
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.admin-sync-bar button:disabled {
+    opacity: 0.58;
+    cursor: wait;
+}
+
 .admin-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -3104,6 +3145,11 @@ body.ai-controlled-site {
 
     .admin-editor {
         grid-template-columns: 1fr;
+    }
+
+    .admin-sync-bar {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .admin-login-row {

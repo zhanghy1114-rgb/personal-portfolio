@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>柒毓 · 探索AI的无限宇宙</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=20260530-admin-v2">
+    <link rel="stylesheet" href="css/style.css?v=20260530-sync-v1">
 </head>
 <body>
 
@@ -204,6 +204,17 @@
             </form>
 
             <div class="admin-workspace" id="adminWorkspace">
+                <div class="admin-sync-bar">
+                    <div>
+                        <strong>同步到 GitHub</strong>
+                        <span>只同步内容数据，不会提交无关文件</span>
+                    </div>
+                    <button type="button" id="adminSyncBtn">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                        同步
+                    </button>
+                </div>
+                <p class="admin-message" id="adminSyncMessage"></p>
                 <div class="admin-tabs" id="adminTabs"></div>
                 <form class="admin-editor" id="adminEditor"></form>
                 <div class="admin-list" id="adminList"></div>
@@ -214,6 +225,6 @@
     <audio id="bgMusic" loop preload="auto"></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="js/app.js?v=20260530-admin-v2"></script>
+    <script src="js/app.js?v=20260530-sync-v1"></script>
 </body>
 </html>

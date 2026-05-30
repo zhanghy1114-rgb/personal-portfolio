@@ -731,6 +731,33 @@ async function deleteAdminItem(typeKey, id) {
     renderAdminList();
 }
 
+async function syncAdminToGithub() {
+    const btn = document.getElementById('adminSyncBtn');
+    const message = document.getElementById('adminSyncMessage');
+    if (!btn) return;
+
+    btn.disabled = true;
+    if (message) message.textContent = '正在同步到 GitHub...';
+
+    try {
+        const res = await fetch(`${API_URL}/deploy`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Password': getAdminPassword()
+            },
+            body: JSON.stringify({})
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || '同步失败。');
+        if (message) message.textContent = data.message || '同步成功。';
+    } catch (error) {
+        if (message) message.textContent = error.message || '同步失败。';
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 function initAdminPanel() {
     const backdrop = document.getElementById('adminBackdrop');
     const openBtn = document.getElementById('adminOpenBtn');
@@ -741,6 +768,7 @@ function initAdminPanel() {
     const editor = document.getElementById('adminEditor');
     const tabs = document.getElementById('adminTabs');
     const list = document.getElementById('adminList');
+    const syncBtn = document.getElementById('adminSyncBtn');
 
     openBtn?.addEventListener('click', (event) => {
         event.preventDefault();
@@ -794,6 +822,7 @@ function initAdminPanel() {
     });
 
     editor?.addEventListener('submit', submitAdminEditor);
+    syncBtn?.addEventListener('click', syncAdminToGithub);
 
     list?.addEventListener('click', (event) => {
         const btn = event.target.closest('[data-delete-id]');

@@ -260,8 +260,8 @@ async function callCozeService(message, history) {
  * Handle Git Deployment
  */
 async function executeGitDeploy(proxy) {
-    const isWindows = process.platform === 'win32';
-    let gitPath = 'git'; // Default
+    const gitPath = 'git';
+    const contentPath = 'data/db.json';
 
     // Remove stale lock file if exists
     const lockFile = path.join(process.cwd(), '.git', 'index.lock');
@@ -285,43 +285,29 @@ async function executeGitDeploy(proxy) {
         });
     });
 
-    // Detect WSL or Windows Git
-    if (isWindows) {
-        try {
-            await run('wsl --list');
-            gitPath = 'wsl -d Ubuntu-24.04 -e git'; // Prefer WSL if available
-            console.log('Using WSL Git');
-        } catch (e) {
-            gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"'; // Fallback to standard Windows path
-        }
-    }
-
     // Check Git
     try { await run(`${gitPath} --version`); } 
     catch (e) { throw new Error('Git not found. Please install Git.'); }
 
-    // Configure Proxy
+    // Optional local proxy override. Do not touch global Git proxy from the web admin.
     if (proxy) {
-        await run(`${gitPath} config --global http.proxy http://${proxy}`);
-        await run(`${gitPath} config --global https.proxy http://${proxy}`);
-    } else {
-        try {
-            await run(`${gitPath} config --global --unset http.proxy`);
-            await run(`${gitPath} config --global --unset https.proxy`);
-        } catch(e) {}
+        await run(`${gitPath} config http.proxy http://${proxy}`);
+        await run(`${gitPath} config https.proxy http://${proxy}`);
     }
 
-    // Execute Git Flow
-    await run(`${gitPath} add .`);
-    try { await run(`${gitPath} commit -m "Auto-deploy: Sync content"`); } catch(e) {} // Ignore empty commit
-    try { await run(`${gitPath} pull --rebase`); } catch(e) { if(e.stderr.includes('conflict')) throw new Error('Merge conflict detected.'); }
-    
-    // Push with retry
+    const status = await run(`${gitPath} status --porcelain -- ${contentPath}`);
+    if (!status.stdout.trim()) {
+        return '没有需要同步的内容。';
+    }
+
+    await run(`${gitPath} add -- ${contentPath}`);
+    await run(`${gitPath} commit -m "Update site content" -- ${contentPath}`);
+
     let lastError;
     for (let i = 0; i < 3; i++) {
         try {
-            await run(`${gitPath} push`);
-            return "同步成功！GitHub 已接收更新。";
+            await run(`${gitPath} push origin main`);
+            return '同步成功！GitHub 已接收内容更新。';
         } catch(e) {
             lastError = e;
             await new Promise(r => setTimeout(r, 2000));
@@ -535,7 +521,7 @@ app.post('/api/verify-password', (req, res) => {
 });
 
 // Deploy Route
-app.post('/api/deploy', async (req, res) => {
+app.post('/api/deploy', requireAdmin, async (req, res) => {
     if (process.env.VERCEL) {
         return res.json({ success: true, message: 'Cloud environment detected. Changes saved automatically.' });
     }
