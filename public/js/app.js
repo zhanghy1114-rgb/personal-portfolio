@@ -1,1326 +1,1020 @@
-// Use relative path for production (Vercel) compatibility
-        const API_URL = '/api';
-        
-        // Global Settings State to prevent partial updates from resetting other fields
-        let globalSettings = {};
+const API_URL = '/api';
 
-        // --- Data Fetching ---
-        async function fetchData() {
-            try {
-                const res = await fetch(`${API_URL}/data`);
-                const data = await res.json();
-                
-                applySettings(data.settings);
-                renderProjects(data.projects);
-                renderAgents(data.agents);
-                renderCertificates(data.certificates);
-                renderMedia(data.media);
-                renderTools(data.tools);
-                renderArticles(data.articles);
+let musicPlaying = false;
+let siteData = {};
+const bgMusic = document.getElementById('bgMusic');
 
-                // Render Admin Lists
-                renderAdminList('adminProjectsList', data.projects, 'projects');
-                renderAdminList('adminAgentsList', data.agents, 'agents');
-                renderAdminList('adminCertificatesList', data.certificates, 'certificates');
-                
-                // Split Media into Videos and Workflow for Admin List
-                const videos = (data.media || []).filter(m => m.type === 'video');
-                const workflows = (data.media || []).filter(m => m.type === 'image');
-                
-                renderAdminList('adminVideosList', videos, 'media');
-                renderAdminList('adminWorkflowList', workflows, 'media');
+function applyDigitalHumanConcept() {
+    const home = document.getElementById('home');
+    if (!home || home.dataset.digitalConcept === 'true') return;
 
-                renderAdminList('adminToolsList', data.tools, 'tools');
-                renderAdminList('adminArticlesList', data.articles, 'articles');
-            } catch (err) {
-                console.error('Failed to fetch data:', err);
-            }
-        }
+    home.dataset.digitalConcept = 'true';
+    document.body.classList.add('ai-controlled-site');
+    home.classList.add('digital-human-hero');
 
-        // --- New Feature Card Logic ---
+    const content = home.querySelector('.hero-content');
+    if (content) {
+        content.innerHTML = `
+            <div class="hero-badge digital-badge">
+                <span class="badge-dot"></span> QIYU AI STUDIO / LIVE PERSONAL OS
+            </div>
+            <h1 class="hero-title digital-title">
+                <span class="title-line">把想法训练成</span>
+                <span class="title-line title-accent">可执行的 AI 作品</span>
+            </h1>
+            <p class="hero-subtitle digital-subtitle">
+                这里是柒毓的个人 AI 创作中枢：短剧、智能体、Prompt、工作流和现实实验，都被整理成可以继续迭代的实战入口。
+            </p>
+            <div class="home-signal-bar" aria-label="创作状态">
+                <span><i class="fas fa-wand-magic-sparkles"></i> AI 内容生产</span>
+                <span><i class="fas fa-diagram-project"></i> 智能体工作流</span>
+                <span><i class="fas fa-seedling"></i> 现实实验记录</span>
+            </div>
+            <div class="hero-actions digital-actions">
+                <button class="btn-glass" onclick="navigateTo('works')">
+                    <span>进入作品库</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn-ghost" onclick="document.getElementById('chatFab')?.click()">
+                    <span>唤起数字人格</span>
+                    <i class="fas fa-comment-dots"></i>
+                </button>
+            </div>
+            <div class="home-module-rail" aria-label="首页快速入口">
+                <button onclick="navigateTo('works')">
+                    <i class="fas fa-layer-group"></i>
+                    <strong>作品</strong>
+                    <span>短剧 / 学习伴侣 / IP 生成</span>
+                </button>
+                <button onclick="navigateTo('skills')">
+                    <i class="fas fa-route"></i>
+                    <strong>工作流</strong>
+                    <span>从想法到落地的路径</span>
+                </button>
+                <button onclick="navigateTo('prompts')">
+                    <i class="fas fa-terminal"></i>
+                    <strong>Prompt</strong>
+                    <span>可复用的商业指令</span>
+                </button>
+                <button onclick="navigateTo('diary')">
+                    <i class="fas fa-flask"></i>
+                    <strong>实验</strong>
+                    <span>养虾日记与 AI 观察</span>
+                </button>
+            </div>
+        `;
+    }
 
-        async function updateGlobalSetting(key, value) {
-            await fetch(`${API_URL}/settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ [key]: value })
-            });
-            // Update UI immediately
-            applySettings({ [key]: value });
-        }
-
-        async function uploadCover(type, input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            // Show loading
-            const originalLabel = input.previousElementSibling.textContent;
-            input.previousElementSibling.textContent = '正在上传...';
-            input.disabled = true;
-
-            try {
-                const res = await fetch(`${API_URL}/upload/${type}`, { method: 'POST', body: formData });
-                const data = await res.json();
-                
-                // Update UI
-                const settingKey = type; // e.g., 'certCover'
-                applySettings({ [settingKey]: data.url });
-                alert('封面更新成功！');
-            } catch (e) {
-                console.error(e);
-                alert('上传失败');
-            } finally {
-                input.previousElementSibling.textContent = originalLabel;
-                input.disabled = false;
-                input.value = ''; // Clear input
-            }
-        }
-
-        function renderAdminList(elementId, items, type) {
-            const container = document.getElementById(elementId);
-            if (!container) return;
-
-            if (!items || items.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.8rem;">No items yet.</p>';
-                return;
-            }
-
-            container.innerHTML = items.map(item => `
-                <div class="admin-item">
-                    <span class="admin-item-title">${item.title || item.name}</span>
-                    <button class="btn-delete" onclick="deleteItem('${type}', ${item.id})">Delete</button>
+    const visual = document.getElementById('heroVisual');
+    if (visual) {
+        visual.innerHTML = `
+            <div class="persona-stage generated-persona-stage home-studio-stage">
+                <div class="studio-orbit orbit-large"></div>
+                <div class="studio-orbit orbit-small"></div>
+                <img src="qiyu-digital-home-hero-cutout.png?v=20260530-home-v2" alt="柒毓 AI 数字人格" class="digital-human-portrait homepage-digital-portrait">
+                <div class="home-floating-panel panel-now">
+                    <span>NOW BUILDING</span>
+                    <strong>AI 短剧生成平台</strong>
                 </div>
-            `).join('');
-        }
-
-        async function deleteItem(type, id) {
-            if (!confirm('Are you sure you want to delete this item?')) return;
-            
-            try {
-                await fetch(`${API_URL}/${type}/${id}`, { method: 'DELETE' });
-                fetchData(); // Refresh all lists
-            } catch (err) {
-                console.error('Failed to delete:', err);
-                alert('Failed to delete item.');
-            }
-        }
-
-        function applySettings(newSettings) {
-            // Merge new settings into global state
-            globalSettings = { ...globalSettings, ...newSettings };
-            const settings = globalSettings;
-
-            if (settings.backgroundColor) {
-                document.documentElement.style.setProperty('--bg-color', settings.backgroundColor);
-                const bgInput = document.getElementById('bgColorInput');
-                if(bgInput) bgInput.value = settings.backgroundColor;
-            }
-            if (settings.backgroundImage) {
-                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
-            }
-            if (settings.backgroundMusic) {
-                const audio = document.getElementById('bgMusic');
-                const currentSrc = audio.src;
-                const newSrc = settings.backgroundMusic;
-                if (currentSrc !== newSrc && !currentSrc.endsWith(newSrc)) {
-                    audio.src = newSrc;
-                    document.getElementById('playerTitle').textContent = "背景音乐";
-                }
-            }
-            
-            // --- Feature Cards Settings ---
-            
-            // Certificates
-            document.getElementById('feat-cert-link').href = settings.certLink || '#';
-            const inputCert = document.getElementById('settingCertLink');
-            if (inputCert && document.activeElement !== inputCert) inputCert.value = settings.certLink || '';
-
-            if (settings.certCover) {
-                document.getElementById('feat-cert-bg').style.backgroundImage = `url(${settings.certCover})`;
-            } else {
-                 // Default fallback gradient if no image
-                document.getElementById('feat-cert-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
-            }
-
-            // Videos
-            document.getElementById('feat-video-link').href = settings.videoLink || '#';
-            const inputVideo = document.getElementById('settingVideoLink');
-            if (inputVideo && document.activeElement !== inputVideo) inputVideo.value = settings.videoLink || '';
-
-            if (settings.videoCover) {
-                document.getElementById('feat-video-bg').style.backgroundImage = `url(${settings.videoCover})`;
-            } else {
-                document.getElementById('feat-video-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
-            }
-
-            // Workflow
-            document.getElementById('feat-workflow-link').href = settings.workflowLink || '#';
-            const inputWorkflow = document.getElementById('settingWorkflowLink');
-            if (inputWorkflow && document.activeElement !== inputWorkflow) inputWorkflow.value = settings.workflowLink || '';
-
-            if (settings.workflowCover) {
-                document.getElementById('feat-workflow-bg').style.backgroundImage = `url(${settings.workflowCover})`;
-            } else {
-                document.getElementById('feat-workflow-bg').style.background = 'linear-gradient(45deg, #1a1a1a, #2d2d2d)';
-            }
-
-            // --- Contact Settings ---
-            if (settings.contactEmail) {
-                const emailEl = document.getElementById('displayEmail');
-                if (emailEl) emailEl.textContent = settings.contactEmail;
-                const input = document.getElementById('settingEmail');
-                if(input && document.activeElement !== input) input.value = settings.contactEmail;
-            }
-            if (settings.contactHandle) {
-                // Update all handle displays
-                document.querySelectorAll('.display-handle').forEach(el => {
-                    el.textContent = settings.contactHandle;
-                });
-                // Fallback for ID if it still exists elsewhere
-                const handleEl = document.getElementById('displayHandle');
-                if (handleEl) handleEl.textContent = settings.contactHandle;
-
-                const input = document.getElementById('settingHandle');
-                if(input && document.activeElement !== input) input.value = settings.contactHandle;
-            }
-
-            // QRs
-            const setQr = (key, displayId, previewId, fallbackText) => {
-                const el = document.getElementById(displayId);
-                const prev = document.getElementById(previewId);
-                if (settings[key]) {
-                    if(el) el.src = settings[key];
-                    if(prev) prev.src = settings[key];
-                } else {
-                    // Fallback placeholder
-                    const placeholder = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${fallbackText}`;
-                    if(el) el.src = placeholder;
-                    if(prev) prev.src = placeholder;
-                }
-            };
-
-            setQr('qrDouyin', 'displayQrDouyin', 'previewQrDouyin', 'Douyin');
-            setQr('qrXiaohongshu', 'displayQrRed', 'previewQrRed', 'Xiaohongshu');
-            setQr('qrVideoAccount', 'displayQrVideo', 'previewQrVideo', 'WeChatVideo');
-        }
-
-        function renderProjects(projects) {
-            const html = (projects || []).map(p => `
-                <a href="${p.link || '#'}" class="project-card" target="_blank">
-                    <div class="project-icon-wrapper">
-                         ${p.iconUrl ? `<img src="${p.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-layer-group"></i>'}
-                    </div>
-                    <div class="project-info">
-                        <h3>${p.title}</h3>
-                        <p>${p.description}</p>
-                    </div>
-                    <span class="category-pill">${p.category}</span>
-                </a>
-            `).join('');
-            
-            const worksGrid = document.getElementById('worksGrid');
-            if(worksGrid) worksGrid.innerHTML = html || '<p style="color:#888;">暂无作品</p>';
-        }
-
-        function renderAgents(agents) {
-            const html = (agents || []).map(a => `
-                <a href="${a.link || '#'}" class="project-card" target="_blank">
-                    <div class="project-icon-wrapper">
-                         ${a.iconUrl ? `<img src="${a.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-robot"></i>'}
-                    </div>
-                    <div class="project-info">
-                        <h3>${a.title}</h3>
-                        <p>${a.description}</p>
-                    </div>
-                    <span class="category-pill">Agent</span>
-                </a>
-            `).join('');
-            
-            const agentsGrid = document.getElementById('agentsGrid');
-            if(agentsGrid) agentsGrid.innerHTML = html || '<p style="color:#888;">暂无智能体</p>';
-        }
-
-        function renderMedia(mediaList) {
-            const videos = (mediaList || []).filter(m => m.type === 'video');
-            const products = (mediaList || []).filter(m => m.type === 'image');
-
-            const videosGrid = document.getElementById('videosGrid');
-            if (videosGrid) {
-                videosGrid.innerHTML = videos.map(v => `
-                    <a href="${v.link || v.url}" class="project-card" target="_blank" style="text-decoration: none;">
-                        <div style="position: relative; width: 100%; margin-bottom: 1rem;">
-                            <video src="${v.url}" style="width:100%; border-radius:var(--radius-md); display: block;" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
-                                <i class="fas fa-play-circle" style="font-size: 3rem; color: rgba(255,255,255,0.8);"></i>
-                            </div>
-                        </div>
-                        <h3>${v.title}</h3>
-                        <span class="category-pill">Video</span>
-                    </a>
-                `).join('') || '<p style="color:#888; text-align:center;">暂无视频</p>';
-            }
-
-            const productsGrid = document.getElementById('productsGrid');
-            if (productsGrid) {
-                productsGrid.innerHTML = products.map(product => `
-                    <a href="${product.link || product.url}" class="project-card" target="_blank" style="text-decoration: none;">
-                        <img src="${product.url}" class="media-preview" style="border-radius:var(--radius-md); margin-bottom:1rem;">
-                        <h3>${product.title}</h3>
-                        <span class="category-pill">Workflow</span>
-                    </a>
-                `).join('') || '<p style="color:#888; text-align:center;">暂无我的工作流</p>';
-            }
-        }
-
-        function renderCertificates(certificates) {
-            const html = (certificates || []).map(c => `
-                <a href="${c.link || c.imageUrl || '#'}" class="project-card" target="_blank" style="text-decoration: none;">
-                    <div class="project-icon-wrapper">
-                        ${c.imageUrl ? `<img src="${c.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-certificate"></i>'}
-                    </div>
-                    <h3>${c.title}</h3>
-                    <p>${c.issuer}</p>
-                    <p style="font-size:0.8rem; color:var(--text-secondary);">${c.date}</p>
-                    <span class="category-pill">Certificate</span>
-                </a>
-            `).join('');
-            
-            const certificatesGrid = document.getElementById('certificatesGrid');
-            if(certificatesGrid) certificatesGrid.innerHTML = html || '<p style="color:#888;">暂无证书</p>';
-        }
-
-        function renderTools(tools) {
-            // Render grid cards for the Tools Section in main content.
-            const gridHtml = (tools || []).map(t => `
-                <div class="project-card" ${t.link ? `onclick="window.open('${t.link}', '_blank')" style="cursor:pointer;"` : ''}>
-                    <div class="project-icon-wrapper">
-                        ${t.iconUrl ? `<img src="${t.iconUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : `<i class="${t.icon || 'fas fa-wrench'}"></i>`}
-                    </div>
-                    <h3>${t.name}</h3>
-                    <p>${t.description}</p>
-                    <span class="category-pill">Tool</span>
+                <div class="home-floating-panel panel-stack">
+                    <span>STACK</span>
+                    <strong>Agent · Prompt · Workflow</strong>
                 </div>
-            `).join('');
-            
-            // If we want to replace the static content in #section-tools .projects-grid
-            const toolsGrid = document.querySelector('#section-tools .projects-grid');
-            if(toolsGrid) toolsGrid.innerHTML = gridHtml || '<p style="color:#888;">暂无工具</p>';
-        }
-
-        function renderArticles(articles) {
-            const html = (articles || []).map(a => `
-                <div class="project-card" onclick="window.open('${a.link || '#'}', '_blank')">
-                    <div class="project-icon-wrapper">📝</div>
-                    <h3>${a.title}</h3>
-                    <p>${a.summary}</p>
-                    <span class="category-pill">${a.category || 'Blog'}</span>
+                <div class="home-console">
+                    <div class="console-topline">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <p>qiyu.run()</p>
+                    <strong>把灵感拆成任务，把任务训练成作品。</strong>
                 </div>
-            `).join('');
-            
-            const articlesGrid = document.querySelector('#section-articles .projects-grid');
-            if(articlesGrid) articlesGrid.innerHTML = html || '<p style="color:#888;">暂无文章</p>';
+                <div class="portrait-glow"></div>
+            </div>
+        `;
+    }
+
+    const chatName = document.querySelector('.chat-name');
+    const chatStatus = document.querySelector('.chat-status');
+    const firstBot = document.querySelector('.chat-msg.bot .msg-content');
+    if (chatName) chatName.textContent = '柒毓 AI 数字人格';
+    if (chatStatus) chatStatus.textContent = '在线 · 记忆陪伴模式';
+    if (firstBot) firstBot.textContent = '你好，我是柒毓的 AI 数字人格。你可以问我项目、工作流、Prompt 资源，也可以让我帮你把一个想法拆成行动步骤。';
+
+    document.getElementById('aiControlDeck')?.remove();
+    initDigitalEyeMotion();
+}
+
+function initDigitalEyeMotion() {
+    const shell = document.querySelector('.companion-shell');
+    if (!shell || shell.dataset.eyeMotion === 'true') return;
+
+    shell.dataset.eyeMotion = 'true';
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let lastPointerMove = 0;
+
+    function setTargetFromPoint(clientX, clientY) {
+        const rect = shell.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height * 0.42;
+        targetX = Math.max(-1, Math.min(1, (clientX - centerX) / (rect.width * 0.5)));
+        targetY = Math.max(-1, Math.min(1, (clientY - centerY) / (rect.height * 0.35)));
+        lastPointerMove = Date.now();
+    }
+
+    window.addEventListener('pointermove', (event) => {
+        setTargetFromPoint(event.clientX, event.clientY);
+    }, { passive: true });
+
+    function tick() {
+        if (Date.now() - lastPointerMove > 2600) {
+            const t = Date.now() / 1000;
+            targetX = Math.sin(t * 0.7) * 0.34;
+            targetY = Math.sin(t * 0.45) * 0.16;
         }
 
-        // --- Admin Actions ---
-        
-        // Change Background Color
-        document.getElementById('bgColorInput').addEventListener('change', async (e) => {
-            const color = e.target.value;
-            applySettings({ backgroundColor: color });
-            
-            await fetch(`${API_URL}/settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ backgroundColor: color })
+        currentX += (targetX - currentX) * 0.08;
+        currentY += (targetY - currentY) * 0.08;
+        shell.style.setProperty('--eye-x', currentX.toFixed(3));
+        shell.style.setProperty('--eye-y', currentY.toFixed(3));
+        requestAnimationFrame(tick);
+    }
+
+    tick();
+}
+
+function injectAiControlDeck() {
+    if (document.getElementById('aiControlDeck')) return;
+
+    const deck = document.createElement('aside');
+    deck.className = 'ai-control-deck';
+    deck.id = 'aiControlDeck';
+    deck.innerHTML = `
+        <div class="control-orb">
+            <img src="qiyu-digital-ip.svg?v=20260530-v1" alt="AI 中控头像">
+            <span class="orb-status"></span>
+        </div>
+        <div class="control-body">
+            <div class="control-kicker">AI CONTROL</div>
+            <div class="control-title">数字人中控已接管</div>
+            <div class="control-subtitle" id="controlSubtitle">正在等待你的指令</div>
+            <div class="control-commands">
+                <button data-page="works"><i class="fas fa-layer-group"></i><span>项目</span></button>
+                <button data-page="skills"><i class="fas fa-route"></i><span>工作流</span></button>
+                <button data-page="prompts"><i class="fas fa-terminal"></i><span>Prompt</span></button>
+                <button data-page="diary"><i class="fas fa-flask"></i><span>实验</span></button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(deck);
+
+    deck.querySelectorAll('[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const page = btn.dataset.page;
+            const label = btn.textContent.trim();
+            const subtitle = document.getElementById('controlSubtitle');
+            if (subtitle) subtitle.textContent = `正在调度「${label}」模块`;
+            navigateTo(page);
+        });
+    });
+}
+
+async function fetchData() {
+    try {
+        const res = await fetch(`${API_URL}/data?t=${Date.now()}`);
+        const data = await res.json();
+        siteData = data;
+        console.log('Diary links:');
+        (data.diary || []).forEach((e, i) => console.log(`  [${i}] ${e.title?.substring(0, 30)} -> ${(e.link || '').substring(0, 60)}`));
+
+        renderWorks(data.projects || []);
+        renderArticles(data.articles || []);
+        renderSkills(data.skills || []);
+        renderPrompts(data.prompts || []);
+        renderDiary(data.diary || []);
+        renderComputing(data.computing || []);
+        renderFooterContact(data.settings || {});
+
+        if (data.settings) {
+            if (data.settings.backgroundMusic) {
+                bgMusic.src = data.settings.backgroundMusic;
+            }
+        }
+    } catch (err) {
+        console.error('Failed to fetch data:', err);
+    }
+}
+
+function renderWorks(projects) {
+    const gallery = document.getElementById('worksGallery');
+    const dots = document.getElementById('galleryDots');
+    if (!gallery) return;
+
+    if (projects.length === 0) {
+        gallery.innerHTML = '<div class="empty-state"><i class="fas fa-rocket"></i><p>作品正在建设中...</p></div>';
+        if (dots) dots.innerHTML = '';
+        return;
+    }
+
+    gallery.innerHTML = projects.map(p => `
+        <a href="${p.link || '#'}" class="work-card" target="_blank">
+            <div class="work-card-image">
+                ${p.iconUrl
+                    ? (p.iconUrl.startsWith('data:') || p.iconUrl.startsWith('http')
+                        ? `<img src="${p.iconUrl}" alt="${p.title}">`
+                        : `<img src="${p.iconUrl}" alt="${p.title}">`)
+                    : '<i class="fas fa-layer-group"></i>'}
+            </div>
+            <div class="work-card-body">
+                <h3>${p.title}</h3>
+                <p>${p.description || ''}</p>
+                ${p.category ? `<span class="work-card-tag">${p.category}</span>` : ''}
+            </div>
+        </a>
+    `).join('');
+
+    if (dots) {
+        dots.innerHTML = projects.map((_, i) =>
+            `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-index="${i}"></span>`
+        ).join('');
+    }
+
+    initGallery();
+}
+
+function initGallery() {
+    const gallery = document.getElementById('worksGallery');
+    const dots = document.querySelectorAll('.gallery-dot');
+    const prevBtn = document.getElementById('galleryPrev');
+    const nextBtn = document.getElementById('galleryNext');
+    if (!gallery) return;
+
+    const cardWidth = () => {
+        const card = gallery.querySelector('.work-card');
+        return card ? card.offsetWidth + 24 : 424;
+    };
+
+    const updateDots = () => {
+        const scrollLeft = gallery.scrollLeft;
+        const w = cardWidth();
+        const index = Math.round(scrollLeft / w);
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    };
+
+    gallery.addEventListener('scroll', updateDots);
+
+    let isDragging = false;
+    let startX = 0;
+
+    gallery.addEventListener('mousedown', (e) => {
+        isDragging = false;
+        startX = e.clientX;
+    });
+
+    gallery.addEventListener('mousemove', (e) => {
+        if (Math.abs(e.clientX - startX) > 5) isDragging = true;
+    });
+
+    gallery.addEventListener('click', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+
+    prevBtn?.addEventListener('click', () => {
+        gallery.scrollBy({ left: -cardWidth() - 24, behavior: 'smooth' });
+    });
+
+    nextBtn?.addEventListener('click', () => {
+        gallery.scrollBy({ left: cardWidth() + 24, behavior: 'smooth' });
+    });
+
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const index = parseInt(dot.dataset.index);
+            gallery.scrollTo({ left: index * (cardWidth() + 24), behavior: 'smooth' });
+        });
+    });
+}
+
+function renderArticles(articles) {
+    const grid = document.getElementById('articlesGrid');
+    if (!grid) return;
+
+    if (articles.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-pen-nib"></i><p>文章正在撰写中...</p></div>';
+        return;
+    }
+
+    const icons = ['📝', '📄', '📰', '📋', '📖', '📑'];
+
+    grid.innerHTML = articles.map((a, i) => `
+        <div class="article-card" onclick="window.open('${a.link || '#'}', '_blank')">
+            <span class="article-icon">${icons[i % icons.length]}</span>
+            <h3>${a.title}</h3>
+            <p>${a.summary || a.description || ''}</p>
+            <div class="article-meta">
+                <span>${a.date || ''}</span>
+                ${a.category ? `<span class="article-tag">${a.category}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderSkills(skills) {
+    const container = document.getElementById('skillsContainer');
+    if (!container) return;
+
+    if (skills.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-microchip"></i><p>技能树正在生长...</p></div>';
+        return;
+    }
+
+    const grouped = {};
+    skills.forEach(s => {
+        const cat = s.category || '其他';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(s);
+    });
+
+    container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
+        <div class="skill-category">
+            <h3>${cat}</h3>
+            ${items.map(s => `
+                <div class="skill-item">
+                    <div class="skill-info">
+                        <span class="skill-name">${s.name}</span>
+                        <span class="skill-level">${s.level || 0}%</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-fill" style="--level: ${s.level || 0}%"></div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+
+    setTimeout(() => {
+        document.querySelectorAll('.skill-fill').forEach(f => f.classList.add('animated'));
+    }, 200);
+}
+
+function renderPrompts(prompts) {
+    const grid = document.getElementById('promptsGrid');
+    if (!grid) return;
+
+    if (prompts.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-terminal"></i><p>提示词库正在整理中...</p></div>';
+        return;
+    }
+
+    grid.innerHTML = prompts.map(p => `
+        <div class="prompt-card">
+            <div class="prompt-header">
+                <h3>${p.title}</h3>
+                ${p.category ? `<span class="prompt-tag">${p.category}</span>` : ''}
+            </div>
+            <div class="prompt-body">${p.content || ''}</div>
+            <div class="prompt-footer">
+                <button class="btn-copy" onclick="copyPrompt(this, \`${p.content ? p.content.replace(/`/g, '\\`').replace(/\\/g, '\\\\') : ''}\`)">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function copyPrompt(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i> 复制';
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i> 复制';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+function renderDiary(entries) {
+    const timeline = document.getElementById('diaryTimeline');
+    if (!timeline) return;
+
+    if (entries.length === 0) {
+        timeline.innerHTML = '<div class="empty-state"><i class="fas fa-fish"></i><p>养虾日记即将开始记录...</p></div>';
+        return;
+    }
+
+    timeline.innerHTML = entries.map(e => `
+        <a href="${e.link || 'https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzk0OTUwNjM0OQ==&action=getalbum&album_id=4519584288459407364#wechat_redirect'}" target="_blank" class="diary-entry" style="text-decoration: none; color: inherit;">
+            <div class="diary-date">${e.date || ''}</div>
+            <div class="diary-dot"></div>
+            <div class="diary-card">
+                ${e.image ? `<img src="${e.image}" alt="${e.title}">` : ''}
+                <div class="diary-card-body">
+                    <h3>${e.title}</h3>
+                    <p>${e.content || ''}</p>
+                </div>
+            </div>
+        </a>
+    `).join('');
+}
+
+function renderComputing(items) {
+    const dashboard = document.getElementById('computingDashboard');
+    if (!dashboard) return;
+
+    if (items.length === 0) {
+        items = [
+            {
+                name: '钟毓算力控制台',
+                spec: 'AI 推理 · 智能体实验 · 工作流部署',
+                status: '在线',
+                link: 'https://api.qixiaoyu.com'
+            },
+            {
+                name: 'AI 实验环境',
+                spec: '适合短剧生成、Prompt 测试和自动化任务',
+                status: '运行中',
+                link: 'https://api.qixiaoyu.com'
+            }
+        ];
+    }
+
+    dashboard.innerHTML = items.map(c => `
+        <a href="${c.link || '#'}" class="compute-card" target="_blank" style="text-decoration: none; color: inherit; cursor: pointer;">
+            <div class="compute-icon"><i class="fas fa-microchip"></i></div>
+            <h3>${c.name}</h3>
+            <div class="compute-spec">${c.spec || ''}</div>
+            <span class="compute-status ${c.status === '运行中' || c.status === '在线' ? 'status-online' : 'status-offline'}">
+                <span class="status-dot"></span>
+                ${c.status || '未知'}
+            </span>
+            ${c.link ? '<div style="margin-top: 12px; font-size: 0.75rem; color: var(--text-tertiary);"><i class="fas fa-external-link-alt"></i> api.qixiaoyu.com</div>' : ''}
+        </a>
+    `).join('');
+}
+
+function renderFooterContact(settings) {
+    const container = document.getElementById('footerContact');
+    if (!container) return;
+
+    container.innerHTML = `
+        <span>${settings.contactEmail || ''}</span>
+        <span>${settings.contactHandle || '毓见Agent'}</span>
+    `;
+}
+
+/* ========================================
+   CONTENT ADMIN
+   ======================================== */
+
+const adminTypes = [
+    {
+        key: 'projects',
+        label: '作品',
+        endpoint: 'projects',
+        titleKey: 'title',
+        subtitleKey: 'description',
+        multipart: true,
+        fields: [
+            { name: 'title', label: '作品标题', required: true },
+            { name: 'category', label: '分类' },
+            { name: 'link', label: '链接' },
+            { name: 'icon', label: '封面/图标', type: 'file' },
+            { name: 'description', label: '作品介绍', type: 'textarea', full: true }
+        ]
+    },
+    {
+        key: 'articles',
+        label: '文章',
+        endpoint: 'articles',
+        titleKey: 'title',
+        subtitleKey: 'summary',
+        fields: [
+            { name: 'title', label: '文章标题', required: true },
+            { name: 'category', label: '分类' },
+            { name: 'date', label: '日期', type: 'date' },
+            { name: 'link', label: '链接' },
+            { name: 'summary', label: '摘要', type: 'textarea', full: true }
+        ]
+    },
+    {
+        key: 'skills',
+        label: '技能',
+        endpoint: 'skills',
+        titleKey: 'name',
+        subtitleKey: 'category',
+        fields: [
+            { name: 'name', label: '技能名称', required: true },
+            { name: 'category', label: '技能分类', placeholder: '例如：AI 工作流' },
+            { name: 'level', label: '熟练度 0-100', type: 'number', value: '80' },
+            { name: 'description', label: '说明', type: 'textarea', full: true }
+        ]
+    },
+    {
+        key: 'prompts',
+        label: '提示词',
+        endpoint: 'prompts',
+        titleKey: 'title',
+        subtitleKey: 'category',
+        fields: [
+            { name: 'title', label: '提示词标题', required: true },
+            { name: 'category', label: '分类' },
+            { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
+        ]
+    },
+    {
+        key: 'diary',
+        label: '养虾日记',
+        endpoint: 'diary',
+        titleKey: 'title',
+        subtitleKey: 'date',
+        fields: [
+            { name: 'title', label: '日记标题', required: true },
+            { name: 'date', label: '日期', type: 'date' },
+            { name: 'link', label: '外部链接' },
+            { name: 'image', label: '图片地址' },
+            { name: 'content', label: '日记内容', type: 'textarea', full: true }
+        ]
+    },
+    {
+        key: 'music',
+        label: '音乐',
+        endpoint: 'upload/music',
+        multipart: true,
+        fields: [
+            { name: 'file', label: '背景音乐文件', type: 'file', required: true, full: true }
+        ]
+    }
+];
+
+let activeAdminType = adminTypes[0].key;
+
+function escapeAdminText(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getAdminPassword() {
+    return sessionStorage.getItem('qiyuAdminPassword') || '';
+}
+
+function setAdminState(isAuthed) {
+    const login = document.getElementById('adminLogin');
+    const workspace = document.getElementById('adminWorkspace');
+    login?.classList.toggle('hidden', isAuthed);
+    workspace?.classList.toggle('open', isAuthed);
+    if (isAuthed) {
+        renderAdminTabs();
+        renderAdminEditor();
+        renderAdminList();
+    }
+}
+
+function renderAdminTabs() {
+    const tabs = document.getElementById('adminTabs');
+    if (!tabs) return;
+
+    tabs.innerHTML = adminTypes.map(type => `
+        <button type="button" class="admin-tab${type.key === activeAdminType ? ' active' : ''}" data-admin-type="${type.key}">
+            ${type.label}
+        </button>
+    `).join('');
+}
+
+function renderAdminEditor() {
+    const form = document.getElementById('adminEditor');
+    const type = adminTypes.find(item => item.key === activeAdminType);
+    if (!form || !type) return;
+
+    const fields = type.fields.map(field => {
+        const inputId = `admin-${type.key}-${field.name}`;
+        const common = `id="${inputId}" name="${field.name}" ${field.required ? 'required' : ''}`;
+        const placeholder = field.placeholder ? `placeholder="${escapeAdminText(field.placeholder)}"` : '';
+        const value = field.value ? `value="${escapeAdminText(field.value)}"` : '';
+        const control = field.type === 'textarea'
+            ? `<textarea ${common} ${placeholder}></textarea>`
+            : `<input ${common} type="${field.type || 'text'}" ${placeholder} ${value}>`;
+
+        return `
+            <div class="admin-field${field.full ? ' full' : ''}">
+                <label for="${inputId}">${field.label}</label>
+                ${control}
+            </div>
+        `;
+    }).join('');
+
+    form.innerHTML = `
+        ${fields}
+        <button class="admin-submit" type="submit">添加${type.label}</button>
+        <p class="admin-message full" id="adminEditorMessage"></p>
+    `;
+}
+
+function renderAdminList() {
+    const list = document.getElementById('adminList');
+    const type = adminTypes.find(item => item.key === activeAdminType);
+    if (!list || !type) return;
+
+    if (type.key === 'music') {
+        const currentMusic = siteData.settings?.backgroundMusic || '未设置';
+        list.innerHTML = `
+            <div class="admin-list-title">当前背景音乐</div>
+            <div class="admin-list-item">
+                <div>
+                    <strong>${escapeAdminText(currentMusic)}</strong>
+                    <span>上传新文件后会自动替换当前背景音乐</span>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const items = Array.isArray(siteData[type.key]) ? siteData[type.key] : [];
+    if (items.length === 0) {
+        list.innerHTML = `
+            <div class="admin-list-title">已有${type.label}</div>
+            <div class="empty-state"><i class="fas fa-inbox"></i><p>还没有内容</p></div>
+        `;
+        return;
+    }
+
+    list.innerHTML = `
+        <div class="admin-list-title">已有${type.label}</div>
+        ${items.map(item => `
+            <div class="admin-list-item">
+                <div>
+                    <strong>${escapeAdminText(item[type.titleKey] || item.title || item.name || '未命名')}</strong>
+                    <span>${escapeAdminText(item[type.subtitleKey] || item.category || item.link || '')}</span>
+                </div>
+                <button class="admin-delete" type="button" data-delete-type="${type.key}" data-delete-id="${item.id}">
+                    删除
+                </button>
+            </div>
+        `).join('')}
+    `;
+}
+
+async function submitAdminEditor(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const message = document.getElementById('adminEditorMessage');
+    const type = adminTypes.find(item => item.key === activeAdminType);
+    if (!type) return;
+
+    const password = getAdminPassword();
+    const headers = { 'X-Admin-Password': password };
+    let body;
+
+    if (type.multipart) {
+        body = new FormData(form);
+    } else {
+        headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(Object.fromEntries(new FormData(form).entries()));
+    }
+
+    if (message) message.textContent = '正在保存...';
+
+    try {
+        const res = await fetch(`${API_URL}/${type.endpoint}`, {
+            method: 'POST',
+            headers,
+            body
+        });
+        if (!res.ok) throw new Error(res.status === 401 ? '密码已失效，请重新登录。' : '保存失败。');
+        form.reset();
+        await fetchData();
+        renderAdminEditor();
+        renderAdminList();
+        if (type.key === 'music' && siteData.settings?.backgroundMusic) {
+            bgMusic.src = siteData.settings.backgroundMusic;
+        }
+        if (message) message.textContent = '已保存。';
+    } catch (error) {
+        if (message) message.textContent = error.message;
+    }
+}
+
+async function deleteAdminItem(typeKey, id) {
+    const type = adminTypes.find(item => item.key === typeKey);
+    if (!type || !id) return;
+    if (!window.confirm(`确定删除这条${type.label}吗？`)) return;
+
+    const res = await fetch(`${API_URL}/${type.endpoint}/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-Admin-Password': getAdminPassword() }
+    });
+    if (!res.ok) {
+        alert('删除失败，请重新登录后再试。');
+        return;
+    }
+    await fetchData();
+    renderAdminList();
+}
+
+function initAdminPanel() {
+    const backdrop = document.getElementById('adminBackdrop');
+    const openBtn = document.getElementById('adminOpenBtn');
+    const closeBtn = document.getElementById('adminCloseBtn');
+    const login = document.getElementById('adminLogin');
+    const passwordInput = document.getElementById('adminPassword');
+    const loginMessage = document.getElementById('adminLoginMessage');
+    const editor = document.getElementById('adminEditor');
+    const tabs = document.getElementById('adminTabs');
+    const list = document.getElementById('adminList');
+
+    openBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        backdrop?.classList.add('open');
+        backdrop?.setAttribute('aria-hidden', 'false');
+        setAdminState(Boolean(getAdminPassword()));
+        if (!getAdminPassword()) setTimeout(() => passwordInput?.focus(), 50);
+    });
+
+    closeBtn?.addEventListener('click', () => {
+        backdrop?.classList.remove('open');
+        backdrop?.setAttribute('aria-hidden', 'true');
+    });
+
+    backdrop?.addEventListener('click', (event) => {
+        if (event.target === backdrop) {
+            backdrop.classList.remove('open');
+            backdrop.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    login?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const password = passwordInput?.value.trim();
+        if (!password) return;
+
+        if (loginMessage) loginMessage.textContent = '正在校验...';
+        const res = await fetch(`${API_URL}/verify-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+        });
+
+        if (res.ok) {
+            sessionStorage.setItem('qiyuAdminPassword', password);
+            if (loginMessage) loginMessage.textContent = '';
+            setAdminState(true);
+        } else if (loginMessage) {
+            loginMessage.textContent = '密码不正确。';
+        }
+    });
+
+    tabs?.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-admin-type]');
+        if (!btn) return;
+        activeAdminType = btn.dataset.adminType;
+        renderAdminTabs();
+        renderAdminEditor();
+        renderAdminList();
+    });
+
+    editor?.addEventListener('submit', submitAdminEditor);
+
+    list?.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-delete-id]');
+        if (!btn) return;
+        deleteAdminItem(btn.dataset.deleteType, btn.dataset.deleteId);
+    });
+}
+
+/* ========================================
+   STAR CANVAS
+   ======================================== */
+
+(function initStarCanvas() {
+    const canvas = document.getElementById('starCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let animId;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function createStars() {
+        const count = Math.floor((canvas.width * canvas.height) / 4000);
+        stars = [];
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.5 + 0.5,
+                opacity: Math.random(),
+                speed: Math.random() * 0.005 + 0.002,
+                direction: Math.random() > 0.5 ? 1 : -1
             });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        stars.forEach(s => {
+            s.opacity += s.speed * s.direction;
+            if (s.opacity >= 1) s.direction = -1;
+            if (s.opacity <= 0.1) s.direction = 1;
+
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity * 0.6})`;
+            ctx.fill();
         });
 
-        // Upload Background Image
-        document.getElementById('bgImageInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Check file size (allow up to 20MB for high quality images)
-            if (file.size > 20 * 1024 * 1024) {
-                alert('文件过大！请上传小于 20MB 的图片文件。');
-                e.target.value = ''; // Clear input
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            // Show loading state
-            const label = e.target.previousElementSibling;
-            const originalText = label.textContent;
-            label.textContent = '背景图片 (正在上传...)';
-            
-            try {
-                const res = await fetch(`${API_URL}/upload/background`, { method: 'POST', body: formData });
-                const data = await res.json();
-                applySettings({ backgroundImage: data.url });
-                alert('背景图片上传成功！');
-            } catch (error) {
-                alert('背景图片上传失败，请重试。');
-                console.error('Background image upload failed:', error);
-            } finally {
-                // Restore original label text
-                label.textContent = originalText;
-            }
-        });
+        animId = requestAnimationFrame(draw);
+    }
 
-        // Upload Music
-        document.getElementById('bgMusicInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    window.addEventListener('resize', () => {
+        resize();
+        createStars();
+    });
 
-            // Check file size (limit to 4MB for Vercel/GitHub compatibility)
-            if (file.size > 4 * 1024 * 1024) {
-                alert('文件过大！请上传小于 4MB 的音频文件。');
-                e.target.value = ''; // Clear input
-                return;
-            }
+    resize();
+    createStars();
+    draw();
+})();
 
-            // Show loading state
-            const label = e.target.previousElementSibling;
-            const originalText = label.textContent;
-            label.textContent = '背景音乐 (正在上传...)';
-            e.target.disabled = true;
+/* ========================================
+   PAGE NAVIGATION
+   ======================================== */
 
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            try {
-                const res = await fetch(`${API_URL}/upload/music`, { method: 'POST', body: formData });
-                if (!res.ok) throw new Error('Upload failed');
-                
-                const data = await res.json();
-                applySettings({ backgroundMusic: data.url });
-                
-                const audio = document.getElementById('bgMusic');
-                // audio.src is updated by applySettings
-                document.getElementById('playerTitle').textContent = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
-                
-                // Try to auto-play
-                try {
-                    await audio.play();
-                    document.getElementById('playerStatus').textContent = "Playing...";
-                    document.getElementById('sidebarPlayBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                    document.getElementById('musicToggleBtn').classList.add('music-active');
-                } catch (err) {
-                    console.log("Auto-play blocked, user interaction required");
-                }
+let currentPage = null;
 
-                alert('背景音乐上传成功！');
-            } catch (err) {
-                console.error(err);
-                alert('上传失败，请重试。');
-            } finally {
-                // Reset UI
-                label.textContent = originalText;
-                e.target.disabled = false;
-            }
-        });
+function navigateTo(pageId) {
+    if (currentPage === pageId) return;
 
-        // Upload Project
-        async function uploadProject() {
-            const formData = new FormData();
-            formData.append('title', document.getElementById('projTitle').value);
-            formData.append('description', document.getElementById('projDesc').value);
-            formData.append('link', document.getElementById('projLink').value);
-            formData.append('category', document.getElementById('projCategory').value);
-            
-            const iconFile = document.getElementById('projIconInput').files[0];
-            if (iconFile) {
-                formData.append('icon', iconFile);
-            }
-            
-            try {
-                const res = await fetch(`${API_URL}/projects`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!res.ok) throw new Error('Failed to upload project');
-                alert('应用添加成功！刷新页面查看。');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('添加失败，请重试。');
-            }
+    document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    const target = document.getElementById(pageId);
+    if (target) target.classList.add('active');
+
+    const navItem = document.querySelector(`.nav-item[href="#${pageId}"]`);
+    if (navItem) navItem.classList.add('active');
+
+    currentPage = pageId;
+    document.body.dataset.page = pageId;
+    if (pageId !== 'home') {
+        document.getElementById('chatWindow')?.classList.remove('open');
+    }
+
+    const subtitle = document.getElementById('controlSubtitle');
+    const pageNames = {
+        home: '主页已就绪',
+        works: '正在展开项目档案',
+        articles: '正在整理文章内容',
+        skills: '正在调度工作流模块',
+        prompts: '正在打开 Prompt 资源',
+        diary: '正在进入现实实验记录',
+        computing: '正在打开钟毓算力页面'
+    };
+    if (subtitle) subtitle.textContent = pageNames[pageId] || '正在切换模块';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+window.navigateTo = navigateTo;
+
+(function initPageNavigation() {
+    document.addEventListener('click', (e) => {
+        const navItem = e.target.closest('a[href^="#"]');
+        if (navItem) {
+            const pageId = navItem.getAttribute('href').substring(1);
+            if (!pageId) return;
+            e.preventDefault();
+            navigateTo(pageId);
+            return;
         }
 
-        // Add Agent
-        async function addAgent() {
-            const formData = new FormData();
-            formData.append('title', document.getElementById('agentTitle').value);
-            formData.append('description', document.getElementById('agentDesc').value);
-            formData.append('link', document.getElementById('agentLink').value);
-            
-            const iconFile = document.getElementById('agentIconInput').files[0];
-            if (iconFile) {
-                formData.append('icon', iconFile);
-            }
-            
-            try {
-                const res = await fetch(`${API_URL}/agents`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!res.ok) throw new Error('Failed to add agent');
-                alert('智能体添加成功！');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('添加失败，请重试。');
-            }
-        }
-
-        // Upload Video
-        async function uploadVideo() {
-            const fileInput = document.getElementById('videoFileInput');
-            const file = fileInput.files[0];
-            if (!file) return alert('请选择视频文件');
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'video');
-            formData.append('title', document.getElementById('videoTitle').value);
-            formData.append('link', document.getElementById('videoLink').value);
-
-            try {
-                const res = await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
-                if (!res.ok) throw new Error('Upload failed');
-                alert('视频上传成功！刷新页面查看。');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('上传失败，请重试。');
-            }
-        }
-
-        // Upload Workflow
-        async function uploadWorkflow() {
-            const fileInput = document.getElementById('workflowFileInput');
-            const file = fileInput.files[0];
-            if (!file) return alert('请选择图片文件');
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'image');
-            formData.append('title', document.getElementById('workflowTitle').value);
-            formData.append('link', document.getElementById('workflowLink').value);
-
-            try {
-                const res = await fetch(`${API_URL}/upload/media`, { method: 'POST', body: formData });
-                if (!res.ok) throw new Error('Upload failed');
-                alert('工作流上传成功！刷新页面查看。');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('上传失败，请重试。');
-            }
-        }
-
-        // Add Tool
-        async function addTool() {
-            const formData = new FormData();
-            formData.append('name', document.getElementById('toolName').value);
-            formData.append('description', document.getElementById('toolDesc').value);
-            formData.append('link', document.getElementById('toolLink').value);
-            
-            const iconFile = document.getElementById('toolIconInput').files[0];
-            if (iconFile) {
-                formData.append('icon', iconFile);
-            }
-            
-            try {
-                const res = await fetch(`${API_URL}/tools`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!res.ok) throw new Error('Failed to add tool');
-                alert('工具添加成功！');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('添加失败，请重试。');
-            }
-        }
-
-        // Add Certificate
-        async function uploadCertificate() {
-            const formData = new FormData();
-            formData.append('title', document.getElementById('certTitle').value);
-            formData.append('issuer', document.getElementById('certIssuer').value);
-            formData.append('date', document.getElementById('certDate').value);
-            formData.append('link', document.getElementById('certLink').value);
-            
-            const imageFile = document.getElementById('certImageInput').files[0];
-            if (imageFile) {
-                formData.append('image', imageFile);
-            }
-            
-            try {
-                const res = await fetch(`${API_URL}/certificates`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!res.ok) throw new Error('Failed to add certificate');
-                alert('证书添加成功！');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('添加失败，请重试。');
-            }
-        }
-
-        // Add Article
-        async function addArticle() {
-            const article = {
-                title: document.getElementById('articleTitle').value,
-                summary: document.getElementById('articleSummary').value,
-                link: document.getElementById('articleLink').value,
-                category: document.getElementById('articleCategory').value
-            };
-            
-            try {
-                const res = await fetch(`${API_URL}/articles`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(article)
-                });
-                if (!res.ok) throw new Error('Failed to add article');
-                alert('文章发布成功！');
-                fetchData();
-            } catch (e) {
-                console.error(e);
-                alert('发布失败，请重试。');
-            }
-        }
-
-        // Deploy to Cloud
-        function saveProxy() {
-            const proxy = document.getElementById('gitProxyInput').value;
-            localStorage.setItem('git_proxy', proxy);
-            alert('代理设置已保存！同步时将尝试使用此代理。');
-        }
-
-        async function deployToCloud() {
-            const btn = document.getElementById('deployBtn');
-            const log = document.getElementById('deployLog');
-            const proxy = localStorage.getItem('git_proxy');
-            
-            if (!confirm('确定要同步所有本地修改到云端并发布吗？')) return;
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在同步发布中...';
-            log.style.display = 'block';
-            log.textContent = '> 开始同步进程...\n> 正在执行 Git Add/Commit/Push...';
-            log.style.color = '#a0a0a0';
-
-            try {
-                const res = await fetch(`${API_URL}/deploy`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ proxy: proxy })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    log.textContent += '\n> ' + data.message;
-                    log.textContent += '\n> 成功！Vercel 正在自动构建上线。';
-                    log.style.color = '#4ade80';
-                    alert('发布成功！Vercel 正在后台更新，请稍候访问线上链接。');
-                } else {
-                    log.textContent += '\n> 错误: ' + data.error;
-                    if (data.details) log.textContent += '\n' + data.details;
-                    log.style.color = '#ff4444';
-                }
-            } catch (err) {
-                log.textContent += '\n> 请求失败: ' + err.message;
-                log.style.color = '#ff4444';
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 立即同步发布';
-            }
-        }
-
-        // Initialize Proxy UI
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedProxy = localStorage.getItem('git_proxy');
-            if (savedProxy && document.getElementById('gitProxyInput')) {
-                document.getElementById('gitProxyInput').value = savedProxy;
-            }
-        });
-
-
-        // --- UI Interactions ---
-
-        // Settings Panel Logic
-        const settingsBtn = document.getElementById('settingsToggleBtn');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-        const passwordModal = document.getElementById('passwordModal');
-        const closePasswordModalBtn = document.getElementById('closePasswordModal');
-
-        // Verify Password Logic
-        async function verifyPassword() {
-            const password = document.getElementById('adminPasswordInput').value;
-            try {
-                const res = await fetch(`${API_URL}/verify-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    passwordModal.classList.remove('show');
-                    passwordModal.style.display = 'none';
-                    // Use setTimeout to allow UI update
-                    setTimeout(() => {
-                        settingsPanel.style.display = 'flex'; // Ensure it's visible
-                        // Force reflow
-                        void settingsPanel.offsetWidth;
-                        settingsPanel.classList.add('show');
-                    }, 50);
-                    
-                    document.getElementById('adminPasswordInput').value = ''; // Clear password
-                    document.getElementById('passwordError').style.display = 'none';
-                } else {
-                    document.getElementById('passwordError').style.display = 'block';
-                }
-            } catch (err) {
-                console.error('Verify failed', err);
-            }
-        }
-
-        // Open Password Modal instead of Settings Panel
-        settingsBtn.addEventListener('click', () => {
-            // Check if already open
-            if (settingsPanel.classList.contains('show')) {
-                settingsPanel.classList.remove('show');
-                setTimeout(() => { settingsPanel.style.display = 'none'; }, 300); // Wait for transition
-            } else {
-                // Ensure settings panel is hidden
-                settingsPanel.classList.remove('show');
-                settingsPanel.style.display = 'none';
-                
-                // Show Password Modal
-                passwordModal.style.display = 'flex';
-                // Small timeout to allow display:block to apply before adding class (if we had transition)
-                setTimeout(() => { passwordModal.classList.add('show'); }, 10);
-            }
-        });
-
-        // Close Password Modal
-        closePasswordModalBtn.addEventListener('click', () => {
-            passwordModal.classList.remove('show');
-            setTimeout(() => { passwordModal.style.display = 'none'; }, 300);
-        });
-
-        closeSettingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.remove('show');
-            setTimeout(() => { settingsPanel.style.display = 'none'; }, 300);
-        });
-
-        // Settings Tabs Logic
-        document.querySelectorAll('.settings-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs
-                document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Hide all sections
-                document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
-                // Show target section
-                const targetId = tab.getAttribute('data-tab');
-                document.getElementById(`tab-${targetId}`).classList.add('active');
-            });
-        });
-
-        // Tab Switching Logic
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        const inlineTarget = e.target.closest('[onclick*="navigateTo"]');
+        if (inlineTarget) {
+            const match = inlineTarget.getAttribute('onclick')?.match(/navigateTo\('([^']+)'\)/);
+            if (match?.[1]) {
                 e.preventDefault();
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                
-                const targetId = link.getAttribute('data-target');
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                const targetSection = document.getElementById(`section-${targetId}`);
-                if (targetSection) {
-                    targetSection.classList.add('active');
-                }
+                navigateTo(match[1]);
+            }
+        }
+    });
+
+    navigateTo('home');
+})();
+
+/* ========================================
+   SCROLL REVEAL
+   ======================================== */
+
+(function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.section-header, .article-card, .skill-category, .prompt-card, .diary-card, .compute-card').forEach(el => {
+        el.classList.add('reveal');
+        observer.observe(el);
+    });
+})();
+
+/* ========================================
+   CHAT WIDGET
+   ======================================== */
+
+(function initChat() {
+    const fab = document.getElementById('chatFab');
+    const win = document.getElementById('chatWindow');
+    const close = document.getElementById('chatClose');
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('chatSend');
+    const messages = document.getElementById('chatMessages');
+
+    fab?.addEventListener('click', () => win?.classList.toggle('open'));
+    close?.addEventListener('click', () => win?.classList.remove('open'));
+
+    function addMessage(text, type) {
+        if (!messages) return;
+        const div = document.createElement('div');
+        div.className = `chat-msg ${type}`;
+        div.innerHTML = `<div class="msg-content">${text}</div>`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        input.value = '';
+
+        try {
+            const res = await fetch(`${API_URL}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
             });
-        });
-
-        // Music Player Controls
-        const bgMusic = document.getElementById('bgMusic');
-        const sidebarPlayBtn = document.getElementById('sidebarPlayBtn');
-        const topMusicBtn = document.getElementById('musicToggleBtn');
-        const playerStatus = document.getElementById('playerStatus');
-
-        function togglePlay() {
-            if (bgMusic.paused) {
-                bgMusic.play().catch(e => console.log("Audio play failed interaction required"));
-                playerStatus.textContent = "Playing...";
-                sidebarPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                topMusicBtn.classList.add('music-active');
-            } else {
-                bgMusic.pause();
-                playerStatus.textContent = "Paused";
-                sidebarPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
-                topMusicBtn.classList.remove('music-active');
-            }
+            const data = await res.json();
+            addMessage(data.reply || '正在思考...', 'bot');
+        } catch (e) {
+            addMessage('网络连接失败，请稍后再试。', 'bot');
         }
+    }
 
-        sidebarPlayBtn.addEventListener('click', togglePlay);
-        topMusicBtn.addEventListener('click', togglePlay);
+    send?.addEventListener('click', sendMessage);
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+})();
 
-        // Handle initial audio load error gracefully
-        bgMusic.addEventListener('error', (e) => {
-            console.warn("Audio load error (expected if autoplay blocked):", e);
-            playerStatus.textContent = "Click to Play";
-            sidebarPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
-            topMusicBtn.classList.remove('music-active');
-        });
+/* ========================================
+   BACKGROUND MUSIC
+   ======================================== */
 
-
-        // --- Starry Mouse Trail ---
-        class StarryMouseTrail {
-            constructor() {
-                this.canvas = document.createElement('canvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.canvas.style.position = 'fixed';
-                this.canvas.style.top = '0';
-                this.canvas.style.left = '0';
-                this.canvas.style.width = '100%';
-                this.canvas.style.height = '100%';
-                this.canvas.style.pointerEvents = 'none';
-                this.canvas.style.zIndex = '9999';
-                document.body.appendChild(this.canvas);
-                
-                this.particles = [];
-                this.colors = ['#FFFFFF', '#F0F8FF', '#E0FFFF', '#B0C4DE']; 
-                this.resize();
-                
-                window.addEventListener('resize', () => this.resize());
-                window.addEventListener('mousemove', (e) => this.spawn(e.clientX, e.clientY));
-                
-                this.animate();
-            }
-            
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-            
-            spawn(x, y) {
-                for(let i = 0; i < 3; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 2,
-                        vy: (Math.random() - 0.5) * 2,
-                        size: Math.random() * 3 + 1,
-                        color: this.colors[Math.floor(Math.random() * this.colors.length)],
-                        life: 1,
-                        decay: 0.01 + Math.random() * 0.02,
-                        rotation: Math.random() * Math.PI * 2,
-                        rotationSpeed: (Math.random() - 0.5) * 0.1,
-                        shape: Math.random() > 0.3 ? 'star' : 'dust'
-                    });
-                }
-            }
-            
-            drawStar(x, y, r, color, rotation, opacity) {
-                this.ctx.save();
-                this.ctx.translate(x, y);
-                this.ctx.rotate(rotation);
-                this.ctx.beginPath();
-                this.ctx.fillStyle = color;
-                this.ctx.shadowBlur = 10;
-                this.ctx.shadowColor = color;
-                
-                for (let i = 0; i < 4; i++) {
-                    this.ctx.lineTo(Math.cos((0 + i * 90) * Math.PI / 180) * r, 
-                                  -Math.sin((0 + i * 90) * Math.PI / 180) * r);
-                    this.ctx.lineTo(Math.cos((45 + i * 90) * Math.PI / 180) * (r * 0.2), 
-                                  -Math.sin((45 + i * 90) * Math.PI / 180) * (r * 0.2));
-                }
-                this.ctx.closePath();
-                this.ctx.fill();
-                this.ctx.restore();
-            }
-
-            drawDust(x, y, r, color) {
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, r, 0, Math.PI * 2);
-                this.ctx.fillStyle = color;
-                this.ctx.shadowBlur = 5;
-                this.ctx.shadowColor = color;
-                this.ctx.fill();
-            }
-            
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                for (let i = 0; i < this.particles.length; i++) {
-                    const p = this.particles[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= p.decay;
-                    p.rotation += p.rotationSpeed;
-                    
-                    if (p.life > 0) {
-                        this.ctx.globalAlpha = p.life;
-                        if (p.shape === 'star') {
-                            this.drawStar(p.x, p.y, p.size * 2, p.color, p.rotation, p.life);
-                        } else {
-                            this.drawDust(p.x, p.y, p.size, p.color);
-                        }
-                    }
-                }
-                this.ctx.globalAlpha = 1;
-                this.particles = this.particles.filter(p => p.life > 0);
-                requestAnimationFrame(() => this.animate());
-            }
+(function initMusic() {
+    const btn = document.getElementById('musicBtn');
+    btn?.addEventListener('click', () => {
+        if (musicPlaying) {
+            bgMusic.pause();
+            btn.classList.remove('playing');
+        } else {
+            bgMusic.play().catch(() => {});
+            btn.classList.add('playing');
         }
-        
-        // Initialize Starry Mouse Trail
-        new StarryMouseTrail();
+        musicPlaying = !musicPlaying;
+    });
+})();
 
-        // Particle System (Background)
-        class ParticleSystem {
-            constructor() {
-                this.canvas = document.getElementById('particleCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.resize();
-                
-                window.addEventListener('resize', () => this.resize());
-                this.initParticles();
-                this.animate();
-            }
+/* ========================================
+   INIT
+   ======================================== */
 
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-
-            initParticles() {
-                this.particles = [];
-                const count = window.innerWidth < 768 ? 50 : 150; 
-                for (let i = 0; i < count; i++) {
-                    this.particles.push(new Particle(this.canvas));
-                }
-            }
-
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-                this.ctx.lineWidth = 0.5;
-                
-                for(let i = 0; i < this.particles.length; i++) {
-                    const p1 = this.particles[i];
-                    p1.update();
-                    p1.draw(this.ctx);
-                    
-                    for(let j = i + 1; j < this.particles.length; j++) {
-                        const p2 = this.particles[j];
-                        const dx = p1.x - p2.x;
-                        const dy = p1.y - p2.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < 100) {
-                            this.ctx.beginPath();
-                            this.ctx.moveTo(p1.x, p1.y);
-                            this.ctx.lineTo(p2.x, p2.y);
-                            this.ctx.stroke();
-                        }
-                    }
-                }
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-
-        class Particle {
-            constructor(canvas) {
-                this.canvas = canvas;
-                this.x = Math.random() * this.canvas.width;
-                this.y = Math.random() * this.canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 0.5;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > this.canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > this.canvas.height) this.vy *= -1;
-            }
-
-            draw(ctx) {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.fill();
-            }
-        }
-
-        new ParticleSystem();
-
-        // Initial Fetch
-        fetchData();
-    
-
-
-        // --- Pet Agent Logic (QQ Pet Style) ---
-        const chatWidget = {
-            isOpen: false,
-            isDragging: false,
-            history: [],
-            moveTimer: null,
-            bubbleTimer: null,
-            idleMessages: [
-                "主人，今天也要加油哦！✨",
-                "摸摸头，心情会变好～",
-                "在看我的作品吗？(●'◡'●)",
-                "呼叫主人！你在哪里？",
-                "AI 进化中... 哔哔...",
-                "我想喝赛博奶茶了 🥤",
-                "嘿！发现隐藏菜单了吗？",
-                "正在扫描您的心情... 状态：优秀！",
-                "我可以帮你优化代码吗？(虽然我现在只想玩)",
-                "别忘了喝水哦，人类的硬件很脆弱的~"
-            ],
-            
-            init() {
-                this.cacheDOM();
-                this.bindEvents();
-                this.initPetLogic();
-            },
-
-            cacheDOM() {
-                this.container = document.getElementById('chat-widget-container');
-                this.btn = document.getElementById('chat-toggle-btn');
-                this.avatarImg = this.btn.querySelector('.chat-avatar-img');
-                this.window = document.getElementById('chat-window');
-                this.closeBtn = document.getElementById('chat-close-btn');
-                this.messages = document.getElementById('chat-messages');
-                this.input = document.getElementById('chat-input');
-                this.sendBtn = document.getElementById('chat-send-btn');
-                this.header = document.getElementById('chat-header');
-                this.bubble = document.getElementById('pet-bubble');
-            },
-
-            bindEvents() {
-                // Toggle Chat
-                this.btn.addEventListener('click', (e) => {
-                    if (!this.isDragging && !this.isChasing) this.toggleChat();
-                });
-                
-                this.closeBtn.addEventListener('click', () => this.toggleChat());
-                this.sendBtn.addEventListener('click', () => this.sendMessage());
-                this.input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendMessage();
-                });
-
-                // Dragging Logic
-                let startX, startY, initialRight, initialBottom;
-                
-                const onDragStart = (e) => {
-                    if (this.isOpen) return;
-                    this.isDragging = false;
-                    const touch = e.type === 'touchstart' ? e.touches[0] : e;
-                    startX = touch.clientX;
-                    startY = touch.clientY;
-                    
-                    const rect = this.container.getBoundingClientRect();
-                    initialRight = window.innerWidth - rect.right;
-                    initialBottom = window.innerHeight - rect.bottom;
-                    
-                    document.addEventListener('mousemove', onDragging);
-                    document.addEventListener('mouseup', onDragEnd);
-                    document.addEventListener('touchmove', onDragging);
-                    document.addEventListener('touchend', onDragEnd);
-                    
-                    clearTimeout(this.moveTimer);
-                };
-
-                const onDragging = (e) => {
-                    this.isDragging = true;
-                    const touch = e.type === 'touchmove' ? e.touches[0] : e;
-                    const dx = touch.clientX - startX;
-                    const dy = touch.clientY - startY;
-                    
-                    this.container.style.right = `${initialRight - dx}px`;
-                    this.container.style.bottom = `${initialBottom - dy}px`;
-                    this.container.style.transition = 'none';
-                    
-                    this.showBubble("放开我，主人！(っ °Д °;)っ");
-                };
-
-                const onDragEnd = () => {
-                    document.removeEventListener('mousemove', onDragging);
-                    document.removeEventListener('mouseup', onDragEnd);
-                    document.removeEventListener('touchmove', onDragging);
-                    document.removeEventListener('touchend', onDragEnd);
-                    
-                    this.container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-                    this.startIdleBehavior();
-                    
-                    if (this.isDragging) {
-                        this.showBubble("好晕啊... @﹏@");
-                        setTimeout(() => this.isDragging = false, 100);
-                    }
-                };
-
-                this.btn.addEventListener('mousedown', onDragStart);
-                this.btn.addEventListener('touchstart', onDragStart);
-                
-                // 3D Tilt & Interaction (Only when touching)
-                document.addEventListener('mousemove', (e) => {
-                    if (this.isOpen || this.isDragging) return;
-
-                    const rect = this.btn.getBoundingClientRect();
-                    const isInside = (
-                        e.clientX >= rect.left && 
-                        e.clientX <= rect.right && 
-                        e.clientY >= rect.top && 
-                        e.clientY <= rect.bottom
-                    );
-
-                    if (isInside) {
-                        this.handleHover(e, rect);
-                    } else {
-                        this.resetTilt();
-                    }
-                });
-
-                this.btn.addEventListener('mouseenter', () => {
-                    if (!this.isOpen) {
-                        this.btn.classList.add('pet-happy');
-                        this.avatarImg.classList.add('pet-catching'); 
-                        this.jump(); 
-                        this.showBubble("抓到你啦！(✿◡‿◡)");
-                        setTimeout(() => this.avatarImg.classList.remove('pet-catching'), 500);
-                    }
-                });
-
-                this.btn.addEventListener('mouseleave', () => {
-                    this.btn.classList.remove('pet-happy');
-                    this.resetTilt();
-                });
-            },
-
-            handleHover(e, rect) {
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = (y - centerY) / 3;
-                const rotateY = (centerX - x) / 3;
-                
-                const avatarInner = this.btn.querySelector('.avatar-container');
-                avatarInner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                
-                this.avatarImg.style.transform = `translate3d(-50%, ${-5 + rotateX}px, 60px) rotateY(${rotateY/2}deg)`;
-                this.avatarImg.style.filter = `
-                    brightness(1.2) 
-                    drop-shadow(${rotateY * 0.5}px ${rotateX * 0.5 + 10}px 10px rgba(0, 243, 255, 0.4))
-                    drop-shadow(${rotateY}px ${rotateX + 20}px 25px rgba(0,0,0,0.7))
-                `;
-            },
-
-            resetTilt() {
-                const avatarInner = this.btn.querySelector('.avatar-container');
-                avatarInner.style.transform = `rotateX(0deg) rotateY(0deg)`;
-                this.avatarImg.style.transform = `translate3d(-50%, -5px, 40px)`;
-                this.avatarImg.style.filter = `brightness(1.1) drop-shadow(0 15px 10px rgba(0,0,0,0.7))`;
-            },
-
-            initPetLogic() {
-                this.startIdleBehavior();
-                setTimeout(() => this.showBubble("主人，快来抓我呀！"), 1000);
-            },
-
-            startIdleBehavior() {
-                const scheduleNext = () => {
-                    const delay = 15000 + Math.random() * 20000;
-                    this.moveTimer = setTimeout(() => {
-                        if (!this.isOpen && !this.isDragging) {
-                            Math.random() > 0.5 ? this.randomMove() : this.jump();
-                            this.randomTalk();
-                        }
-                        scheduleNext();
-                    }, delay);
-                };
-                scheduleNext();
-            },
-
-            jump() {
-                if (this.isOpen) return;
-                this.avatarImg.classList.add('pet-jumping');
-                setTimeout(() => this.avatarImg.classList.remove('pet-jumping'), 800);
-                if (Math.random() > 0.7) this.showBubble("嘿咻！跳得高吗？🚀");
-            },
-
-            randomMove() {
-                const range = 150;
-                this.avatarImg.classList.add('pet-running');
-                
-                let dr = (Math.random() - 0.5) * range * 2;
-                let db = (Math.random() - 0.5) * range * 2;
-                
-                let newRight = parseFloat(this.container.style.right || 30) + dr;
-                let newBottom = parseFloat(this.container.style.bottom || 30) + db;
-                
-                newRight = Math.max(20, Math.min(window.innerWidth - 100, newRight));
-                newBottom = Math.max(20, Math.min(window.innerHeight - 100, newBottom));
-                
-                this.container.style.right = `${newRight}px`;
-                this.container.style.bottom = `${newBottom}px`;
-                
-                setTimeout(() => this.avatarImg.classList.remove('pet-running'), 1000);
-            },
-
-            randomTalk() {
-                const msg = this.idleMessages[Math.floor(Math.random() * this.idleMessages.length)];
-                this.showBubble(msg);
-            },
-
-            showBubble(text) {
-                this.bubble.textContent = text;
-                this.bubble.classList.add('show');
-                clearTimeout(this.bubbleTimer);
-                this.bubbleTimer = setTimeout(() => {
-                    this.bubble.classList.remove('show');
-                }, 3000);
-            },
-
-            toggleChat() {
-                this.isOpen = !this.isOpen;
-                if (this.isOpen) {
-                    this.window.classList.remove('hidden');
-                    this.btn.style.opacity = '0.3'; // Dim FAB
-                    this.scrollToBottom();
-                    this.showBubble("有什么想聊的吗？");
-                } else {
-                    this.window.classList.add('hidden');
-                    this.btn.style.opacity = '1';
-                }
-            },
-
-            async sendMessage() {
-                const text = this.input.value.trim();
-                if (!text) return;
-
-                this.appendMessage('user', text);
-                this.input.value = '';
-                this.history.push({ role: 'user', content: text });
-
-                const loadingId = this.appendLoading();
-
-                try {
-                    const res = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: text,
-                            history: this.history.slice(-10)
-                        })
-                    });
-                    
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.reply || data.error);
-                    
-                    this.removeMessage(loadingId);
-                    this.typeWriter(data.reply);
-                    this.history.push({ role: 'assistant', content: data.reply });
-                    
-                    // Reactive behavior
-                    if (data.reply.length > 20) {
-                        this.btn.classList.add('pet-happy');
-                        setTimeout(() => this.btn.classList.remove('pet-happy'), 2000);
-                    }
-
-                } catch (err) {
-                    this.removeMessage(loadingId);
-                    this.appendMessage('bot', "连接断开了，主人可以检查一下后端服务器哦~");
-                }
-            },
-
-            appendMessage(role, text) {
-                const div = document.createElement('div');
-                div.className = `message ${role}-message`;
-                
-                if (role === 'bot') {
-                    div.innerHTML = marked.parse(text);
-                } else {
-                    div.textContent = text;
-                }
-                
-                this.messages.appendChild(div);
-                this.scrollToBottom();
-                return div;
-            },
-
-            appendLoading() {
-                const div = document.createElement('div');
-                div.className = 'message bot-message';
-                div.innerHTML = '<i class="fas fa-ellipsis-h fa-fade"></i>';
-                div.id = 'msg-' + Date.now();
-                this.messages.appendChild(div);
-                this.scrollToBottom();
-                return div.id;
-            },
-
-            removeMessage(id) {
-                const el = document.getElementById(id);
-                if (el) el.remove();
-            },
-
-            typeWriter(text) {
-                const div = document.createElement('div');
-                div.className = 'message bot-message typing-cursor';
-                this.messages.appendChild(div);
-                this.scrollToBottom();
-
-                let i = 0;
-                const speed = 20; // Slightly faster for smoother Markdown rendering
-                let currentText = "";
-
-                const type = () => {
-                    if (i < text.length) {
-                        currentText += text.charAt(i);
-                        // Parse current partial text as Markdown
-                        div.innerHTML = marked.parse(currentText);
-                        i++;
-                        this.scrollToBottom();
-                        setTimeout(type, speed);
-                    } else {
-                        div.classList.remove('typing-cursor');
-                    }
-                };
-                type();
-            },
-
-            scrollToBottom() {
-                this.messages.scrollTop = this.messages.scrollHeight;
-            }
-        };
-
-        // Initialize when DOM loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            chatWidget.init();
-        });
+applyDigitalHumanConcept();
+initAdminPanel();
+fetchData();

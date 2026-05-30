@@ -67,7 +67,7 @@ const defaultDB = {
         backgroundImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', // High-res default
         backgroundMusic: '',
         particlesEnabled: true,
-        adminPassword: 'admin',
+        adminPassword: '124816',
         // Feature Cards Links
         certLink: '',
         videoLink: '',
@@ -87,7 +87,11 @@ const defaultDB = {
     certificates: [],
     media: [],
     tools: [],
-    articles: []
+    articles: [],
+    skills: [],
+    prompts: [],
+    diary: [],
+    computing: []
 };
 
 // Load DB
@@ -333,10 +337,20 @@ async function executeGitDeploy(proxy) {
 // Get All Data
 app.get('/api/data', (req, res) => res.json(loadDB()));
 
-// Update Settings
-app.post('/api/settings', (req, res) => {
+function requireAdmin(req, res, next) {
     const db = loadDB();
-    db.settings = { ...db.settings, ...req.body };
+    const password = req.headers['x-admin-password'] || req.body?.adminPassword;
+    if (password === (db.settings.adminPassword || 'admin')) {
+        return next();
+    }
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+}
+
+// Update Settings
+app.post('/api/settings', requireAdmin, (req, res) => {
+    const db = loadDB();
+    const { adminPassword, ...settingsUpdate } = req.body;
+    db.settings = { ...db.settings, ...settingsUpdate };
     saveDB(db);
     res.json(db.settings);
 });
@@ -357,17 +371,17 @@ const handleUpload = (req, res, targetField, dbSection = 'settings') => {
 };
 
 // Specific Upload Routes
-app.post('/api/upload/background', upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundImage'));
-app.post('/api/upload/music', upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundMusic'));
-app.post('/api/upload/certCover', upload.single('file'), (req, res) => handleUpload(req, res, 'certCover'));
-app.post('/api/upload/videoCover', upload.single('file'), (req, res) => handleUpload(req, res, 'videoCover'));
-app.post('/api/upload/workflowCover', upload.single('file'), (req, res) => handleUpload(req, res, 'workflowCover'));
-app.post('/api/upload/qrDouyin', upload.single('file'), (req, res) => handleUpload(req, res, 'qrDouyin'));
-app.post('/api/upload/qrXiaohongshu', upload.single('file'), (req, res) => handleUpload(req, res, 'qrXiaohongshu'));
-app.post('/api/upload/qrVideoAccount', upload.single('file'), (req, res) => handleUpload(req, res, 'qrVideoAccount'));
+app.post('/api/upload/background', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundImage'));
+app.post('/api/upload/music', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'backgroundMusic'));
+app.post('/api/upload/certCover', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'certCover'));
+app.post('/api/upload/videoCover', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'videoCover'));
+app.post('/api/upload/workflowCover', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'workflowCover'));
+app.post('/api/upload/qrDouyin', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'qrDouyin'));
+app.post('/api/upload/qrXiaohongshu', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'qrXiaohongshu'));
+app.post('/api/upload/qrVideoAccount', requireAdmin, upload.single('file'), (req, res) => handleUpload(req, res, 'qrVideoAccount'));
 
 // Projects
-app.post('/api/projects', upload.single('icon'), (req, res) => {
+app.post('/api/projects', requireAdmin, upload.single('icon'), (req, res) => {
     const db = loadDB();
     const newProject = {
         id: Date.now(),
@@ -380,7 +394,7 @@ app.post('/api/projects', upload.single('icon'), (req, res) => {
 });
 
 // Agents
-app.post('/api/agents', upload.single('icon'), (req, res) => {
+app.post('/api/agents', requireAdmin, upload.single('icon'), (req, res) => {
     const db = loadDB();
     const newAgent = {
         id: Date.now(),
@@ -393,7 +407,7 @@ app.post('/api/agents', upload.single('icon'), (req, res) => {
 });
 
 // Media
-app.post('/api/upload/media', upload.single('file'), (req, res) => {
+app.post('/api/upload/media', requireAdmin, upload.single('file'), (req, res) => {
     const db = loadDB();
     const newMedia = {
         id: Date.now(),
@@ -409,7 +423,7 @@ app.post('/api/upload/media', upload.single('file'), (req, res) => {
 });
 
 // Tools
-app.post('/api/tools', upload.single('icon'), (req, res) => {
+app.post('/api/tools', requireAdmin, upload.single('icon'), (req, res) => {
     const db = loadDB();
     const newTool = {
         id: Date.now(),
@@ -422,7 +436,7 @@ app.post('/api/tools', upload.single('icon'), (req, res) => {
 });
 
 // Certificates
-app.post('/api/certificates', upload.single('image'), (req, res) => {
+app.post('/api/certificates', requireAdmin, upload.single('image'), (req, res) => {
     const db = loadDB();
     const newCert = {
         id: Date.now(),
@@ -436,29 +450,79 @@ app.post('/api/certificates', upload.single('image'), (req, res) => {
 });
 
 // Articles
-app.post('/api/articles', (req, res) => {
+app.post('/api/articles', requireAdmin, (req, res) => {
     const db = loadDB();
+    if (!Array.isArray(db.articles)) db.articles = [];
     const newArticle = { id: Date.now(), ...req.body };
     db.articles.push(newArticle);
     saveDB(db);
     res.json(newArticle);
 });
 
+app.post('/api/skills', requireAdmin, (req, res) => {
+    const db = loadDB();
+    if (!Array.isArray(db.skills)) db.skills = [];
+    const newSkill = {
+        id: Date.now(),
+        name: req.body.name || req.body.title || '未命名技能',
+        category: req.body.category || '其他',
+        level: Number(req.body.level || 0),
+        description: req.body.description || ''
+    };
+    db.skills.push(newSkill);
+    saveDB(db);
+    res.json(newSkill);
+});
+
+app.post('/api/prompts', requireAdmin, (req, res) => {
+    const db = loadDB();
+    if (!Array.isArray(db.prompts)) db.prompts = [];
+    const newPrompt = {
+        id: Date.now(),
+        title: req.body.title || '未命名提示词',
+        category: req.body.category || '',
+        content: req.body.content || ''
+    };
+    db.prompts.push(newPrompt);
+    saveDB(db);
+    res.json(newPrompt);
+});
+
+app.post('/api/diary', requireAdmin, (req, res) => {
+    const db = loadDB();
+    if (!Array.isArray(db.diary)) db.diary = [];
+    const newDiary = {
+        id: Date.now(),
+        title: req.body.title || '未命名日记',
+        date: req.body.date || new Date().toISOString().slice(0, 10),
+        content: req.body.content || '',
+        link: req.body.link || '',
+        image: req.body.image || ''
+    };
+    db.diary.push(newDiary);
+    saveDB(db);
+    res.json(newDiary);
+});
+
 // Delete Route Factory
 const createDeleteRoute = (collection) => (req, res) => {
     const db = loadDB();
     const id = parseInt(req.params.id);
+    if (!Array.isArray(db[collection])) db[collection] = [];
     db[collection] = db[collection].filter(item => item.id !== id);
     saveDB(db);
     res.json({ success: true });
 };
 
-app.delete('/api/projects/:id', createDeleteRoute('projects'));
-app.delete('/api/agents/:id', createDeleteRoute('agents'));
-app.delete('/api/media/:id', createDeleteRoute('media'));
-app.delete('/api/tools/:id', createDeleteRoute('tools'));
-app.delete('/api/certificates/:id', createDeleteRoute('certificates'));
-app.delete('/api/articles/:id', createDeleteRoute('articles'));
+app.delete('/api/projects/:id', requireAdmin, createDeleteRoute('projects'));
+app.delete('/api/agents/:id', requireAdmin, createDeleteRoute('agents'));
+app.delete('/api/media/:id', requireAdmin, createDeleteRoute('media'));
+app.delete('/api/tools/:id', requireAdmin, createDeleteRoute('tools'));
+app.delete('/api/certificates/:id', requireAdmin, createDeleteRoute('certificates'));
+app.delete('/api/articles/:id', requireAdmin, createDeleteRoute('articles'));
+app.delete('/api/skills/:id', requireAdmin, createDeleteRoute('skills'));
+app.delete('/api/prompts/:id', requireAdmin, createDeleteRoute('prompts'));
+app.delete('/api/diary/:id', requireAdmin, createDeleteRoute('diary'));
 
 // Verify Password
 app.post('/api/verify-password', (req, res) => {

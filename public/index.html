@@ -3,633 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>柒毓个人页面 - 柒毓's Portfolio</title>
+    <title>柒毓 · 探索AI的无限宇宙</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=20260530-admin-v2">
 </head>
 <body>
 
-    <canvas id="particleCanvas"></canvas>
-    <audio id="bgMusic" loop></audio>
+    <canvas id="starCanvas"></canvas>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="nav-left">
-            <a href="#" class="brand">
-                <div class="brand-logo">柒</div>
-                柒毓个人页面
-            </a>
-            <div class="nav-items">
-                <a href="#" class="nav-link active" data-target="home"><i class="fas fa-home"></i> 首页</a>
-                <a href="#" class="nav-link" data-target="works"><i class="fas fa-layer-group"></i> 作品</a>
-                <a href="#" class="nav-link" data-target="agents"><i class="fas fa-robot"></i> 智能体</a>
-                <a href="#" class="nav-link" data-target="tools"><i class="fas fa-tools"></i> 工具</a>
-                <a href="#" class="nav-link" data-target="articles"><i class="fas fa-pen-nib"></i> 文章</a>
-            </div>
-        </div>
-        <div class="nav-right">
-            <button class="icon-btn music-active" id="musicToggleBtn"><i class="fas fa-music"></i></button>
-            <button class="icon-btn" id="settingsToggleBtn"><i class="fas fa-cog"></i></button>
-            <img src="个人卡通图像.jpg" alt="Profile" class="user-avatar-sm">
-        </div>
-    </nav>
+    <header class="nav-glass" id="navbar">
+        <a href="#admin" class="nav-logo" id="adminOpenBtn" title="内容后台">
+            <span class="logo-icon">◈</span>
+            <span class="logo-text">柒毓</span>
+        </a>
+        <nav class="nav-links" id="navLinks">
+            <a href="#home" class="nav-item active">首页</a>
+            <a href="#works" class="nav-item">作品</a>
+            <a href="#articles" class="nav-item">文章</a>
+            <a href="#skills" class="nav-item">技能</a>
+            <a href="#prompts" class="nav-item">提示词</a>
+            <a href="#diary" class="nav-item">养虾日记</a>
+            <a href="https://api.qixiaoyu.com" class="nav-item">钟毓算力</a>
+        </nav>
+        <button class="nav-music" id="musicBtn" title="背景音乐">
+            <i class="fas fa-music"></i>
+        </button>
+    </header>
 
-    <!-- Password Modal (Sidebar Style) -->
-    <div id="passwordModal" class="settings-panel" style="z-index: 2002; height: auto; bottom: auto;">
-        <div class="settings-header">
-            <h3>Admin Access</h3>
-            <button class="close-btn" id="closePasswordModal"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="settings-content" style="padding: 2rem;">
-            <div class="form-group">
-                <input type="password" id="adminPasswordInput" placeholder="Enter Password" style="margin-bottom: 1.5rem;">
-                <button class="btn-upload" onclick="verifyPassword()" style="width:100%; padding: 1rem;">Unlock Settings</button>
-                <p id="passwordError" style="color:#ff4444; font-size:0.9rem; margin-top:1rem; display:none; text-align: center;">Incorrect Password</p>
-            </div>
-        </div>
-    </div>
+    <main>
 
-    <!-- Settings Panel -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-header">
-            <h3>设置</h3>
-            <button class="close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
-        </div>
-        
-        <div class="settings-tabs">
-            <div class="settings-tab" data-tab="general">通用</div>
-            <div class="settings-tab" data-tab="projects">作品</div>
-            <div class="settings-tab" data-tab="agents">智能体</div>
-            <div class="settings-tab" data-tab="certificates">证书</div>
-            <div class="settings-tab" data-tab="videos">我的视频</div>
-            <div class="settings-tab" data-tab="workflow">我的工作流</div>
-            <div class="settings-tab" data-tab="tools">工具</div>
-            <div class="settings-tab" data-tab="articles">文章</div>
-            <div class="settings-tab" data-tab="contact">联系信息</div>
-            <div class="settings-tab" data-tab="deploy" style="color: #4ade80;">发布</div>
-        </div>
-
-        <div class="settings-content">
-            <!-- General Settings -->
-            <div class="settings-section active" id="tab-general">
-                <div class="setting-item">
-                    <label>背景颜色</label>
-                    <input type="color" id="bgColorInput" value="#000000">
+        <section id="home" class="section-hero section-page">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span> AI CREATOR · 柒毓
                 </div>
-                <div class="setting-item">
-                    <label>背景图片</label>
-                    <input type="file" id="bgImageInput" accept="image/*">
-                </div>
-                <div class="setting-item">
-                    <label>背景音乐</label>
-                    <input type="file" id="bgMusicInput" accept="audio/*">
-                </div>
-            </div>
-
-            <!-- Projects Settings -->
-            <div class="settings-section" id="tab-projects">
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>添加应用 (作品)</h4>
-                    <div class="form-group">
-                        <input type="text" id="projTitle" placeholder="应用名称">
-                        <input type="text" id="projDesc" placeholder="简短描述">
-                        <input type="text" id="projLink" placeholder="链接地址">
-                        <input type="text" id="projCategory" placeholder="分类 (e.g. Web App)">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
-                        <input type="file" id="projIconInput" accept="image/*">
-                        <button class="btn-upload" onclick="uploadProject()">添加应用</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理作品</h4>
-                    <div id="adminProjectsList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Agents Settings -->
-            <div class="settings-section" id="tab-agents">
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>添加智能体</h4>
-                    <div class="form-group">
-                        <input type="text" id="agentTitle" placeholder="智能体名称">
-                        <input type="text" id="agentDesc" placeholder="简短描述">
-                        <input type="text" id="agentLink" placeholder="链接地址">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
-                        <input type="file" id="agentIconInput" accept="image/*">
-                        <button class="btn-upload" onclick="addAgent()">添加智能体</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理智能体</h4>
-                    <div id="adminAgentsList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Certificates Settings -->
-            <div class="settings-section" id="tab-certificates">
-                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
-                        <input type="text" id="settingCertLink" placeholder="https://..." onchange="updateGlobalSetting('certLink', this.value)">
-                        
-                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
-                        <input type="file" id="settingCertCover" accept="image/*" onchange="uploadCover('certCover', this)">
-                    </div>
-                </div>
-
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>添加证书 (列表)</h4>
-                    <div class="form-group">
-                        <input type="text" id="certTitle" placeholder="证书名称">
-                        <input type="text" id="certIssuer" placeholder="颁发机构">
-                        <input type="text" id="certDate" placeholder="颁发日期">
-                        <input type="text" id="certLink" placeholder="跳转链接 (可选)">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传证书图片 (可选)</label>
-                        <input type="file" id="certImageInput" accept="image/*">
-                        <button class="btn-upload" onclick="uploadCertificate()">添加证书</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理证书</h4>
-                    <div id="adminCertificatesList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Videos Settings -->
-            <div class="settings-section" id="tab-videos">
-                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
-                        <input type="text" id="settingVideoLink" placeholder="https://..." onchange="updateGlobalSetting('videoLink', this.value)">
-                        
-                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
-                        <input type="file" id="settingVideoCover" accept="image/*" onchange="uploadCover('videoCover', this)">
-                    </div>
-                </div>
-
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>上传视频</h4>
-                    <div class="form-group">
-                        <input type="text" id="videoTitle" placeholder="视频标题">
-                        <input type="text" id="videoLink" placeholder="跳转链接 (可选)">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传视频文件 (MP4/WebM)</label>
-                        <input type="file" id="videoFileInput" accept="video/*">
-                        <button class="btn-upload" onclick="uploadVideo()">上传视频</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理视频</h4>
-                    <div id="adminVideosList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Workflow Settings -->
-            <div class="settings-section" id="tab-workflow">
-                <div class="admin-section" style="margin-top:0; border-top:none; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <h4 style="margin-bottom: 0.5rem; color: #4ade80;">首页卡片配置</h4>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label style="color:var(--text-secondary); font-size:0.8rem;">跳转链接</label>
-                        <input type="text" id="settingWorkflowLink" placeholder="https://..." onchange="updateGlobalSetting('workflowLink', this.value)">
-                        
-                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">封面图片</label>
-                        <input type="file" id="settingWorkflowCover" accept="image/*" onchange="uploadCover('workflowCover', this)">
-                    </div>
-                </div>
-
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>上传工作流 (图片)</h4>
-                    <div class="form-group">
-                        <input type="text" id="workflowTitle" placeholder="工作流标题">
-                        <input type="text" id="workflowLink" placeholder="跳转链接 (可选)">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传工作流图片</label>
-                        <input type="file" id="workflowFileInput" accept="image/*">
-                        <button class="btn-upload" onclick="uploadWorkflow()">上传工作流</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理工作流</h4>
-                    <div id="adminWorkflowList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Tools Settings -->
-            <div class="settings-section" id="tab-tools">
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>添加工具</h4>
-                    <div class="form-group">
-                        <input type="text" id="toolName" placeholder="工具名称 (e.g. VS Code)">
-                        <input type="text" id="toolDesc" placeholder="描述">
-                        <input type="text" id="toolLink" placeholder="工具链接 (可选)">
-                        <label style="color:var(--text-secondary); font-size:0.9rem; display:block; margin-bottom:0.5rem;">上传图标 (可选)</label>
-                        <input type="file" id="toolIconInput" accept="image/*">
-                        <button class="btn-upload" onclick="addTool()">添加工具</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理工具</h4>
-                    <div id="adminToolsList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Articles Settings -->
-            <div class="settings-section" id="tab-articles">
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>发布文章</h4>
-                    <div class="form-group">
-                        <input type="text" id="articleTitle" placeholder="文章标题">
-                        <textarea id="articleSummary" rows="3" placeholder="文章摘要..."></textarea>
-                        <input type="text" id="articleLink" placeholder="文章链接 (可选)">
-                        <input type="text" id="articleCategory" placeholder="分类 (e.g. Tech)">
-                        <button class="btn-upload" onclick="addArticle()">发布文章</button>
-                    </div>
-                </div>
-                <div class="admin-section">
-                    <h4>管理文章</h4>
-                    <div id="adminArticlesList" class="admin-list"></div>
-                </div>
-            </div>
-
-            <!-- Contact Settings -->
-            <div class="settings-section" id="tab-contact">
-                <div class="admin-section" style="margin-top:0; border-top:none;">
-                    <h4>联系信息配置</h4>
-                    <div class="form-group">
-                        <label style="color:var(--text-secondary); font-size:0.8rem;">邮箱地址</label>
-                        <input type="text" id="settingEmail" placeholder="e.g. email@example.com" onchange="updateGlobalSetting('contactEmail', this.value)">
-                        
-                        <label style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.5rem; display:block;">全网 IP (Handle)</label>
-                        <input type="text" id="settingHandle" placeholder="e.g. 毓见Agent" onchange="updateGlobalSetting('contactHandle', this.value)">
-                    </div>
-
-                    <h4 style="margin-top: 1.5rem;">社交账号二维码</h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                        <!-- Douyin -->
-                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
-                            <label style="display:block; color:white; margin-bottom:0.5rem;">抖音</label>
-                            <img id="previewQrDouyin" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
-                            <input type="file" id="fileQrDouyin" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrDouyin', this)">
-                        </div>
-                        
-                        <!-- Xiaohongshu -->
-                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
-                            <label style="display:block; color:white; margin-bottom:0.5rem;">小红书</label>
-                            <img id="previewQrRed" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
-                            <input type="file" id="fileQrRed" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrXiaohongshu', this)">
-                        </div>
-
-                        <!-- Video Account -->
-                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; text-align: center;">
-                            <label style="display:block; color:white; margin-bottom:0.5rem;">视频号</label>
-                            <img id="previewQrVideo" style="width:80px; height:80px; object-fit:contain; background:#333; margin-bottom:0.5rem; border-radius:4px;">
-                            <input type="file" id="fileQrVideo" accept="image/*" style="width:100%; font-size:0.7rem;" onchange="uploadCover('qrVideoAccount', this)">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deploy Settings -->
-            <div class="settings-section" id="tab-deploy">
-                <div class="admin-section" style="margin-top:0; border-top:none; text-align:center;">
-                    <h4>同步发布到云端</h4>
-                    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
-                        <b>本地开发时：</b> 将本地的所有修改同步到 GitHub 仓库。<br>
-                        <b>线上访问时：</b> 不需要点击此按钮。所有修改会自动保存并触发更新（约1-2分钟生效）。
-                    </p>
-                    <div id="sync-proxy-config" style="margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
-                            <i class="fas fa-network-wired"></i> Git 代理设置 (已自动检测)
-                        </label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="gitProxyInput" value="127.0.0.1:10808" placeholder="例如: 127.0.0.1:10808" 
-                                   style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 5px 10px; color: white; font-size: 0.9rem;">
-                            <button onclick="saveProxy()" style="background: rgba(255,255,255,0.1); border: none; padding: 5px 15px; border-radius: 4px; color: white; cursor: pointer; font-size: 0.85rem;">保存</button>
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                            * 检测到系统代理端口为 10808，已自动为您填入。
-                        </p>
-                    </div>
-                    <button class="btn-upload" onclick="deployToCloud()" id="deployBtn" style="background: #4ade80; color: black; font-size:1.1rem; padding:1rem;">
-                        <i class="fas fa-cloud-upload-alt"></i> 立即同步发布
-                    </button>
-                    <div id="deployLog" style="margin-top:1.5rem; text-align:left; font-family:monospace; font-size:0.85rem; color:#a0a0a0; background:rgba(0,0,0,0.3); padding:1rem; border-radius:4px; display:none; white-space: pre-wrap;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Left Sidebar -->
-        <aside class="sidebar">
-            <div class="profile-card">
-                <img src="个人卡通图像.jpg" alt="柒毓 Avatar" class="profile-avatar">
-                <h2 class="profile-name">柒毓</h2>
-                <span class="profile-badge">自动化玩家</span>
-                
-                <p class="profile-bio">
-                    让更多人因AI更加强大<br>
-                    n8n|扣子Agent|vibe coding
+                <h1 class="hero-title">
+                    <span class="title-line">探索智能的</span>
+                    <span class="title-line title-accent">无限宇宙</span>
+                </h1>
+                <p class="hero-subtitle">
+                    从短剧生成到智能体开发，从养虾实验到算力探索——<br>
+                    这里记录着一个AI创造者的全部旅程。
                 </p>
-                
-                <div class="social-row">
-                    <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
-                    <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-btn"><i class="fas fa-envelope"></i></a>
+                <div class="hero-actions">
+                    <button class="btn-glass" onclick="navigateTo('works')">
+                        <span>探索作品</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <a href="https://api.qixiaoyu.com" target="_blank" class="btn-ghost">
+                        <span>查看算力</span>
+                        <i class="fas fa-bolt"></i>
+                    </a>
                 </div>
+            </div>
+            <div class="hero-visual" id="heroVisual">
+                <div class="orbit-ring ring-1"></div>
+                <div class="orbit-ring ring-2"></div>
+                <div class="orbit-ring ring-3"></div>
+                <div class="orbit-core"></div>
+            </div>
+        </section>
 
-                <div class="skills-section">
-                    <div class="skills-title">SKILLSET</div>
-                    <div class="skills-list">
-                        <span class="skill-chip">Agent</span>
-                        <span class="skill-chip">n8n</span>
-                        <span class="skill-chip">RPA</span>
-                        <span class="skill-chip">Python</span>
-                        <span class="skill-chip">vibe coding</span>
-                    </div>
-                </div>
+        <section id="works" class="section-works section-page">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2 class="section-title">作品</h2>
+                <p class="section-desc">每一件作品，都是通往AGI之路上的一块基石</p>
+            </div>
+            <div class="works-gallery" id="worksGallery">
+            </div>
+            <div class="gallery-controls">
+                <button class="gallery-btn" id="galleryPrev"><i class="fas fa-arrow-left"></i></button>
+                <div class="gallery-dots" id="galleryDots"></div>
+                <button class="gallery-btn" id="galleryNext"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
 
-                <div class="tools-section">
-                    <div class="tools-title">RECOMMENDED TOOLS</div>
-                    <div class="tools-list">
-                        <div class="tool-item">
-                            <div class="tool-icon"><i class="fas fa-code"></i></div>
-                            <div class="tool-details">
-                                <h4>VS Code</h4>
-                                <p>最强代码编辑器</p>
-                            </div>
-                        </div>
-                        <div class="tool-item">
-                            <div class="tool-icon"><i class="fab fa-figma"></i></div>
-                            <div class="tool-details">
-                                <h4>Figma</h4>
-                                <p>UI 设计利器</p>
-                            </div>
-                        </div>
-                        <div class="tool-item">
-                            <div class="tool-icon"><i class="fas fa-robot"></i></div>
-                            <div class="tool-details">
-                                <h4>ChatGPT</h4>
-                                <p>AI 生产力助手</p>
-                            </div>
-                        </div>
-                        <div class="tool-item">
-                            <div class="tool-icon"><i class="fab fa-chrome"></i></div>
-                            <div class="tool-details">
-                                <h4>Chrome</h4>
-                                <p>Web 开发调试</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section id="articles" class="section-articles section-page">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2 class="section-title">文章</h2>
+                <p class="section-desc">思考沉淀，让想法在深空中留下轨迹</p>
+            </div>
+            <div class="articles-grid" id="articlesGrid">
+            </div>
+        </section>
 
-                <!-- Fixed Music Player inside Sidebar -->
-                <div class="music-player-fixed">
-                    <div class="player-info-mini">
-                        <span class="player-title" id="playerTitle">No Music</span>
-                        <span class="player-status" id="playerStatus">Paused</span>
-                    </div>
-                    <button class="player-btn-mini play-btn" id="sidebarPlayBtn"><i class="fas fa-play"></i></button>
+        <section id="skills" class="section-skills section-page">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2 class="section-title">技能</h2>
+                <p class="section-desc">持续进化的能力图谱</p>
+            </div>
+            <div class="skills-container" id="skillsContainer">
+            </div>
+        </section>
+
+        <section id="prompts" class="section-prompts section-page">
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2 class="section-title">提示词</h2>
+                <p class="section-desc">精心打磨的Prompt，是人与AI之间最美的对话</p>
+            </div>
+            <div class="prompts-grid" id="promptsGrid">
+            </div>
+        </section>
+
+        <section id="diary" class="section-diary section-page">
+            <div class="section-header">
+                <span class="section-number">05</span>
+                <h2 class="section-title">养虾日记</h2>
+                <p class="section-desc">用养小龙虾的方式调教 AI 智能体 · <a href="https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzk0OTUwNjM0OQ==&action=getalbum&album_id=4519584288459407364" target="_blank" style="color: var(--accent); text-decoration: underline;">查看公众号</a></p>
+            </div>
+            <div class="diary-timeline" id="diaryTimeline">
+            </div>
+        </section>
+
+        <section id="computing" class="section-computing section-page">
+            <div class="section-header">
+                <span class="section-number">06</span>
+                <h2 class="section-title">钟毓算力</h2>
+                <p class="section-desc">面向 AI 实验、智能体工作流和内容生产的算力入口</p>
+            </div>
+            <div class="computing-dashboard" id="computingDashboard">
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer-glass">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">柒毓</span>
+                <p class="footer-tagline">AI Creator · Shrimp Farmer · Compute Explorer</p>
+            </div>
+            <div class="footer-links">
+                <a href="#home">首页</a>
+                <a href="#works">作品</a>
+                <a href="#articles">文章</a>
+                <a href="#skills">技能</a>
+                <a href="#prompts">提示词</a>
+                <a href="#diary">养虾日记</a>
+                <a href="https://api.qixiaoyu.com">钟毓算力</a>
+            </div>
+            <div class="footer-contact" id="footerContact">
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 柒毓 · 探索AI的无限宇宙</p>
+        </div>
+    </footer>
+
+    <div class="chat-fab" id="chatFab">
+        <div class="fab-glow"></div>
+        <img src="柒毓透明图.png" alt="AI助手" class="fab-avatar">
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <img src="柒毓透明图.png" alt="Avatar" class="chat-avatar">
+                <div>
+                    <span class="chat-name">柒毓 AI</span>
+                    <span class="chat-status">在线 · 探索模式</span>
                 </div>
+            </div>
+            <button class="chat-close" id="chatClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">
+                <div class="msg-content">你好，我是柒毓的AI助手。欢迎来到我的数字宇宙，有什么想聊的？</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="输入消息..." autocomplete="off">
+            <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="admin-backdrop" id="adminBackdrop" aria-hidden="true">
+        <aside class="admin-panel" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+            <div class="admin-panel-header">
+                <div>
+                    <span class="admin-kicker">QIYU CMS</span>
+                    <h2 id="adminTitle">内容后台</h2>
+                </div>
+                <button class="admin-close" id="adminCloseBtn" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form class="admin-login" id="adminLogin">
+                <label for="adminPassword">后台密码</label>
+                <div class="admin-login-row">
+                    <input type="password" id="adminPassword" placeholder="输入密码" autocomplete="current-password">
+                    <button type="submit">进入</button>
+                </div>
+                <p class="admin-message" id="adminLoginMessage"></p>
+            </form>
+
+            <div class="admin-workspace" id="adminWorkspace">
+                <div class="admin-tabs" id="adminTabs"></div>
+                <form class="admin-editor" id="adminEditor"></form>
+                <div class="admin-list" id="adminList"></div>
             </div>
         </aside>
-
-        <!-- Right Content (Main) -->
-        <main class="main-content">
-            
-            <!-- Home Section -->
-            <div id="section-home" class="page-section active">
-                <div class="hero-card">
-                    <div class="hero-greeting">
-                        你好，我是柒毓! <span style="font-size: 2rem;">👋</span>
-                    </div>
-                    <p class="hero-text">
-                        欢迎来到我的星空风格个人主页。这里展示了我的设计作品、开发项目以及我喜欢的音乐和视频。
-                    </p>
-                    <div class="hero-actions">
-                        <a href="#" class="btn btn-primary" onclick="document.querySelector('[data-target=works]').click()">浏览作品 →</a>
-                        <a href="#" class="btn btn-secondary" onclick="document.getElementById('settingsToggleBtn').click()">个性化设置</a>
-                    </div>
-                </div>
-
-                <!-- 三栏卡片布局 -->
-                <div class="feature-grid">
-                    <!-- 我的图片 (Renamed to Certificates as per user request mapping, but wait, user image said 'My Images', 'My Videos', 'My Certificates'. User prompt says: "My Certificates, My Videos, My Workflow". I will follow user prompt mapping.) -->
-                    
-                    <!-- Card 1: 我的证书 -->
-                    <a href="#" id="feat-cert-link" class="feature-card" target="_blank">
-                        <div class="feature-card-bg" id="feat-cert-bg"></div>
-                        <div class="feature-card-overlay"></div>
-                        <div class="feature-card-content">
-                            <h3>我的证书</h3>
-                            <span>点击查看</span>
-                        </div>
-                    </a>
-
-                    <!-- Card 2: 我的视频 -->
-                    <a href="#" id="feat-video-link" class="feature-card" target="_blank">
-                        <div class="feature-card-bg" id="feat-video-bg"></div>
-                        <div class="feature-card-overlay"></div>
-                        <div class="feature-card-content">
-                            <h3>我的视频</h3>
-                            <span>点击查看</span>
-                        </div>
-                    </a>
-
-                    <!-- Card 3: 我的工作流 -->
-                    <a href="#" id="feat-workflow-link" class="feature-card" target="_blank">
-                        <div class="feature-card-bg" id="feat-workflow-bg"></div>
-                        <div class="feature-card-overlay"></div>
-                        <div class="feature-card-content">
-                            <h3>我的工作流</h3>
-                            <span>点击查看</span>
-                        </div>
-                    </a>
-                </div>
-                <!-- Contact / Social Section -->
-                <div class="contact-section">
-                    <div class="contact-card">
-                        <div class="contact-header">
-                            <div class="contact-title-group">
-                                <div class="contact-pill-icon"></div>
-                                <h2 class="contact-title">联系我</h2>
-                            </div>
-                            <div class="contact-subtitle">
-                                扫码关注我的社交账号，获取最新动态 <span style="color:#ffd700;">✨</span>
-                            </div>
-                        </div>
-
-                        <div class="contact-content">
-                            <!-- Left: QR Codes -->
-                            <div class="qr-grid">
-                                <div class="qr-item">
-                                    <img src="" id="displayQrDouyin" class="qr-img" alt="抖音">
-                                    <span class="qr-label">抖音</span>
-                                </div>
-                                <div class="qr-item">
-                                    <img src="" id="displayQrRed" class="qr-img" alt="小红书">
-                                    <span class="qr-label">小红书</span>
-                                </div>
-                                <div class="qr-item">
-                                    <img src="" id="displayQrVideo" class="qr-img" alt="视频号">
-                                    <span class="qr-label">视频号</span>
-                                </div>
-                            </div>
-
-                            <!-- Right: Info Pills -->
-                            <div class="info-stack">
-                                <div class="info-pill-row">
-                                    <div class="info-label">抖&emsp;音</div>
-                                    <div class="info-value display-handle">毓见Agent</div>
-                                </div>
-                                <div class="info-pill-row">
-                                    <div class="info-label">小红书</div>
-                                    <div class="info-value display-handle">毓见Agent</div>
-                                </div>
-                                <div class="info-pill-row">
-                                    <div class="info-label">视频号</div>
-                                    <div class="info-value display-handle">毓见Agent</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Works Section -->
-            <div id="section-works" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">全部作品</h2>
-                </div>
-                <div class="projects-grid" id="worksGrid">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
-
-            <!-- Agents Section -->
-            <div id="section-agents" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">智能体</h2>
-                </div>
-                <div class="projects-grid" id="agentsGrid">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
-
-            <!-- Tools Section (Static for now, can be dynamic too) -->
-            <div id="section-tools" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">常用工具清单</h2>
-                </div>
-                <div class="hero-card" style="margin-bottom: 2rem;">
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                            <i class="fas fa-wrench" style="color: #fff; font-size: 1.5rem;"></i>
-                        </div>
-                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">常用工具清单</h3>
-                        <p style="color: var(--text-secondary);">这里列出了我日常开发和设计使用的高效工具。</p>
-                    </div>
-                </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <div class="project-icon-wrapper"><i class="fas fa-code"></i></div>
-                        <h3>VS Code</h3>
-                        <p>最强代码编辑器</p>
-                        <span class="category-pill">Dev</span>
-                    </div>
-                    <div class="project-card">
-                        <div class="project-icon-wrapper"><i class="fab fa-figma"></i></div>
-                        <h3>Figma</h3>
-                        <p>UI 设计利器</p>
-                        <span class="category-pill">Design</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Articles Section -->
-            <div id="section-articles" class="page-section">
-                <div class="section-header">
-                    <div class="section-tag"></div>
-                    <h2 class="section-title">最新文章</h2>
-                </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <div class="project-icon-wrapper">📝</div>
-                        <h3>Hello World</h3>
-                        <p>这是我的第一篇博客文章...</p>
-                        <span class="category-pill">Blog</span>
-                    </div>
-                </div>
-            </div>
-
-        </main>
     </div>
 
-    
-    <!-- Chat Widget -->
-    <div id="chat-widget-container">
-        <!-- Speech Bubble -->
-        <div id="pet-bubble" class="pet-speech-bubble">主人，快来找我玩呀！</div>
-        
-        <!-- Chat Button -->
-        <button id="chat-toggle-btn" class="chat-fab">
-            <div class="avatar-container">
-                <img src="柒毓透明图.png" alt="AI" class="chat-avatar-img">
-                <div class="avatar-ring"></div>
-                <div class="avatar-ring delay"></div>
-            </div>
-        </button>
+    <audio id="bgMusic" loop preload="auto"></audio>
 
-        <!-- Chat Window -->
-        <div id="chat-window" class="chat-window hidden">
-            <!-- Holographic Background Effect -->
-            <div class="holo-grid-bg"></div>
-            
-            <div id="chat-header" class="chat-header">
-                <div class="header-profile">
-                    <div class="header-avatar-frame">
-                        <img src="柒毓透明图.png" alt="AI" class="header-avatar">
-                        <div class="status-indicator online"></div>
-                    </div>
-                    <div class="header-info">
-                        <span class="header-name">柒毓 <span class="version-tag">v2.0</span></span>
-                        <span class="header-status">SYSTEM ONLINE</span>
-                    </div>
-                </div>
-                <div class="chat-controls">
-                    <button id="chat-close-btn"><i class="fas fa-times"></i></button>
-                </div>
-            </div>
-            
-            <!-- Large Hologram Visualization (Optional, subtle background) -->
-            <div class="holo-viz-container">
-                <img src="柒毓透明图.png" class="holo-avatar-large">
-                <div class="scanline"></div>
-            </div>
-
-            <div id="chat-messages" class="chat-messages">
-                <!-- Messages will appear here -->
-                <div class="message bot-message">
-                    <div class="message-content">你好！我是柒毓。欢迎来到我的数字空间，有什么我可以帮你的吗？</div>
-                </div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="输入指令..." autocomplete="off">
-                <button id="chat-send-btn"><i class="fas fa-location-arrow"></i></button>
-            </div>
-        </div>
-    </div>
-
-    
-
-    
-    <script src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/app.js?v=20260530-admin-v2"></script>
 </body>
 </html>
