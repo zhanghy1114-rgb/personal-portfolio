@@ -11,54 +11,57 @@ function applyDigitalHumanConcept() {
     home.dataset.digitalConcept = 'true';
     document.body.classList.add('ai-controlled-site');
     home.classList.add('digital-human-hero');
+    home.classList.add('character-home');
 
     const content = home.querySelector('.hero-content');
     if (content) {
         content.innerHTML = `
-            <div class="hero-badge digital-badge">
-                <span class="badge-dot"></span> QIYU AI STUDIO / LIVE PERSONAL OS
+                <div class="persona-intro">
+                    <div class="hero-badge digital-badge">
+                    <span class="badge-dot"></span> QIYU IP MODELING / CHARACTER RIG ONLINE
+                </div>
+                <h1 class="hero-title digital-title">
+                    <span class="title-line">把想法训练成</span>
+                    <span class="title-line title-accent">可执行的 AI 作品</span>
+                </h1>
+                <p class="hero-subtitle digital-subtitle">
+                    这里是柒毓的个人 AI 创作中枢：短剧、智能体、Prompt、工作流和现实实验，都被整理成可以继续迭代的实战入口。
+                </p>
+                <div class="home-signal-bar" aria-label="小毓状态">
+                    <span><i class="fas fa-cube"></i> 三视图锁定</span>
+                    <span><i class="fas fa-wand-magic-sparkles"></i> 材质扫描</span>
+                    <span><i class="fas fa-face-smile"></i> 表情绑定</span>
+                </div>
+                <div class="hero-actions digital-actions">
+                    <button class="btn-glass" onclick="document.getElementById('chatFab')?.click()">
+                        <span>和小毓对话</span>
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                    <button class="btn-ghost" onclick="navigateTo('works')">
+                        <span>查看她的作品</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
-            <h1 class="hero-title digital-title">
-                <span class="title-line">把想法训练成</span>
-                <span class="title-line title-accent">可执行的 AI 作品</span>
-            </h1>
-            <p class="hero-subtitle digital-subtitle">
-                这里是柒毓的个人 AI 创作中枢：短剧、智能体、Prompt、工作流和现实实验，都被整理成可以继续迭代的实战入口。
-            </p>
-            <div class="home-signal-bar" aria-label="创作状态">
-                <span><i class="fas fa-wand-magic-sparkles"></i> AI 内容生产</span>
-                <span><i class="fas fa-diagram-project"></i> 智能体工作流</span>
-                <span><i class="fas fa-seedling"></i> 现实实验记录</span>
-            </div>
-            <div class="hero-actions digital-actions">
-                <button class="btn-glass" onclick="navigateTo('works')">
-                    <span>进入作品库</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <button class="btn-ghost" onclick="document.getElementById('chatFab')?.click()">
-                    <span>唤起数字人格</span>
-                    <i class="fas fa-comment-dots"></i>
-                </button>
-            </div>
-            <div class="home-module-rail" aria-label="首页快速入口">
+            <div class="home-module-rail persona-orbit-nav" aria-label="首页快速入口">
                 <button onclick="navigateTo('works')">
                     <i class="fas fa-layer-group"></i>
-                    <strong>作品</strong>
+                    <strong>作品矩阵</strong>
                     <span>短剧 / 学习伴侣 / IP 生成</span>
                 </button>
                 <button onclick="navigateTo('skills')">
                     <i class="fas fa-route"></i>
                     <strong>工作流</strong>
-                    <span>从想法到落地的路径</span>
+                    <span>从想法到落地的实战路径</span>
                 </button>
                 <button onclick="navigateTo('prompts')">
                     <i class="fas fa-terminal"></i>
-                    <strong>Prompt</strong>
+                    <strong>Prompt库</strong>
                     <span>可复用的商业指令</span>
                 </button>
                 <button onclick="navigateTo('diary')">
                     <i class="fas fa-flask"></i>
-                    <strong>实验</strong>
+                    <strong>养虾实验</strong>
                     <span>养虾日记与 AI 观察</span>
                 </button>
             </div>
@@ -68,24 +71,65 @@ function applyDigitalHumanConcept() {
     const visual = document.getElementById('heroVisual');
     if (visual) {
         visual.innerHTML = `
-            <div class="persona-stage generated-persona-stage home-studio-stage">
+            <div class="persona-stage generated-persona-stage home-studio-stage xiaoyu-stage">
+                <button class="xiaoyu-core-hitarea" onclick="document.getElementById('chatFab')?.click()" aria-label="和小毓对话"></button>
+                <div class="holo-depth-shell shell-back"></div>
+                <div class="holo-depth-shell shell-front"></div>
+                <div class="holo-aura-ring ring-alpha"></div>
+                <div class="holo-aura-ring ring-beta"></div>
                 <div class="studio-orbit orbit-large"></div>
                 <div class="studio-orbit orbit-small"></div>
-                <img src="qiyu-digital-home-hero-cutout.png?v=20260530-home-v2" alt="柒毓 AI 数字人格" class="digital-human-portrait homepage-digital-portrait">
-                <div class="home-floating-panel panel-now">
-                    <span>NOW BUILDING</span>
-                    <strong>AI 短剧生成平台</strong>
+                <canvas class="xiaoyu-model-canvas" id="xiaoyuModelCanvas" aria-label="小毓 3D 角色预览"></canvas>
+                <div class="modeling-floor" aria-hidden="true"></div>
+                <div class="model-turntable" aria-hidden="true">
+                    <span></span><span></span><span></span>
                 </div>
-                <div class="home-floating-panel panel-stack">
-                    <span>STACK</span>
-                    <strong>Agent · Prompt · Workflow</strong>
+                <div class="model-axis axis-x" aria-hidden="true"><span>X</span></div>
+                <div class="model-axis axis-y" aria-hidden="true"><span>Y</span></div>
+                <div class="model-axis axis-z" aria-hidden="true"><span>Z</span></div>
+                <div class="model-measure measure-height" aria-hidden="true"><span>168CM</span></div>
+                <div class="model-measure measure-material" aria-hidden="true"><span>TRANSLUCENT · EMISSIVE</span></div>
+                <div class="stage-scan"></div>
+                <div class="persona-field field-left" aria-hidden="true"></div>
+                <div class="persona-field field-right" aria-hidden="true"></div>
+                <div class="face-focus" aria-hidden="true">
+                    <span></span><span></span><span></span>
                 </div>
-                <div class="home-console">
+                <div class="voice-pulse" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="presence-code code-left" aria-hidden="true">
+                    <span>RIG_STATUS CALIBRATING</span>
+                    <span>MESH_DETAIL HIGH</span>
+                    <span>LIGHT_SHADER ICE_BLUE</span>
+                </div>
+                <div class="presence-code code-right" aria-hidden="true">
+                    <span>FACE_BLENDSHAPE 24</span>
+                    <span>POSE_LIBRARY READY</span>
+                    <span>RENDER_PASS 03</span>
+                </div>
+                <img src="xiaoyu-ip.jpg?v=20260531-ip-v1" alt="小毓 AI 数字人格 IP 形象" class="digital-human-portrait homepage-digital-portrait">
+                <div class="model-wireframe wire-head" aria-hidden="true"></div>
+                <div class="model-wireframe wire-body" aria-hidden="true"></div>
+                <div class="model-pin pin-face" aria-hidden="true"></div>
+                <div class="model-pin pin-material" aria-hidden="true"></div>
+                <div class="avatar-depth-shadow"></div>
+                <div class="home-floating-panel panel-now persona-panel ip-reference-card">
+                    <img src="xiaoyu-ip-expressions.jpg?v=20260531-ip-v1" alt="小毓 IP 表情系列">
+                    <span>EXPRESSION</span>
+                    <strong>表情系列已接入</strong>
+                </div>
+                <div class="home-floating-panel panel-stack persona-panel ip-reference-card">
+                    <img src="xiaoyu-ip-turnaround.jpg?v=20260531-ip-v1" alt="小毓 IP 三视图">
+                    <span>DESIGN</span>
+                    <strong>三视图设定已归档</strong>
+                </div>
+                <div class="home-console persona-console">
                     <div class="console-topline">
                         <span></span><span></span><span></span>
                     </div>
-                    <p>qiyu.run()</p>
-                    <strong>把灵感拆成任务，把任务训练成作品。</strong>
+                    <p>xiaoyu.listen()</p>
+                    <strong>把“我帮你”说得刚刚好，把“我懂你”藏在缝隙里。</strong>
                 </div>
                 <div class="portrait-glow"></div>
             </div>
@@ -101,6 +145,227 @@ function applyDigitalHumanConcept() {
 
     document.getElementById('aiControlDeck')?.remove();
     initDigitalEyeMotion();
+    initHomeAvatarMotion();
+    initXiaoyuModelViewport();
+}
+
+function initXiaoyuModelViewport() {
+    const canvas = document.getElementById('xiaoyuModelCanvas');
+    const stage = document.querySelector('.xiaoyu-stage');
+    if (!canvas || !stage || canvas.dataset.modelReady === 'true') return;
+    if (!window.THREE) return;
+
+    canvas.dataset.modelReady = 'true';
+    stage.classList.add('model-canvas-ready');
+
+    const renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    camera.position.set(0.15, 1.18, 5.6);
+
+    const root = new THREE.Group();
+    root.position.set(0, -0.1, 0);
+    scene.add(root);
+
+    scene.add(new THREE.AmbientLight(0xbfeaff, 1.2));
+    const key = new THREE.PointLight(0x9ee7ff, 3.8, 9);
+    key.position.set(1.8, 2.9, 3.2);
+    scene.add(key);
+    const rim = new THREE.PointLight(0xffd166, 1.4, 7);
+    rim.position.set(-2.4, 1.4, 2.2);
+    scene.add(rim);
+
+    const grid = new THREE.GridHelper(6.4, 28, 0x80e7ff, 0x2d7894);
+    grid.position.y = -1.72;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.36;
+    root.add(grid);
+
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x8fe9ff,
+        transparent: true,
+        opacity: 0.34,
+        side: THREE.DoubleSide
+    });
+    const ringA = new THREE.Mesh(new THREE.TorusGeometry(1.7, 0.012, 10, 120), ringMaterial);
+    ringA.rotation.x = Math.PI / 2;
+    ringA.position.y = -1.42;
+    root.add(ringA);
+
+    const ringB = ringA.clone();
+    ringB.scale.set(1.34, 1.34, 1.34);
+    ringB.material = ringMaterial.clone();
+    ringB.material.opacity = 0.18;
+    root.add(ringB);
+
+    const textureLoader = new THREE.TextureLoader();
+    const portraitTexture = textureLoader.load('xiaoyu-ip.jpg');
+    portraitTexture.colorSpace = THREE.SRGBColorSpace;
+    portraitTexture.repeat.set(1, 0.72);
+    portraitTexture.offset.set(0, 0.2);
+
+    const avatar = new THREE.Group();
+    avatar.position.set(0.04, 0.18, 0);
+    root.add(avatar);
+
+    const avatarWidth = 2.22;
+    const avatarHeight = 3.95;
+    const sliceGeometry = new THREE.PlaneGeometry(avatarWidth, avatarHeight, 32, 32);
+    for (let i = 0; i < 5; i += 1) {
+        const material = new THREE.MeshPhysicalMaterial({
+            map: portraitTexture,
+            transparent: true,
+            opacity: i === 2 ? 0.9 : 0.14,
+            roughness: 0.28,
+            metalness: 0.08,
+            transmission: 0.18,
+            thickness: 0.35,
+            side: THREE.DoubleSide,
+            emissive: new THREE.Color(0x1c6d95),
+            emissiveIntensity: i === 2 ? 0.08 : 0.18
+        });
+        const slice = new THREE.Mesh(sliceGeometry, material);
+        slice.position.z = (i - 2) * 0.045;
+        slice.position.x = (i - 2) * 0.008;
+        avatar.add(slice);
+    }
+
+    const edgeBox = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(avatarWidth, avatarHeight, 0.28)),
+        new THREE.LineBasicMaterial({ color: 0xdff9ff, transparent: true, opacity: 0.28 })
+    );
+    avatar.add(edgeBox);
+
+    const sideMaterial = new THREE.MeshBasicMaterial({
+        color: 0x9fe8ff,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.DoubleSide
+    });
+    const sideLeft = new THREE.Mesh(new THREE.PlaneGeometry(0.28, avatarHeight), sideMaterial);
+    sideLeft.position.set(-avatarWidth / 2, 0, 0);
+    sideLeft.rotation.y = Math.PI / 2;
+    avatar.add(sideLeft);
+    const sideRight = sideLeft.clone();
+    sideRight.position.x = avatarWidth / 2;
+    avatar.add(sideRight);
+
+    const turnTexture = textureLoader.load('xiaoyu-ip-turnaround.jpg');
+    turnTexture.colorSpace = THREE.SRGBColorSpace;
+    const turnPanel = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.58, 0.9),
+        new THREE.MeshBasicMaterial({ map: turnTexture, transparent: true, opacity: 0.82, side: THREE.DoubleSide })
+    );
+    turnPanel.position.set(1.84, 0.85, -0.42);
+    turnPanel.rotation.y = -0.32;
+    root.add(turnPanel);
+
+    const expressionTexture = textureLoader.load('xiaoyu-ip-expressions.jpg');
+    expressionTexture.colorSpace = THREE.SRGBColorSpace;
+    const expressionPanel = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.38, 0.78),
+        new THREE.MeshBasicMaterial({ map: expressionTexture, transparent: true, opacity: 0.72, side: THREE.DoubleSide })
+    );
+    expressionPanel.position.set(-1.7, -0.62, -0.38);
+    expressionPanel.rotation.y = 0.28;
+    root.add(expressionPanel);
+
+    const points = [];
+    for (let i = 0; i < 90; i += 1) {
+        points.push((Math.random() - 0.5) * 5.2, (Math.random() - 0.5) * 4.2, (Math.random() - 0.5) * 2.6);
+    }
+    const pointGeometry = new THREE.BufferGeometry();
+    pointGeometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    const pointCloud = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
+        color: 0xcdf8ff,
+        size: 0.024,
+        transparent: true,
+        opacity: 0.5
+    }));
+    root.add(pointCloud);
+
+    const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width));
+        const height = Math.max(1, Math.floor(rect.height));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
+    resize();
+
+    const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const tick = () => {
+        const t = performance.now() * 0.001;
+        root.rotation.y = Math.sin(t * 0.42) * 0.16;
+        avatar.rotation.y = Math.sin(t * 0.54) * 0.2;
+        avatar.rotation.x = Math.sin(t * 0.31) * 0.035;
+        ringA.rotation.z = t * 0.55;
+        ringB.rotation.z = -t * 0.38;
+        pointCloud.rotation.y = t * 0.06;
+        renderer.render(scene, camera);
+        if (motionOK) requestAnimationFrame(tick);
+    };
+
+    tick();
+}
+
+function initHomeAvatarMotion() {
+    const stage = document.querySelector('.xiaoyu-stage');
+    if (!stage || stage.dataset.avatarMotion === 'true') return;
+
+    stage.dataset.avatarMotion = 'true';
+    let tx = 0;
+    let ty = 0;
+    let gx = 0;
+    let gy = 0;
+    let lastMove = 0;
+
+    function updateTarget(clientX, clientY) {
+        const rect = stage.getBoundingClientRect();
+        const centerX = rect.left + rect.width * 0.58;
+        const centerY = rect.top + rect.height * 0.48;
+        const dx = Math.max(-1, Math.min(1, (clientX - centerX) / (rect.width * 0.42)));
+        const dy = Math.max(-1, Math.min(1, (clientY - centerY) / (rect.height * 0.38)));
+        tx = dy * -4;
+        ty = dx * 7;
+        gx = dx * 10;
+        gy = dy * 7;
+        lastMove = Date.now();
+    }
+
+    window.addEventListener('pointermove', (event) => {
+        updateTarget(event.clientX, event.clientY);
+    }, { passive: true });
+
+    function tick() {
+        if (Date.now() - lastMove > 2400) {
+            const t = Date.now() / 1000;
+            tx = Math.sin(t * 0.46) * 2.2;
+            ty = Math.sin(t * 0.62) * 4.2;
+            gx = Math.sin(t * 0.62) * 5;
+            gy = Math.sin(t * 0.38) * 3;
+        }
+
+        stage.style.setProperty('--tilt-x', `${tx.toFixed(2)}deg`);
+        stage.style.setProperty('--tilt-y', `${ty.toFixed(2)}deg`);
+        stage.style.setProperty('--gaze-x', `${gx.toFixed(2)}px`);
+        stage.style.setProperty('--gaze-y', `${gy.toFixed(2)}px`);
+        requestAnimationFrame(tick);
+    }
+
+    tick();
 }
 
 function initDigitalEyeMotion() {
@@ -152,7 +417,7 @@ function injectAiControlDeck() {
     deck.id = 'aiControlDeck';
     deck.innerHTML = `
         <div class="control-orb">
-            <img src="qiyu-digital-ip.svg?v=20260530-v1" alt="AI 中控头像">
+            <img src="xiaoyu-ip.jpg?v=20260531-ip-v1" alt="小毓 AI 中控头像">
             <span class="orb-status"></span>
         </div>
         <div class="control-body">

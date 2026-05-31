@@ -3157,3 +3157,1993 @@ body.ai-controlled-site {
     }
 }
 
+/* ========================================
+   CHARACTER-FIRST HOME EXPERIMENT
+   ======================================== */
+
+.digital-human-hero.character-home {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 86px 24px 34px;
+    overflow: hidden;
+    text-align: center;
+    isolation: isolate;
+}
+
+.digital-human-hero.character-home::before {
+    inset: 72px 18px 18px;
+    border-radius: 28px;
+    background:
+        linear-gradient(105deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02) 42%, rgba(100, 255, 218, 0.08)),
+        linear-gradient(180deg, rgba(10, 14, 28, 0.76), rgba(4, 6, 14, 0.36));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 38px 120px rgba(0, 0, 0, 0.34);
+    opacity: 1;
+}
+
+.digital-human-hero.character-home::after {
+    content: '';
+    position: absolute;
+    inset: 72px 18px 18px;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 28px;
+    background:
+        linear-gradient(90deg, rgba(100, 255, 218, 0.1), transparent 16%, transparent 84%, rgba(255, 209, 102, 0.08)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.032) 0 1px, transparent 1px 92px),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 76px);
+    mask-image: linear-gradient(180deg, transparent, #000 14%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 88%, transparent);
+    opacity: 0.46;
+}
+
+.character-home .hero-visual {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.character-home .hero-content {
+    position: relative;
+    z-index: 12;
+    width: min(1240px, 100%);
+    height: calc(100vh - 118px);
+    height: calc(100svh - 118px);
+    min-height: 620px;
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    pointer-events: none;
+}
+
+.persona-intro {
+    position: absolute;
+    left: clamp(18px, 6.6vw, 104px);
+    top: clamp(26px, 9vh, 92px);
+    z-index: 18;
+    width: min(520px, calc(100vw - 44px));
+    text-align: left;
+    text-shadow: 0 16px 42px rgba(0, 0, 0, 0.48);
+    pointer-events: auto;
+}
+
+.character-home .digital-badge {
+    margin-bottom: 20px;
+    background: rgba(6, 10, 18, 0.38);
+    border-color: rgba(255, 209, 102, 0.24);
+}
+
+.character-home .digital-title {
+    max-width: 560px;
+    margin-bottom: 18px;
+    font-size: clamp(3rem, 5vw, 5.7rem);
+    line-height: 1.02;
+    letter-spacing: 0;
+}
+
+.character-home .digital-title .title-line {
+    white-space: nowrap;
+}
+
+.character-home .digital-subtitle {
+    max-width: 470px;
+    color: rgba(245, 245, 247, 0.78);
+}
+
+.character-home .home-signal-bar {
+    margin-bottom: 22px;
+}
+
+.character-home .home-signal-bar span {
+    min-height: 34px;
+    border-radius: 8px;
+    background: rgba(6, 10, 18, 0.34);
+    border-color: rgba(255, 255, 255, 0.11);
+}
+
+.character-home .digital-actions {
+    justify-content: flex-start;
+}
+
+.xiaoyu-stage {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+}
+
+.xiaoyu-stage::before {
+    left: 58%;
+    top: 50%;
+    width: min(90vw, 1040px);
+    height: min(98vh, 960px);
+    border-radius: 42% 58% 50% 50%;
+    background:
+        radial-gradient(ellipse, rgba(255, 255, 255, 0.18), rgba(100, 255, 218, 0.14) 42%, rgba(255, 151, 121, 0.06) 58%, transparent 74%);
+    filter: blur(18px);
+}
+
+.xiaoyu-stage::after {
+    left: 58%;
+    top: 78%;
+    width: min(78vw, 880px);
+    border-color: rgba(100, 255, 218, 0.32);
+    box-shadow:
+        0 0 34px rgba(100, 255, 218, 0.18),
+        inset 0 0 48px rgba(255, 209, 102, 0.1);
+    opacity: 0.95;
+}
+
+.character-home .homepage-digital-portrait {
+    left: 58%;
+    top: 50%;
+    z-index: 6;
+    width: min(70vw, 960px);
+    height: min(104vh, 980px);
+    object-position: center bottom;
+    filter:
+        saturate(1.14)
+        contrast(1.06)
+        brightness(1.07)
+        drop-shadow(0 38px 84px rgba(0, 0, 0, 0.56))
+        drop-shadow(0 0 72px rgba(100, 255, 218, 0.28));
+    animation: xiaoyu-breathe 6.6s ease-in-out infinite;
+}
+
+.xiaoyu-core-hitarea {
+    position: absolute;
+    left: 58%;
+    top: 50%;
+    z-index: 20;
+    width: min(38vw, 450px);
+    height: min(78vh, 760px);
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.character-home .studio-orbit {
+    left: 58%;
+    top: 55%;
+    opacity: 0.78;
+    transform: translate(-50%, -50%) rotateX(66deg);
+}
+
+.character-home .orbit-large {
+    width: min(90vw, 980px);
+    border-color: rgba(100, 255, 218, 0.2);
+}
+
+.character-home .orbit-small {
+    width: min(60vw, 660px);
+    border-color: rgba(255, 209, 102, 0.18);
+}
+
+.stage-scan {
+    position: absolute;
+    left: 58%;
+    top: 50%;
+    z-index: 9;
+    width: min(74vw, 940px);
+    height: min(102vh, 930px);
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border-radius: 18px;
+    mix-blend-mode: screen;
+    opacity: 0.52;
+    pointer-events: none;
+}
+
+.stage-scan::before,
+.stage-scan::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.stage-scan::before {
+    background:
+        linear-gradient(180deg, transparent 0 36%, rgba(100, 255, 218, 0.2) 44%, rgba(255, 209, 102, 0.12) 48%, transparent 58%),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 8px);
+    animation: persona-scanline 5.8s linear infinite;
+}
+
+.stage-scan::after {
+    background:
+        linear-gradient(90deg, transparent 0 8%, rgba(255, 255, 255, 0.14) 28%, transparent 44%),
+        linear-gradient(180deg, rgba(100, 255, 218, 0.12), transparent 34%, rgba(255, 151, 121, 0.08) 72%, transparent);
+    opacity: 0.42;
+    animation: stage-flicker 4.2s ease-in-out infinite;
+}
+
+.persona-field,
+.face-focus,
+.voice-pulse {
+    position: absolute;
+    pointer-events: none;
+}
+
+.persona-field {
+    z-index: 7;
+    width: min(22vw, 270px);
+    height: min(34vh, 320px);
+    border: 1px solid rgba(100, 255, 218, 0.12);
+    opacity: 0.62;
+    mix-blend-mode: screen;
+    animation: field-drift 8s ease-in-out infinite;
+}
+
+.persona-field::before,
+.persona-field::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(255, 209, 102, 0.1);
+}
+
+.persona-field::after {
+    inset: 28px;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.field-left {
+    left: clamp(340px, 39vw, 620px);
+    top: 24%;
+    transform: skewY(-10deg);
+}
+
+.field-right {
+    right: clamp(80px, 11vw, 180px);
+    top: 47%;
+    transform: skewY(10deg);
+    animation-delay: -3.6s;
+}
+
+.face-focus {
+    left: 58%;
+    top: 62%;
+    z-index: 11;
+    width: min(28vw, 360px);
+    height: min(24vh, 210px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(100, 255, 218, 0.18);
+    box-shadow:
+        inset 0 0 38px rgba(100, 255, 218, 0.08),
+        0 0 48px rgba(100, 255, 218, 0.1);
+    mix-blend-mode: screen;
+    opacity: 0.74;
+    animation: face-focus-breathe 5.4s ease-in-out infinite;
+}
+
+.face-focus::before,
+.face-focus::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.face-focus::before {
+    width: 76%;
+    height: 58%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.face-focus::after {
+    width: 1px;
+    height: 70%;
+    background: linear-gradient(180deg, transparent, rgba(100, 255, 218, 0.38), transparent);
+}
+
+.face-focus span {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #64ffda;
+    box-shadow: 0 0 18px rgba(100, 255, 218, 0.72);
+    animation: awareness-blink 2.8s ease-in-out infinite;
+}
+
+.face-focus span:nth-child(1) {
+    left: 34%;
+    top: 48%;
+}
+
+.face-focus span:nth-child(2) {
+    right: 34%;
+    top: 48%;
+    animation-delay: -0.24s;
+}
+
+.face-focus span:nth-child(3) {
+    left: 50%;
+    top: 66%;
+    transform: translateX(-50%);
+    background: #ffd166;
+    animation-delay: -0.62s;
+}
+
+.voice-pulse {
+    left: 58%;
+    top: 79%;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 84px;
+    height: 32px;
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    background: rgba(6, 10, 18, 0.24);
+    border: 1px solid rgba(100, 255, 218, 0.14);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0.7;
+}
+
+.voice-pulse span {
+    width: 5px;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #64ffda, #ffd166);
+    animation: voice-wave 1.2s ease-in-out infinite;
+}
+
+.voice-pulse span:nth-child(2) {
+    height: 18px;
+    animation-delay: -0.18s;
+}
+
+.voice-pulse span:nth-child(3) {
+    animation-delay: -0.34s;
+}
+
+.persona-panel {
+    min-width: 188px;
+    padding: 12px 14px;
+    background: rgba(6, 10, 18, 0.4);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
+    opacity: 0.78;
+    animation: persona-panel-float 7s ease-in-out infinite;
+}
+
+.persona-panel strong {
+    font-size: 0.82rem;
+}
+
+.character-home .panel-now {
+    display: none;
+}
+
+.character-home .panel-stack {
+    right: clamp(18px, 8vw, 118px);
+    top: 30%;
+    animation-delay: -2.2s;
+}
+
+.panel-sync {
+    display: none;
+}
+
+.persona-console {
+    left: min(84vw, 1210px);
+    right: auto;
+    bottom: clamp(136px, 20vh, 190px);
+    z-index: 10;
+    width: min(390px, 28vw);
+    transform: translateX(-50%);
+    background: rgba(6, 10, 18, 0.44);
+    border-color: rgba(100, 255, 218, 0.18);
+}
+
+.persona-console strong {
+    font-size: 0.94rem;
+}
+
+.persona-orbit-nav {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(16px, 3.3vh, 34px);
+    z-index: 14;
+    width: min(900px, calc(100vw - 40px));
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+
+.character-home .home-module-rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.character-home .home-module-rail button {
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-content: start;
+    column-gap: 11px;
+    row-gap: 2px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(6, 10, 18, 0.46);
+    border-color: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(22px) saturate(142%);
+    -webkit-backdrop-filter: blur(22px) saturate(142%);
+    animation: module-node-float 7.5s ease-in-out infinite;
+}
+
+.character-home .home-module-rail button:nth-child(2) {
+    animation-delay: -1.4s;
+}
+
+.character-home .home-module-rail button:nth-child(3) {
+    animation-delay: -2.8s;
+}
+
+.character-home .home-module-rail button:nth-child(4) {
+    animation-delay: -4.2s;
+}
+
+.character-home .home-module-rail button:hover {
+    background: rgba(100, 255, 218, 0.1);
+}
+
+.character-home .home-module-rail i {
+    grid-row: 1 / 3;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #06100d;
+    background: linear-gradient(135deg, #64ffda, #ffd166);
+    box-shadow: 0 0 28px rgba(100, 255, 218, 0.18);
+}
+
+.character-home .home-module-rail strong {
+    font-size: 0.9rem;
+}
+
+.character-home .home-module-rail span {
+    font-size: 0.7rem;
+}
+
+.character-home .portrait-glow {
+    left: 58%;
+    top: 58%;
+    width: min(70vw, 820px);
+    height: min(84vh, 800px);
+    opacity: 0.92;
+}
+
+@keyframes xiaoyu-breathe {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0) scale(1); }
+    50% { transform: translate(-50%, -50%) translateY(-12px) scale(1.018); }
+}
+
+@keyframes persona-panel-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes persona-scanline {
+    0% { transform: translateY(-64%); }
+    100% { transform: translateY(64%); }
+}
+
+@keyframes stage-flicker {
+    0%, 100% { opacity: 0.28; }
+    45% { opacity: 0.52; }
+    60% { opacity: 0.36; }
+}
+
+@keyframes field-drift {
+    0%, 100% { translate: 0 0; opacity: 0.48; }
+    50% { translate: 0 -14px; opacity: 0.72; }
+}
+
+@keyframes face-focus-breathe {
+    0%, 100% { scale: 0.96; opacity: 0.48; }
+    50% { scale: 1.03; opacity: 0.82; }
+}
+
+@keyframes awareness-blink {
+    0%, 100% { opacity: 0.22; scale: 0.76; }
+    42%, 62% { opacity: 1; scale: 1; }
+}
+
+@keyframes voice-wave {
+    0%, 100% { transform: scaleY(0.68); opacity: 0.54; }
+    50% { transform: scaleY(1.24); opacity: 1; }
+}
+
+@keyframes module-node-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -5px; }
+}
+
+@media (max-width: 980px) {
+    .digital-human-hero.character-home {
+        min-height: auto;
+        padding: 82px 18px 30px;
+    }
+
+    .digital-human-hero.character-home::before,
+    .digital-human-hero.character-home::after {
+        inset: 70px 12px 14px;
+    }
+
+    .character-home .hero-content {
+        height: auto;
+        min-height: 900px;
+    }
+
+    .persona-intro {
+        left: 24px;
+        right: 24px;
+        top: 18px;
+        width: auto;
+        max-width: 560px;
+    }
+
+    .character-home .digital-title {
+        max-width: 520px;
+        font-size: clamp(2.64rem, 8.6vw, 4.4rem);
+    }
+
+    .character-home .homepage-digital-portrait,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .portrait-glow,
+    .stage-scan,
+    .face-focus,
+    .voice-pulse,
+    .xiaoyu-core-hitarea {
+        left: 50%;
+    }
+
+    .character-home .homepage-digital-portrait {
+        top: 52%;
+        width: min(104vw, 680px);
+        height: 66vh;
+        min-height: 520px;
+    }
+
+    .stage-scan {
+        top: 52%;
+        width: min(106vw, 700px);
+        height: 70vh;
+        min-height: 540px;
+    }
+
+    .face-focus {
+        top: 60%;
+        width: min(64vw, 310px);
+        height: 210px;
+    }
+
+    .voice-pulse {
+        top: 78%;
+    }
+
+    .persona-field {
+        display: none;
+    }
+
+    .character-home .panel-now,
+    .character-home .panel-stack {
+        display: none;
+    }
+
+    .persona-console {
+        left: 50%;
+        bottom: 148px;
+        width: min(460px, calc(100vw - 52px));
+    }
+
+    .persona-orbit-nav {
+        bottom: 20px;
+        width: min(640px, calc(100vw - 36px));
+    }
+
+    .character-home .home-module-rail {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .digital-human-hero.character-home {
+        padding: 78px 14px 24px;
+    }
+
+    .digital-human-hero.character-home::before,
+    .digital-human-hero.character-home::after {
+        inset: 66px 8px 10px;
+        border-radius: 18px;
+    }
+
+    .character-home .hero-content {
+        min-height: 940px;
+    }
+
+    .persona-intro {
+        left: 14px;
+        right: 14px;
+        top: 10px;
+    }
+
+    .character-home .digital-title {
+        font-size: clamp(1.95rem, 9vw, 2.46rem);
+    }
+
+    .character-home .digital-subtitle {
+        max-width: 100%;
+        font-size: 0.92rem;
+        line-height: 1.72;
+    }
+
+    .character-home .home-signal-bar span {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .character-home .homepage-digital-portrait {
+        top: 52%;
+        width: min(118vw, 500px);
+        height: 55vh;
+        min-height: 430px;
+    }
+
+    .stage-scan {
+        top: 52%;
+        width: min(118vw, 520px);
+        height: 58vh;
+        min-height: 450px;
+    }
+
+    .face-focus {
+        top: 60%;
+        width: min(72vw, 270px);
+        height: 205px;
+    }
+
+    .voice-pulse {
+        display: none;
+    }
+
+    .persona-console {
+        bottom: 196px;
+        width: calc(100vw - 34px);
+        padding: 12px 13px;
+    }
+
+    .persona-console strong {
+        font-size: 0.84rem;
+    }
+
+    .character-home .home-module-rail {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .character-home .home-module-rail button {
+        min-height: 78px;
+        padding: 10px;
+    }
+
+    .character-home .home-module-rail i {
+        width: 32px;
+        height: 32px;
+        font-size: 0.84rem;
+    }
+
+    .character-home .home-module-rail span {
+        display: none;
+    }
+}
+
+/* ========================================
+   HOME POLISH PASS - clearer first screen
+   ======================================== */
+
+.character-home .digital-badge {
+    color: rgba(255, 235, 184, 0.92);
+}
+
+.character-home .digital-title {
+    max-width: 640px;
+    text-wrap: balance;
+}
+
+.character-home .digital-title .title-accent {
+    background: linear-gradient(135deg, #64ffda 0%, #ffd166 54%, #ff8f70 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.character-home .digital-subtitle {
+    max-width: 540px;
+    font-size: 1rem;
+    color: rgba(245, 245, 247, 0.82);
+}
+
+.character-home .home-signal-bar {
+    max-width: 570px;
+}
+
+.character-home .home-signal-bar span {
+    min-width: 138px;
+    justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.character-home .btn-glass,
+.character-home .btn-ghost {
+    min-width: 152px;
+    justify-content: center;
+}
+
+.character-home .homepage-digital-portrait {
+    left: 61%;
+    width: min(66vw, 900px);
+}
+
+.character-home .studio-orbit,
+.xiaoyu-stage::before,
+.xiaoyu-stage::after,
+.character-home .portrait-glow,
+.stage-scan,
+.face-focus,
+.voice-pulse,
+.xiaoyu-core-hitarea {
+    left: 61%;
+}
+
+.character-home .home-module-rail {
+    width: min(960px, calc(100vw - 40px));
+}
+
+.character-home .home-module-rail button {
+    min-height: 76px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.character-home .home-module-rail strong,
+.character-home .home-module-rail span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.character-home .persona-console {
+    left: min(84vw, 1180px);
+    bottom: clamp(138px, 18vh, 176px);
+    width: min(390px, 30vw);
+}
+
+.character-home .panel-stack {
+    right: clamp(26px, 8vw, 104px);
+}
+
+@media (max-width: 900px) {
+    .nav-glass {
+        align-items: center;
+        gap: 10px;
+        overflow: hidden;
+    }
+
+    .nav-links {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .nav-logo,
+    .nav-music {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 980px) {
+    .character-home .homepage-digital-portrait,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .portrait-glow,
+    .stage-scan,
+    .face-focus,
+    .voice-pulse,
+    .xiaoyu-core-hitarea {
+        left: 50%;
+    }
+
+    .character-home .hero-content {
+        min-height: 860px;
+    }
+
+    .character-home .homepage-digital-portrait {
+        top: 57%;
+        width: min(98vw, 650px);
+        height: 58vh;
+        min-height: 460px;
+    }
+
+    .stage-scan {
+        top: 57%;
+        width: min(100vw, 680px);
+        height: 62vh;
+        min-height: 480px;
+    }
+
+    .character-home .persona-console {
+        display: none;
+    }
+
+    .persona-orbit-nav {
+        bottom: 18px;
+    }
+}
+
+@media (max-width: 600px) {
+    .nav-glass {
+        width: calc(100% - 16px);
+        padding: 8px 10px;
+        border-radius: 22px;
+    }
+
+    .logo-text {
+        font-size: 0.95rem;
+    }
+
+    .nav-item {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+    }
+
+    .nav-music {
+        width: 32px;
+        height: 32px;
+    }
+
+    .digital-human-hero.character-home {
+        padding: 78px 12px 18px;
+    }
+
+    .character-home .hero-content {
+        min-height: 820px;
+    }
+
+    .persona-intro {
+        left: 16px;
+        right: auto;
+        top: 34px;
+        width: calc(100vw - 56px);
+        max-width: calc(100vw - 56px);
+    }
+
+    .character-home .digital-badge {
+        max-width: 100%;
+        margin-bottom: 16px;
+        padding: 6px 12px;
+        font-size: 0.64rem;
+        letter-spacing: 0.04em;
+    }
+
+    .character-home .digital-title {
+        max-width: 350px;
+        font-size: clamp(2.08rem, 10vw, 2.72rem);
+        line-height: 1.04;
+    }
+
+    .character-home .digital-title .title-line {
+        white-space: normal;
+    }
+
+    .character-home .digital-subtitle {
+        max-width: 100%;
+        font-size: 0.9rem;
+        line-height: 1.68;
+        overflow-wrap: anywhere;
+    }
+
+    .character-home .home-signal-bar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .character-home .home-signal-bar span {
+        width: auto;
+        min-height: 36px;
+        justify-content: flex-start;
+    }
+
+    .character-home .digital-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .character-home .btn-glass,
+    .character-home .btn-ghost {
+        min-width: 0;
+        min-height: 46px;
+        padding: 10px 12px;
+        gap: 6px;
+        font-size: 0.84rem;
+        white-space: nowrap;
+    }
+
+    .character-home .homepage-digital-portrait {
+        top: 64%;
+        width: min(112vw, 460px);
+        height: 45vh;
+        min-height: 360px;
+    }
+
+    .stage-scan {
+        top: 64%;
+        width: min(116vw, 500px);
+        height: 48vh;
+        min-height: 380px;
+    }
+
+    .face-focus {
+        display: none;
+    }
+
+    .persona-orbit-nav {
+        bottom: 8px;
+        width: calc(100vw - 28px);
+    }
+
+    .character-home .home-module-rail {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .character-home .home-module-rail button {
+        min-height: 64px;
+        grid-template-columns: auto 1fr;
+        padding: 9px;
+    }
+
+    .character-home .home-module-rail strong {
+        font-size: 0.78rem;
+    }
+}
+
+/* ========================================
+   XIAOYU AVATAR DEPTH PASS
+   ======================================== */
+
+.xiaoyu-stage {
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    --gaze-x: 0px;
+    --gaze-y: 0px;
+    perspective: 1100px;
+}
+
+.holo-depth-shell,
+.holo-aura-ring,
+.avatar-depth-shadow,
+.presence-code {
+    position: absolute;
+    pointer-events: none;
+}
+
+.holo-depth-shell {
+    left: 61%;
+    top: 54%;
+    z-index: 4;
+    width: min(54vw, 690px);
+    aspect-ratio: 0.72;
+    border-radius: 46% 46% 18% 18%;
+    transform: translate(-50%, -50%) rotateX(68deg) rotateZ(-2deg);
+    border: 1px solid rgba(118, 238, 255, 0.24);
+    box-shadow:
+        inset 0 0 42px rgba(118, 238, 255, 0.12),
+        0 0 46px rgba(118, 238, 255, 0.1);
+    mix-blend-mode: screen;
+}
+
+.shell-back {
+    opacity: 0.38;
+    transform: translate(-50%, -50%) rotateX(70deg) rotateZ(8deg) scale(1.12);
+}
+
+.shell-front {
+    z-index: 10;
+    opacity: 0.58;
+    transform: translate(-50%, -50%) rotateX(66deg) rotateZ(-7deg) scale(0.86);
+    border-color: rgba(255, 209, 102, 0.2);
+}
+
+.holo-aura-ring {
+    left: 61%;
+    top: 52%;
+    z-index: 5;
+    width: min(66vw, 820px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(72deg);
+    background:
+        conic-gradient(from 0deg, transparent 0 12%, rgba(100, 255, 218, 0.34) 18%, transparent 24% 48%, rgba(255, 209, 102, 0.26) 55%, transparent 62% 100%);
+    filter: blur(0.4px);
+    opacity: 0.48;
+    mix-blend-mode: screen;
+    animation: holo-ring-spin 18s linear infinite;
+}
+
+.ring-beta {
+    width: min(45vw, 560px);
+    opacity: 0.36;
+    animation-duration: 12s;
+    animation-direction: reverse;
+}
+
+.avatar-depth-shadow {
+    left: 61%;
+    top: 84%;
+    z-index: 4;
+    width: min(52vw, 680px);
+    height: 120px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(70deg);
+    background: radial-gradient(ellipse, rgba(100, 255, 218, 0.24), rgba(0, 0, 0, 0.34) 52%, transparent 72%);
+    filter: blur(18px);
+    opacity: 0.74;
+}
+
+.presence-code {
+    z-index: 12;
+    display: grid;
+    gap: 8px;
+    min-width: 190px;
+    color: rgba(220, 255, 249, 0.62);
+    font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-shadow: 0 0 14px rgba(100, 255, 218, 0.22);
+    opacity: 0.7;
+}
+
+.presence-code span {
+    display: inline-flex;
+    width: fit-content;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: rgba(6, 10, 18, 0.34);
+    border: 1px solid rgba(100, 255, 218, 0.12);
+}
+
+.code-left {
+    left: clamp(360px, 41vw, 620px);
+    top: 20%;
+    animation: code-float 7s ease-in-out infinite;
+}
+
+.code-right {
+    right: clamp(30px, 8vw, 118px);
+    top: 48%;
+    animation: code-float 8.2s ease-in-out infinite reverse;
+}
+
+.character-home .homepage-digital-portrait {
+    transform:
+        translate(-50%, -50%)
+        translate3d(var(--gaze-x), var(--gaze-y), 0)
+        rotateX(var(--tilt-x))
+        rotateY(var(--tilt-y));
+    transform-style: preserve-3d;
+    will-change: transform;
+    animation: xiaoyu-breathe-3d 6.6s ease-in-out infinite;
+}
+
+.character-home .stage-scan {
+    transform:
+        translate(-50%, -50%)
+        translate3d(calc(var(--gaze-x) * 0.28), calc(var(--gaze-y) * 0.28), 0);
+}
+
+.character-home .face-focus {
+    transform:
+        translate(-50%, -50%)
+        translate3d(calc(var(--gaze-x) * 0.44), calc(var(--gaze-y) * 0.44), 0);
+}
+
+@keyframes xiaoyu-breathe-3d {
+    0%, 100% {
+        transform:
+            translate(-50%, -50%)
+            translate3d(var(--gaze-x), var(--gaze-y), 0)
+            rotateX(var(--tilt-x))
+            rotateY(var(--tilt-y))
+            scale(1);
+    }
+    50% {
+        transform:
+            translate(-50%, -50%)
+            translate3d(var(--gaze-x), calc(var(--gaze-y) - 12px), 0)
+            rotateX(var(--tilt-x))
+            rotateY(var(--tilt-y))
+            scale(1.018);
+    }
+}
+
+@keyframes holo-ring-spin {
+    from { rotate: 0deg; }
+    to { rotate: 360deg; }
+}
+
+@keyframes code-float {
+    0%, 100% { translate: 0 0; opacity: 0.48; }
+    50% { translate: 0 -12px; opacity: 0.78; }
+}
+
+@media (max-width: 980px) {
+    .holo-depth-shell,
+    .holo-aura-ring,
+    .avatar-depth-shadow {
+        left: 50%;
+    }
+
+    .presence-code {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .character-home .digital-title {
+        max-width: 330px;
+        font-size: clamp(2rem, 9.2vw, 2.56rem);
+    }
+
+    .character-home .digital-subtitle {
+        max-width: 330px;
+    }
+
+    .holo-depth-shell {
+        top: 63%;
+        width: min(112vw, 430px);
+    }
+
+    .holo-aura-ring {
+        top: 63%;
+        width: min(116vw, 460px);
+    }
+
+    .avatar-depth-shadow {
+        top: 86%;
+        width: min(104vw, 430px);
+    }
+}
+
+/* ========================================
+   XIAOYU FINAL IP ASSET PASS
+   ======================================== */
+
+.character-home .homepage-digital-portrait {
+    object-fit: cover;
+    object-position: center 28%;
+    border-radius: 42px;
+    background: radial-gradient(circle at 50% 42%, rgba(168, 226, 255, 0.16), rgba(8, 18, 34, 0.08) 48%, transparent 72%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 48%, #000 0 48%, rgba(0, 0, 0, 0.78) 62%, rgba(0, 0, 0, 0.24) 76%, transparent 90%);
+    mask-image: radial-gradient(ellipse at 50% 48%, #000 0 48%, rgba(0, 0, 0, 0.78) 62%, rgba(0, 0, 0, 0.24) 76%, transparent 90%);
+    filter:
+        saturate(1.18)
+        contrast(1.04)
+        brightness(1.08)
+        drop-shadow(0 34px 88px rgba(0, 0, 0, 0.48))
+        drop-shadow(0 0 82px rgba(112, 204, 255, 0.34));
+}
+
+.character-home .ip-reference-card {
+    width: min(230px, 18vw);
+    min-height: 176px;
+    padding: 10px;
+    align-content: start;
+    gap: 8px;
+}
+
+.character-home .ip-reference-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(174, 226, 255, 0.24);
+    box-shadow: 0 12px 28px rgba(7, 18, 35, 0.28);
+}
+
+.character-home .ip-reference-card span,
+.character-home .ip-reference-card strong {
+    padding-inline: 2px;
+}
+
+.control-orb img {
+    object-fit: cover;
+    object-position: center 28%;
+}
+
+@media (max-width: 980px) {
+    .character-home .homepage-digital-portrait {
+        width: min(102vw, 610px);
+        height: 62vh;
+        min-height: 500px;
+    }
+
+    .character-home .ip-reference-card {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .character-home .digital-actions {
+        gap: 8px;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .character-home .digital-actions .btn-glass,
+    .character-home .digital-actions .btn-ghost {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        padding-inline: 8px;
+        gap: 4px;
+        font-size: 0.78rem;
+    }
+
+    .character-home .digital-actions span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .character-home .homepage-digital-portrait {
+        top: 83%;
+        width: min(116vw, 460px);
+        height: 42vh;
+        min-height: 340px;
+        border-radius: 28px;
+        object-position: center 24%;
+    }
+}
+
+/* ========================================
+   XIAOYU 3D MODELING VIEWPORT PASS
+   ======================================== */
+
+.modeling-floor,
+.model-turntable,
+.model-axis,
+.model-measure,
+.model-wireframe,
+.model-pin {
+    position: absolute;
+    pointer-events: none;
+}
+
+.modeling-floor {
+    left: 61%;
+    top: 76%;
+    z-index: 5;
+    width: min(62vw, 760px);
+    height: min(28vh, 250px);
+    transform: translate(-50%, -50%) rotateX(68deg) rotateZ(-2deg);
+    transform-origin: center;
+    border-radius: 50%;
+    background:
+        linear-gradient(rgba(120, 220, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 220, 255, 0.12) 1px, transparent 1px),
+        radial-gradient(ellipse, rgba(99, 204, 255, 0.18), rgba(99, 204, 255, 0.06) 48%, transparent 70%);
+    background-size: 44px 44px, 44px 44px, 100% 100%;
+    box-shadow: 0 0 70px rgba(99, 204, 255, 0.16);
+    opacity: 0.88;
+    mix-blend-mode: screen;
+}
+
+.model-turntable {
+    left: 61%;
+    top: 74%;
+    z-index: 8;
+    width: min(44vw, 540px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) rotateX(68deg);
+    border-radius: 50%;
+    border: 1px solid rgba(164, 234, 255, 0.26);
+    box-shadow:
+        inset 0 0 44px rgba(113, 217, 255, 0.12),
+        0 0 58px rgba(113, 217, 255, 0.16);
+}
+
+.model-turntable span {
+    position: absolute;
+    inset: 13%;
+    border-radius: 50%;
+    border: 1px dashed rgba(220, 246, 255, 0.22);
+    animation: model-turntable-spin 14s linear infinite;
+}
+
+.model-turntable span:nth-child(2) {
+    inset: 28%;
+    animation-duration: 9s;
+    animation-direction: reverse;
+}
+
+.model-turntable span:nth-child(3) {
+    inset: 43%;
+    border-style: solid;
+    border-color: rgba(255, 221, 145, 0.28);
+    animation-duration: 6s;
+}
+
+.model-axis {
+    left: 61%;
+    top: 71%;
+    z-index: 13;
+    width: min(26vw, 320px);
+    height: 1px;
+    transform-origin: left center;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+    opacity: 0.62;
+    mix-blend-mode: screen;
+}
+
+.model-axis::before {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 14px currentColor;
+}
+
+.model-axis span {
+    position: absolute;
+    right: -18px;
+    top: -12px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+    font-size: 0.68rem;
+    color: currentColor;
+    text-shadow: 0 0 12px currentColor;
+}
+
+.axis-x {
+    color: #ff8f70;
+    transform: translate(-50%, -50%) rotate(-11deg);
+}
+
+.axis-y {
+    color: #64ffda;
+    transform: translate(-50%, -50%) rotate(-92deg);
+}
+
+.axis-z {
+    color: #76d8ff;
+    transform: translate(-50%, -50%) rotate(34deg);
+}
+
+.model-measure {
+    z-index: 14;
+    color: rgba(230, 249, 255, 0.72);
+    font-family: 'SF Mono', 'Cascadia Code', 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 16px rgba(118, 216, 255, 0.42);
+}
+
+.model-measure::before {
+    content: '';
+    position: absolute;
+    background: linear-gradient(currentColor, transparent);
+    opacity: 0.55;
+}
+
+.measure-height {
+    left: clamp(690px, 54vw, 860px);
+    top: 19%;
+    height: min(48vh, 480px);
+    writing-mode: vertical-rl;
+}
+
+.measure-height::before {
+    left: -14px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+}
+
+.measure-material {
+    right: clamp(54px, 12vw, 180px);
+    top: 22%;
+}
+
+.measure-material::before {
+    right: 100%;
+    top: 50%;
+    width: 90px;
+    height: 1px;
+    transform: translateY(-50%);
+}
+
+.model-wireframe {
+    left: 61%;
+    z-index: 15;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(222, 250, 255, 0.2);
+    box-shadow:
+        inset 0 0 26px rgba(118, 216, 255, 0.07),
+        0 0 26px rgba(118, 216, 255, 0.1);
+    mix-blend-mode: screen;
+    opacity: 0.56;
+}
+
+.wire-head {
+    top: 27%;
+    width: min(15vw, 190px);
+    aspect-ratio: 1;
+    border-radius: 48% 52% 44% 56%;
+}
+
+.wire-body {
+    top: 55%;
+    width: min(24vw, 300px);
+    height: min(42vh, 410px);
+    border-radius: 40% 40% 18% 18%;
+    clip-path: polygon(20% 0, 80% 0, 96% 62%, 72% 100%, 28% 100%, 4% 62%);
+}
+
+.model-wireframe::before,
+.model-wireframe::after {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border: 1px solid rgba(222, 250, 255, 0.12);
+    border-radius: inherit;
+}
+
+.model-wireframe::after {
+    inset: 36%;
+    opacity: 0.66;
+}
+
+.model-pin {
+    z-index: 16;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #dff9ff;
+    box-shadow:
+        0 0 0 6px rgba(118, 216, 255, 0.12),
+        0 0 22px rgba(118, 216, 255, 0.72);
+    animation: model-pin-pulse 2.6s ease-in-out infinite;
+}
+
+.pin-face {
+    left: 60%;
+    top: 31%;
+}
+
+.pin-material {
+    left: 65%;
+    top: 56%;
+    animation-delay: -1.3s;
+}
+
+.character-home .homepage-digital-portrait {
+    box-shadow:
+        inset 0 0 0 1px rgba(206, 244, 255, 0.18),
+        inset 0 0 70px rgba(113, 217, 255, 0.14),
+        0 34px 96px rgba(4, 12, 26, 0.44);
+}
+
+.character-home .ip-reference-card {
+    transform: perspective(900px) rotateY(-10deg) rotateX(3deg);
+    transform-origin: center;
+    border-color: rgba(166, 230, 255, 0.2);
+    background:
+        linear-gradient(145deg, rgba(14, 32, 58, 0.72), rgba(7, 15, 30, 0.46)),
+        linear-gradient(90deg, rgba(116, 214, 255, 0.1), transparent);
+}
+
+.character-home .panel-now {
+    left: clamp(610px, 48vw, 780px);
+    top: 17%;
+}
+
+.character-home .panel-stack {
+    right: clamp(30px, 7vw, 108px);
+    top: 31%;
+}
+
+@keyframes model-turntable-spin {
+    from { rotate: 0deg; }
+    to { rotate: 360deg; }
+}
+
+@keyframes model-pin-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.86);
+        opacity: 0.58;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.12);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 980px) {
+    .modeling-floor,
+    .model-turntable,
+    .model-axis,
+    .model-measure,
+    .model-wireframe,
+    .model-pin {
+        display: none;
+    }
+}
+
+/* ========================================
+   THREE.JS CHARACTER MODEL VIEW
+   ======================================== */
+
+.xiaoyu-model-canvas {
+    position: absolute;
+    left: 61%;
+    top: 51%;
+    z-index: 11;
+    width: min(56vw, 760px);
+    height: min(82vh, 760px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    filter:
+        drop-shadow(0 38px 80px rgba(0, 0, 0, 0.42))
+        drop-shadow(0 0 42px rgba(118, 216, 255, 0.26));
+}
+
+.model-canvas-ready .homepage-digital-portrait {
+    opacity: 0.18;
+    filter:
+        blur(1.5px)
+        saturate(1.05)
+        brightness(0.9)
+        drop-shadow(0 0 60px rgba(118, 216, 255, 0.2));
+}
+
+.model-canvas-ready .model-wireframe {
+    opacity: 0.24;
+}
+
+.model-canvas-ready .modeling-floor,
+.model-canvas-ready .model-turntable {
+    z-index: 10;
+}
+
+@media (max-width: 980px) {
+    .xiaoyu-model-canvas {
+        left: 50%;
+        top: 70%;
+        width: min(108vw, 520px);
+        height: 48vh;
+        min-height: 390px;
+        z-index: 11;
+    }
+
+    .model-canvas-ready .homepage-digital-portrait {
+        opacity: 0.08;
+    }
+}
+
+@media (max-width: 600px) {
+    .xiaoyu-model-canvas {
+        top: 82%;
+        width: min(114vw, 470px);
+        height: 40vh;
+        min-height: 340px;
+    }
+}
+
+/* ========================================
+   XIAOYU CHARACTER CLARITY PASS
+   Keep the copy fixed; make the digital human the focal point.
+   ======================================== */
+
+.character-home .xiaoyu-model-canvas {
+    left: 67%;
+    top: 51%;
+    z-index: 6;
+    width: min(48vw, 640px);
+    height: min(76vh, 700px);
+    opacity: 0.26;
+    filter:
+        blur(0.4px)
+        saturate(1.2)
+        drop-shadow(0 24px 66px rgba(0, 0, 0, 0.32))
+        drop-shadow(0 0 56px rgba(118, 216, 255, 0.22));
+}
+
+.character-home .homepage-digital-portrait,
+.model-canvas-ready .homepage-digital-portrait {
+    left: 67%;
+    top: 52%;
+    z-index: 14;
+    width: min(42vw, 560px);
+    height: min(82vh, 760px);
+    opacity: 0.96;
+    object-fit: cover;
+    object-position: center 24%;
+    border-radius: 34px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 42%, #000 0 58%, rgba(0, 0, 0, 0.76) 70%, rgba(0, 0, 0, 0.22) 84%, transparent 96%);
+    mask-image: radial-gradient(ellipse at 50% 42%, #000 0 58%, rgba(0, 0, 0, 0.76) 70%, rgba(0, 0, 0, 0.22) 84%, transparent 96%);
+    filter:
+        saturate(1.16)
+        contrast(1.06)
+        brightness(1.09)
+        drop-shadow(0 32px 78px rgba(0, 0, 0, 0.48))
+        drop-shadow(0 0 72px rgba(118, 216, 255, 0.28));
+}
+
+.character-home .portrait-glow,
+.character-home .holo-depth-shell,
+.character-home .holo-aura-ring,
+.character-home .studio-orbit,
+.xiaoyu-stage::before,
+.xiaoyu-stage::after,
+.character-home .stage-scan,
+.character-home .face-focus,
+.character-home .voice-pulse,
+.character-home .xiaoyu-core-hitarea {
+    left: 67%;
+}
+
+.character-home .stage-scan {
+    z-index: 15;
+    width: min(44vw, 600px);
+    height: min(78vh, 720px);
+    opacity: 0.24;
+    mix-blend-mode: screen;
+}
+
+.character-home .face-focus {
+    z-index: 16;
+    top: 49%;
+    width: min(20vw, 260px);
+    height: min(18vh, 160px);
+    opacity: 0.32;
+}
+
+.character-home .voice-pulse {
+    z-index: 16;
+    top: 71%;
+    opacity: 0.42;
+}
+
+.presence-code {
+    opacity: 0.38;
+}
+
+.presence-code span {
+    background: rgba(6, 10, 18, 0.2);
+    border-color: rgba(100, 255, 218, 0.08);
+}
+
+.character-home .ip-reference-card {
+    width: min(190px, 14vw);
+    min-height: 140px;
+    opacity: 0.72;
+    transform: perspective(900px) rotateY(-8deg) rotateX(2deg);
+}
+
+.character-home .panel-now {
+    left: auto;
+    right: clamp(22px, 5vw, 78px);
+    top: 22%;
+}
+
+.character-home .panel-stack {
+    right: clamp(22px, 5vw, 78px);
+    top: 45%;
+}
+
+.character-home .persona-console {
+    left: auto;
+    right: clamp(24px, 4.6vw, 76px);
+    bottom: clamp(126px, 17vh, 164px);
+    width: min(330px, 24vw);
+    opacity: 0.76;
+}
+
+.model-canvas-ready .model-wireframe {
+    opacity: 0.14;
+}
+
+.model-canvas-ready .modeling-floor,
+.model-canvas-ready .model-turntable {
+    opacity: 0.38;
+}
+
+@media (max-width: 1180px) {
+    .character-home .xiaoyu-model-canvas,
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait,
+    .character-home .portrait-glow,
+    .character-home .holo-depth-shell,
+    .character-home .holo-aura-ring,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .stage-scan,
+    .character-home .face-focus,
+    .character-home .voice-pulse,
+    .character-home .xiaoyu-core-hitarea {
+        left: 70%;
+    }
+
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait {
+        width: min(44vw, 500px);
+    }
+
+    .character-home .ip-reference-card,
+    .character-home .persona-console {
+        display: none;
+    }
+}
+
+@media (max-width: 980px) {
+    .character-home .xiaoyu-model-canvas,
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait,
+    .character-home .portrait-glow,
+    .character-home .holo-depth-shell,
+    .character-home .holo-aura-ring,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .stage-scan,
+    .character-home .face-focus,
+    .character-home .voice-pulse,
+    .character-home .xiaoyu-core-hitarea {
+        left: 50%;
+    }
+
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait {
+        top: 59%;
+        width: min(74vw, 500px);
+        height: 54vh;
+        min-height: 430px;
+        opacity: 0.92;
+    }
+
+    .character-home .xiaoyu-model-canvas {
+        top: 59%;
+        width: min(82vw, 540px);
+        height: 55vh;
+        min-height: 430px;
+        opacity: 0.18;
+    }
+
+    .character-home .stage-scan,
+    .character-home .face-focus,
+    .character-home .voice-pulse {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait {
+        top: 64%;
+        width: min(86vw, 390px);
+        height: 40vh;
+        min-height: 330px;
+        border-radius: 24px;
+        object-position: center 22%;
+    }
+
+    .character-home .xiaoyu-model-canvas {
+        top: 64%;
+        width: min(94vw, 420px);
+        height: 42vh;
+        min-height: 340px;
+    }
+}
+
+/* Final focal adjustment: keep the avatar clear and away from the headline. */
+.character-home .xiaoyu-model-canvas,
+.character-home .homepage-digital-portrait,
+.model-canvas-ready .homepage-digital-portrait,
+.character-home .portrait-glow,
+.character-home .holo-depth-shell,
+.character-home .holo-aura-ring,
+.character-home .studio-orbit,
+.xiaoyu-stage::before,
+.xiaoyu-stage::after,
+.character-home .stage-scan,
+.character-home .face-focus,
+.character-home .voice-pulse,
+.character-home .xiaoyu-core-hitarea {
+    left: 70%;
+}
+
+.character-home .homepage-digital-portrait,
+.model-canvas-ready .homepage-digital-portrait {
+    width: min(38vw, 520px);
+}
+
+.character-home .xiaoyu-model-canvas {
+    width: min(44vw, 600px);
+    opacity: 0.2;
+}
+
+.character-home .ip-reference-card,
+.character-home .persona-console {
+    display: none;
+}
+
+@media (max-width: 980px) {
+    .character-home .xiaoyu-model-canvas,
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait,
+    .character-home .portrait-glow,
+    .character-home .holo-depth-shell,
+    .character-home .holo-aura-ring,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .stage-scan,
+    .character-home .face-focus,
+    .character-home .voice-pulse,
+    .character-home .xiaoyu-core-hitarea {
+        left: 50%;
+    }
+}
+
+/* Title fit pass: preserve the approved copy and keep every glyph visible. */
+.character-home .persona-intro {
+    width: min(640px, calc(100vw - 700px));
+    min-width: 560px;
+}
+
+.character-home .digital-title {
+    max-width: 640px;
+    font-size: 4.35rem;
+    line-height: 1.04;
+    overflow: visible;
+}
+
+.character-home .digital-title .title-line {
+    width: max-content;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+@media (max-width: 1450px) {
+    .character-home .persona-intro {
+        left: clamp(36px, 6vw, 82px);
+        width: 610px;
+        min-width: 0;
+    }
+
+    .character-home .digital-title {
+        max-width: 610px;
+        font-size: 4rem;
+    }
+
+    .character-home .xiaoyu-model-canvas,
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait,
+    .character-home .portrait-glow,
+    .character-home .holo-depth-shell,
+    .character-home .holo-aura-ring,
+    .character-home .studio-orbit,
+    .xiaoyu-stage::before,
+    .xiaoyu-stage::after,
+    .character-home .stage-scan,
+    .character-home .face-focus,
+    .character-home .voice-pulse,
+    .character-home .xiaoyu-core-hitarea {
+        left: 76%;
+    }
+
+    .character-home .homepage-digital-portrait,
+    .model-canvas-ready .homepage-digital-portrait {
+        width: min(34vw, 460px);
+    }
+}
+
+@media (max-width: 1180px) {
+    .character-home .persona-intro {
+        width: min(540px, calc(100vw - 48px));
+    }
+
+    .character-home .digital-title {
+        max-width: 540px;
+        font-size: 3.45rem;
+    }
+}
+
+@media (max-width: 980px) {
+    .character-home .persona-intro {
+        width: auto;
+        min-width: 0;
+    }
+
+    .character-home .digital-title {
+        max-width: 520px;
+        font-size: 3.15rem;
+    }
+
+    .character-home .digital-title .title-line {
+        width: auto;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 600px) {
+    .character-home .digital-title {
+        max-width: 350px;
+        font-size: 2.32rem;
+    }
+}
+
