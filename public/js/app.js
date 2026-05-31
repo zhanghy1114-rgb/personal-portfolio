@@ -1460,88 +1460,10 @@ window.navigateTo = navigateTo;
     const input = document.getElementById('chatInput');
     const send = document.getElementById('chatSend');
     const messages = document.getElementById('chatMessages');
-    const positionKey = 'qiyuChatFabPosition';
-    let dragState = null;
 
-    function clampFabPosition(x, y) {
-        if (!fab) return { x, y };
-        const rect = fab.getBoundingClientRect();
-        const padding = 12;
-        return {
-            x: Math.min(Math.max(padding, x), window.innerWidth - rect.width - padding),
-            y: Math.min(Math.max(padding, y), window.innerHeight - rect.height - padding)
-        };
-    }
+    try { localStorage.removeItem('qiyuChatFabPosition'); } catch (e) {}
 
-    function setFabPosition(x, y, persist = false) {
-        if (!fab) return;
-        const pos = clampFabPosition(x, y);
-        fab.style.left = `${pos.x}px`;
-        fab.style.top = `${pos.y}px`;
-        fab.style.right = 'auto';
-        fab.style.bottom = 'auto';
-        if (persist) localStorage.setItem(positionKey, JSON.stringify(pos));
-    }
-
-    try {
-        const saved = JSON.parse(localStorage.getItem(positionKey) || 'null');
-        if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
-            requestAnimationFrame(() => setFabPosition(saved.x, saved.y));
-        }
-    } catch (e) {}
-
-    fab?.addEventListener('pointerdown', (event) => {
-        if (event.button !== undefined && event.button !== 0) return;
-        const rect = fab.getBoundingClientRect();
-        dragState = {
-            startX: event.clientX,
-            startY: event.clientY,
-            left: rect.left,
-            top: rect.top,
-            moved: false
-        };
-        fab.classList.add('dragging');
-        fab.setPointerCapture?.(event.pointerId);
-    });
-
-    fab?.addEventListener('pointermove', (event) => {
-        if (!dragState) return;
-        const dx = event.clientX - dragState.startX;
-        const dy = event.clientY - dragState.startY;
-        if (Math.abs(dx) + Math.abs(dy) > 4) dragState.moved = true;
-        if (dragState.moved) {
-            event.preventDefault();
-            setFabPosition(dragState.left + dx, dragState.top + dy);
-        }
-    });
-
-    fab?.addEventListener('pointerup', (event) => {
-        if (!dragState) return;
-        const moved = dragState.moved;
-        dragState = null;
-        fab.classList.remove('dragging');
-        fab.releasePointerCapture?.(event.pointerId);
-        const rect = fab.getBoundingClientRect();
-        setFabPosition(rect.left, rect.top, moved);
-        if (moved) {
-            fab.dataset.justDragged = 'true';
-            setTimeout(() => { delete fab.dataset.justDragged; }, 0);
-        }
-    });
-
-    window.addEventListener('resize', () => {
-        if (!fab || fab.style.left === '') return;
-        const rect = fab.getBoundingClientRect();
-        setFabPosition(rect.left, rect.top, true);
-    });
-
-    fab?.addEventListener('click', (event) => {
-        if (fab.dataset.justDragged === 'true') {
-            event.preventDefault();
-            return;
-        }
-        win?.classList.toggle('open');
-    });
+    fab?.addEventListener('click', () => win?.classList.toggle('open'));
     close?.addEventListener('click', () => win?.classList.remove('open'));
 
     function addMessage(text, type) {
