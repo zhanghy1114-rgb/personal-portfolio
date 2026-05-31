@@ -1778,8 +1778,9 @@ section {
 
 .prompt-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 320px));
     gap: 14px;
+    justify-content: flex-start;
 }
 
 .prompt-card {
