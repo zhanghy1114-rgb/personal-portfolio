@@ -628,7 +628,7 @@ function renderSkills(skills) {
 
 let promptDetailItems = [];
 
-const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '专家角色'];
+const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '商业策略', '知识解构', '提示优化', '专家角色'];
 
 function getPromptMeta(prompt) {
     const title = String(prompt.title || '');
@@ -763,7 +763,7 @@ function renderPrompts(prompts) {
             <div class="prompt-toolbar">
                 <label class="prompt-search">
                     <i class="fas fa-magnifying-glass"></i>
-                    <input type="search" id="promptSearch" placeholder="搜索标题、分类或提示词内容">
+                    <input type="search" id="promptSearch" placeholder="搜索提示词...">
                 </label>
                 <div class="prompt-filters" id="promptFilters">
                     ${categories.map(category => `<button data-prompt-filter="${escapeAdminText(category)}">${escapeAdminText(category)}</button>`).join('')}
