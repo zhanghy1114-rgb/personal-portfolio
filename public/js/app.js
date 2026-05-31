@@ -630,35 +630,23 @@ let promptDetailItems = [];
 
 const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '商业策略', '知识解构', '提示优化', '专家角色'];
 
-function getPromptMeta(prompt) {
+function getPromptIntro(prompt) {
     const title = String(prompt.title || '');
     const category = String(prompt.category || '');
-    const scenario = String(prompt.scenario || '').trim();
-    const requirements = String(prompt.requirements || '').trim();
+    const intro = String(prompt.intro || prompt.summary || '').trim();
 
-    if (scenario || requirements) {
-        return {
-            scenario: scenario || '适合沉淀为可复用的 AI 工作模板',
-            requirements: requirements || '主题 / 目标 / 资料 / 输出要求'
-        };
-    }
+    if (intro) return intro;
 
     if (/公文|文秘|汇报|通知|总结|发言/.test(`${title} ${category}`)) {
-        return {
-            scenario: '通知、汇报、总结、发言稿、公文初稿',
-            requirements: '主题 / 单位 / 材料 / 字数 / 语气'
-        };
+        return '一个面向通知、汇报、总结、发言稿等公文初稿的结构化写作助手。';
     }
 
-    return {
-        scenario: '高频任务、重复表达、结构化输出',
-        requirements: '目标 / 背景 / 输入材料 / 输出格式'
-    };
+    return '把高频任务沉淀成可复制、可迭代、可复盘的 AI 工作模板。';
 }
 
 function getPromptSearchText(prompt) {
-    const meta = getPromptMeta(prompt);
-    return `${prompt.title || ''} ${prompt.category || ''} ${meta.scenario} ${meta.requirements} ${prompt.content || ''}`.toLowerCase();
+    const intro = getPromptIntro(prompt);
+    return `${prompt.title || ''} ${prompt.category || ''} ${intro} ${prompt.content || ''}`.toLowerCase();
 }
 
 function renderPromptActions(prompt, index, label = '复制') {
@@ -681,21 +669,10 @@ function renderPromptActions(prompt, index, label = '复制') {
     `;
 }
 
-function renderPromptTokens(text) {
-    return String(text || '')
-        .split(/[\/、,，|]/)
-        .map(item => item.trim())
-        .filter(Boolean)
-        .map(item => `<span>${escapeAdminText(item)}</span>`)
-        .join('');
-}
-
 function renderPromptCard(prompt, index) {
     const title = escapeAdminText(prompt.title || '未命名提示词');
     const category = escapeAdminText(prompt.category || '未分类');
-    const meta = getPromptMeta(prompt);
-    const scenario = escapeAdminText(meta.scenario);
-    const requirements = escapeAdminText(meta.requirements);
+    const intro = escapeAdminText(getPromptIntro(prompt));
     const searchText = escapeAdminText(getPromptSearchText(prompt));
 
     return `
@@ -708,8 +685,7 @@ function renderPromptCard(prompt, index) {
                 <h3>${title}</h3>
             </div>
             <div class="prompt-card-summary">
-                <p class="prompt-card-line">${scenario}</p>
-                <div class="prompt-token-row">${renderPromptTokens(requirements)}</div>
+                <p class="prompt-card-line">${intro}</p>
             </div>
             ${renderPromptActions(prompt, index, '复制')}
         </article>
@@ -776,14 +752,7 @@ function renderPrompts(prompts) {
             </button>
             <span class="prompt-board-kicker" data-detail-category></span>
             <h3 data-detail-title></h3>
-            <div class="prompt-detail-meta">
-                <span class="prompt-detail-label">应用场景</span>
-                <span data-detail-scenario></span>
-            </div>
-            <div class="prompt-detail-meta">
-                <span class="prompt-detail-label">输入要素</span>
-                <span data-detail-requirements></span>
-            </div>
+            <p class="prompt-detail-intro" data-detail-intro></p>
             <pre class="prompt-detail-content" data-detail-content></pre>
             <div class="prompt-detail-actions">
                 <button class="btn-copy" data-detail-copy><i class="fas fa-copy"></i> 复制</button>
@@ -847,14 +816,13 @@ function initPromptControls(grid) {
     const openDetail = (index) => {
         const prompt = promptDetailItems[Number(index)];
         if (!prompt || !panel) return;
-        const meta = getPromptMeta(prompt);
+        const intro = getPromptIntro(prompt);
         const link = String(prompt.link || '').trim();
         const hasLink = /^https?:\/\//i.test(link);
 
         panel.querySelector('[data-detail-category]').textContent = prompt.category || '未分类';
         panel.querySelector('[data-detail-title]').textContent = prompt.title || '未命名提示词';
-        panel.querySelector('[data-detail-scenario]').textContent = meta.scenario;
-        panel.querySelector('[data-detail-requirements]').textContent = meta.requirements;
+        panel.querySelector('[data-detail-intro]').textContent = intro;
         panel.querySelector('[data-detail-content]').textContent = prompt.content || '';
         panel.querySelector('[data-detail-copy]').dataset.promptCopy = encodeURIComponent(prompt.content || '');
 
@@ -1036,8 +1004,7 @@ const adminTypes = [
             { name: 'title', label: '提示词标题', required: true },
             { name: 'category', label: '分类' },
             { name: 'link', label: '原文链接', placeholder: 'https://...' },
-            { name: 'scenario', label: '应用场景', placeholder: '通知、汇报、总结、发言稿、公文初稿', full: true },
-            { name: 'requirements', label: '输入要素', placeholder: '主题 / 单位 / 材料 / 字数 / 语气', full: true },
+            { name: 'intro', label: '简介', placeholder: '一句话说明这个提示词能解决什么问题', full: true },
             { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
         ]
     },

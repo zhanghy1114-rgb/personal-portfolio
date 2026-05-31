@@ -1770,7 +1770,7 @@ section {
 }
 
 .prompt-card-line,
-.prompt-detail-meta {
+.prompt-detail-intro {
     color: rgba(245, 245, 247, 0.72);
     font-size: 0.84rem;
     line-height: 1.75;
@@ -1855,21 +1855,6 @@ section {
 
 .prompt-card-line {
     margin-bottom: 10px;
-}
-
-.prompt-token-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.prompt-token-row span {
-    padding: 4px 8px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
-    color: rgba(245, 245, 247, 0.62);
-    background: rgba(255, 255, 255, 0.035);
-    font-size: 0.72rem;
 }
 
 .prompt-action-row {
@@ -2001,16 +1986,8 @@ section {
     line-height: 1.42;
 }
 
-.prompt-detail-meta {
-    display: grid;
-    grid-template-columns: 76px 1fr;
-    gap: 12px;
+.prompt-detail-intro {
     margin-top: 8px;
-}
-
-.prompt-detail-label {
-    color: rgba(255, 214, 102, 0.86);
-    font-weight: 650;
 }
 
 .prompt-detail-content {
