@@ -681,18 +681,18 @@ function renderPrompts(prompts) {
                         <article class="prompt-card" data-prompt-card data-category="${category}" data-search="${searchText}">
                             <div class="prompt-card-meta">
                                 <span class="prompt-index">P${String(index + 1).padStart(2, '0')}</span>
-                                <span class="prompt-tag">${category}</span>
+                                <div class="prompt-card-actions">
+                                    <span class="prompt-tag">${category}</span>
+                                    ${hasLink ? `<a class="btn-prompt-link" href="${safeLink}" target="_blank" rel="noopener" title="打开原文"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>` : ''}
+                                    <button class="btn-copy" data-prompt-copy="${encodedContent}" title="复制提示词">
+                                        <i class="fas fa-copy"></i> 复制
+                                    </button>
+                                </div>
                             </div>
                             <div class="prompt-header">
                                 <h3>${title}</h3>
                             </div>
                             <div class="prompt-body">${safeContent}</div>
-                            <div class="prompt-footer">
-                                ${hasLink ? `<a class="btn-prompt-link" href="${safeLink}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>` : ''}
-                                <button class="btn-copy" data-prompt-copy="${encodedContent}">
-                                    <i class="fas fa-copy"></i> 复制
-                                </button>
-                            </div>
                         </article>
                     `;
                 }).join('')}
