@@ -681,30 +681,6 @@ function renderPromptActions(prompt, index, label = '复制') {
     `;
 }
 
-function renderFeaturedPrompt(prompt, index) {
-    const title = escapeAdminText(prompt.title || '未命名提示词');
-    const category = escapeAdminText(prompt.category || '未分类');
-    const meta = getPromptMeta(prompt);
-    const scenario = escapeAdminText(meta.scenario);
-    const requirements = escapeAdminText(meta.requirements);
-    const searchText = escapeAdminText(getPromptSearchText(prompt));
-
-    return `
-        <article class="prompt-featured-card" data-prompt-item data-category="${category}" data-search="${searchText}">
-            <div class="prompt-featured-main">
-                <div class="prompt-card-meta compact">
-                    <span class="prompt-index">精选</span>
-                    <span class="prompt-tag">${category}</span>
-                </div>
-                <h3>${title}</h3>
-                <p><strong>适合：</strong>${scenario}</p>
-                <p><strong>需要：</strong>${requirements}</p>
-            </div>
-            ${renderPromptActions(prompt, index)}
-        </article>
-    `;
-}
-
 function renderPromptCard(prompt, index) {
     const title = escapeAdminText(prompt.title || '未命名提示词');
     const category = escapeAdminText(prompt.category || '未分类');
@@ -768,11 +744,6 @@ function renderPrompts(prompts) {
                 <div class="prompt-filters" id="promptFilters">
                     ${categories.map(category => `<button data-prompt-filter="${escapeAdminText(category)}">${escapeAdminText(category)}</button>`).join('')}
                 </div>
-            </div>
-
-            <div class="prompt-section-block">
-                <h3 class="prompt-block-title">精选 Prompt</h3>
-                ${renderFeaturedPrompt(items[0], 0)}
             </div>
 
             <div class="prompt-section-block">
