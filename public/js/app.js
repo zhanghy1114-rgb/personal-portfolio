@@ -1002,7 +1002,7 @@ const adminTypes = [
         subtitleKey: 'category',
         fields: [
             { name: 'title', label: '提示词标题', required: true },
-            { name: 'category', label: '分类' },
+            { name: 'category', label: '分类', type: 'select', options: promptCategoryPresets, required: true },
             { name: 'link', label: '原文链接', placeholder: 'https://...' },
             { name: 'intro', label: '简介', placeholder: '一句话说明这个提示词能解决什么问题', full: true },
             { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
@@ -1083,7 +1083,12 @@ function renderAdminEditor() {
         const value = field.value ? `value="${escapeAdminText(field.value)}"` : '';
         const control = field.type === 'textarea'
             ? `<textarea ${common} ${placeholder}></textarea>`
-            : `<input ${common} type="${field.type || 'text'}" ${placeholder} ${value}>`;
+            : field.type === 'select'
+                ? `<select ${common}>
+                    <option value="">请选择${escapeAdminText(field.label)}</option>
+                    ${(field.options || []).map(option => `<option value="${escapeAdminText(option)}">${escapeAdminText(option)}</option>`).join('')}
+                </select>`
+                : `<input ${common} type="${field.type || 'text'}" ${placeholder} ${value}>`;
 
         return `
             <div class="admin-field${field.full ? ' full' : ''}">
