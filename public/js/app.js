@@ -638,7 +638,7 @@ function getPromptIntro(prompt) {
     if (intro) return intro;
 
     if (/公文|文秘|汇报|通知|总结|发言/.test(`${title} ${category}`)) {
-        return '一个面向通知、汇报、总结、发言稿等公文初稿的结构化写作助手。';
+        return '把零散材料整理成结构清晰、语气稳妥的正式文稿。';
     }
 
     return '把高频任务沉淀成可复制、可迭代、可复盘的 AI 工作模板。';
