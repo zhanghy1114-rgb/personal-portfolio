@@ -122,6 +122,12 @@
   "articles": [],
   "diary": [
     {
+      "date": "2026-05-29",
+      "title": "从修船到造港口——Agent架构演进与思维跃迁",
+      "content": "阿虾在记录篇目时暴露了缓存记忆与真实数据的差异，也把思路从零散修补推进到系统架构：不只是修船，而是开始建设能长期停靠、复用和扩展的 Agent 港口。",
+      "link": "https://mp.weixin.qq.com/s?__biz=Mzk0OTUwNjM0OQ==&mid=2247484696&idx=1&sn=5b33e3875254e5914b515db889cb5c07&chksm=c3561d5af421944c1b0ffe14bd83338fe421d9aa6773aff0a587d96d96b93a48070b630d075f&scene=178&cur_album_id=4519584288459407364&search_click_id=#rd"
+    },
+    {
       "date": "2026-05-27",
       "title": "七个 Skill 跑一遍，砍掉三个还能用",
       "content": "给阿虾配置了七个不同的 Skill，逐一测试后砍掉三个不实用的，留下四个核心技能继续迭代。",
