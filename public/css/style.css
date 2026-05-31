@@ -2352,8 +2352,6 @@ section {
 
 .chat-window.open { display: flex; animation: chat-in 0.3s ease-out; }
 
-body:not([data-page="home"]) .chat-fab,
-body:not([data-page="home"]) .chat-window,
 body:not([data-page="home"]) .ai-control-deck {
     display: none !important;
 }
