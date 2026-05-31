@@ -485,7 +485,7 @@ app.post('/api/diary', requireAdmin, (req, res) => {
         link: req.body.link || '',
         image: req.body.image || ''
     };
-    db.diary.push(newDiary);
+    db.diary.unshift(newDiary);
     saveDB(db);
     res.json(newDiary);
 });
