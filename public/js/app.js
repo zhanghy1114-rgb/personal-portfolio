@@ -681,6 +681,15 @@ function renderPromptActions(prompt, index, label = '复制') {
     `;
 }
 
+function renderPromptTokens(text) {
+    return String(text || '')
+        .split(/[\/、,，|]/)
+        .map(item => item.trim())
+        .filter(Boolean)
+        .map(item => `<span>${escapeAdminText(item)}</span>`)
+        .join('');
+}
+
 function renderPromptCard(prompt, index) {
     const title = escapeAdminText(prompt.title || '未命名提示词');
     const category = escapeAdminText(prompt.category || '未分类');
@@ -699,8 +708,8 @@ function renderPromptCard(prompt, index) {
                 <h3>${title}</h3>
             </div>
             <div class="prompt-card-summary">
-                <p><strong>适合：</strong>${scenario}</p>
-                <p><strong>需要：</strong>${requirements}</p>
+                <p class="prompt-card-line">${scenario}</p>
+                <div class="prompt-token-row">${renderPromptTokens(requirements)}</div>
             </div>
             ${renderPromptActions(prompt, index, '复制')}
         </article>
@@ -767,8 +776,14 @@ function renderPrompts(prompts) {
             </button>
             <span class="prompt-board-kicker" data-detail-category></span>
             <h3 data-detail-title></h3>
-            <p class="prompt-detail-meta"><strong>适合：</strong><span data-detail-scenario></span></p>
-            <p class="prompt-detail-meta"><strong>需要：</strong><span data-detail-requirements></span></p>
+            <div class="prompt-detail-meta">
+                <span class="prompt-detail-label">应用场景</span>
+                <span data-detail-scenario></span>
+            </div>
+            <div class="prompt-detail-meta">
+                <span class="prompt-detail-label">输入要素</span>
+                <span data-detail-requirements></span>
+            </div>
             <pre class="prompt-detail-content" data-detail-content></pre>
             <div class="prompt-detail-actions">
                 <button class="btn-copy" data-detail-copy><i class="fas fa-copy"></i> 复制</button>
@@ -1021,8 +1036,8 @@ const adminTypes = [
             { name: 'title', label: '提示词标题', required: true },
             { name: 'category', label: '分类' },
             { name: 'link', label: '原文链接', placeholder: 'https://...' },
-            { name: 'scenario', label: '适合场景', placeholder: '通知、汇报、总结、发言稿、公文初稿', full: true },
-            { name: 'requirements', label: '需要信息', placeholder: '主题 / 单位 / 材料 / 字数 / 语气', full: true },
+            { name: 'scenario', label: '应用场景', placeholder: '通知、汇报、总结、发言稿、公文初稿', full: true },
+            { name: 'requirements', label: '输入要素', placeholder: '主题 / 单位 / 材料 / 字数 / 语气', full: true },
             { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
         ]
     },
