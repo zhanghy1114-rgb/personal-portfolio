@@ -626,12 +626,118 @@ function renderSkills(skills) {
     }, 200);
 }
 
+let promptDetailItems = [];
+
+const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '专家角色'];
+
+function getPromptMeta(prompt) {
+    const title = String(prompt.title || '');
+    const category = String(prompt.category || '');
+    const scenario = String(prompt.scenario || '').trim();
+    const requirements = String(prompt.requirements || '').trim();
+
+    if (scenario || requirements) {
+        return {
+            scenario: scenario || '适合沉淀为可复用的 AI 工作模板',
+            requirements: requirements || '主题 / 目标 / 资料 / 输出要求'
+        };
+    }
+
+    if (/公文|文秘|汇报|通知|总结|发言/.test(`${title} ${category}`)) {
+        return {
+            scenario: '通知、汇报、总结、发言稿、公文初稿',
+            requirements: '主题 / 单位 / 材料 / 字数 / 语气'
+        };
+    }
+
+    return {
+        scenario: '高频任务、重复表达、结构化输出',
+        requirements: '目标 / 背景 / 输入材料 / 输出格式'
+    };
+}
+
+function getPromptSearchText(prompt) {
+    const meta = getPromptMeta(prompt);
+    return `${prompt.title || ''} ${prompt.category || ''} ${meta.scenario} ${meta.requirements} ${prompt.content || ''}`.toLowerCase();
+}
+
+function renderPromptActions(prompt, index, label = '复制') {
+    const content = String(prompt.content || '');
+    const encodedContent = escapeAdminText(encodeURIComponent(content));
+    const link = String(prompt.link || '').trim();
+    const hasLink = /^https?:\/\//i.test(link);
+    const safeLink = escapeAdminText(link);
+
+    return `
+        <div class="prompt-action-row">
+            <button class="btn-copy" data-prompt-copy="${encodedContent}" title="复制提示词">
+                <i class="fas fa-copy"></i> ${label}
+            </button>
+            <button class="btn-prompt-detail" data-prompt-detail="${index}" title="查看详情">
+                <i class="fas fa-up-right-and-down-left-from-center"></i> 查看详情
+            </button>
+            ${hasLink ? `<a class="btn-prompt-link" href="${safeLink}" target="_blank" rel="noopener" title="打开原文"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>` : ''}
+        </div>
+    `;
+}
+
+function renderFeaturedPrompt(prompt, index) {
+    const title = escapeAdminText(prompt.title || '未命名提示词');
+    const category = escapeAdminText(prompt.category || '未分类');
+    const meta = getPromptMeta(prompt);
+    const scenario = escapeAdminText(meta.scenario);
+    const requirements = escapeAdminText(meta.requirements);
+    const searchText = escapeAdminText(getPromptSearchText(prompt));
+
+    return `
+        <article class="prompt-featured-card" data-prompt-item data-category="${category}" data-search="${searchText}">
+            <div class="prompt-featured-main">
+                <div class="prompt-card-meta compact">
+                    <span class="prompt-index">精选</span>
+                    <span class="prompt-tag">${category}</span>
+                </div>
+                <h3>${title}</h3>
+                <p><strong>适合：</strong>${scenario}</p>
+                <p><strong>需要：</strong>${requirements}</p>
+            </div>
+            ${renderPromptActions(prompt, index)}
+        </article>
+    `;
+}
+
+function renderPromptCard(prompt, index) {
+    const title = escapeAdminText(prompt.title || '未命名提示词');
+    const category = escapeAdminText(prompt.category || '未分类');
+    const meta = getPromptMeta(prompt);
+    const scenario = escapeAdminText(meta.scenario);
+    const requirements = escapeAdminText(meta.requirements);
+    const searchText = escapeAdminText(getPromptSearchText(prompt));
+
+    return `
+        <article class="prompt-card" data-prompt-item data-prompt-card data-category="${category}" data-search="${searchText}">
+            <div class="prompt-card-meta">
+                <span class="prompt-index">P${String(index + 1).padStart(2, '0')}</span>
+                <span class="prompt-tag">${category}</span>
+            </div>
+            <div class="prompt-header">
+                <h3>${title}</h3>
+            </div>
+            <div class="prompt-card-summary">
+                <p><strong>适合：</strong>${scenario}</p>
+                <p><strong>需要：</strong>${requirements}</p>
+            </div>
+            ${renderPromptActions(prompt, index, '复制')}
+        </article>
+    `;
+}
+
 function renderPrompts(prompts) {
     const grid = document.getElementById('promptsGrid');
     if (!grid) return;
 
     const items = Array.isArray(prompts) ? prompts : [];
-    const categories = [...new Set(items.map(p => p.category).filter(Boolean))];
+    promptDetailItems = items;
+    const categories = [...new Set([...promptCategoryPresets, ...items.map(p => p.category).filter(Boolean)])];
 
     if (items.length === 0) {
         grid.innerHTML = `
@@ -660,48 +766,44 @@ function renderPrompts(prompts) {
                     <input type="search" id="promptSearch" placeholder="搜索标题、分类或提示词内容">
                 </label>
                 <div class="prompt-filters" id="promptFilters">
-                    <button class="active" data-prompt-filter="all">全部</button>
                     ${categories.map(category => `<button data-prompt-filter="${escapeAdminText(category)}">${escapeAdminText(category)}</button>`).join('')}
                 </div>
             </div>
-            <div class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</div>
-            <div class="prompt-list" id="promptList">
-                ${items.map((p, index) => {
-                    const title = escapeAdminText(p.title || '未命名提示词');
-                    const category = escapeAdminText(p.category || '未分类');
-                    const content = String(p.content || '');
-                    const safeContent = escapeAdminText(content);
-                    const encodedContent = escapeAdminText(encodeURIComponent(content));
-                    const link = String(p.link || '').trim();
-                    const hasLink = /^https?:\/\//i.test(link);
-                    const safeLink = escapeAdminText(link);
-                    const searchText = escapeAdminText(`${p.title || ''} ${p.category || ''} ${content}`.toLowerCase());
 
-                    return `
-                        <article class="prompt-card" data-prompt-card data-category="${category}" data-search="${searchText}">
-                            <div class="prompt-card-meta">
-                                <span class="prompt-index">P${String(index + 1).padStart(2, '0')}</span>
-                                <div class="prompt-card-actions">
-                                    <span class="prompt-tag">${category}</span>
-                                    ${hasLink ? `<a class="btn-prompt-link" href="${safeLink}" target="_blank" rel="noopener" title="打开原文"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>` : ''}
-                                    <button class="btn-copy" data-prompt-copy="${encodedContent}" title="复制提示词">
-                                        <i class="fas fa-copy"></i> 复制
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="prompt-header">
-                                <h3>${title}</h3>
-                            </div>
-                            <div class="prompt-body">${safeContent}</div>
-                        </article>
-                    `;
-                }).join('')}
+            <div class="prompt-section-block">
+                <h3 class="prompt-block-title">精选 Prompt</h3>
+                ${renderFeaturedPrompt(items[0], 0)}
+            </div>
+
+            <div class="prompt-section-block">
+                <div class="prompt-block-title-row">
+                    <h3 class="prompt-block-title">全部 Prompt</h3>
+                    <span class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</span>
+                </div>
+            </div>
+            <div class="prompt-list" id="promptList">
+                ${items.map((p, index) => renderPromptCard(p, index)).join('')}
             </div>
             <div class="prompt-filter-empty" id="promptFilterEmpty">
                 <i class="fas fa-magnifying-glass"></i>
                 <span>没有匹配的 Prompt</span>
             </div>
         </div>
+        <div class="prompt-detail-backdrop" id="promptDetailBackdrop"></div>
+        <aside class="prompt-detail-panel" id="promptDetailPanel" aria-hidden="true">
+            <button class="prompt-detail-close" type="button" data-prompt-detail-close title="关闭">
+                <i class="fas fa-times"></i>
+            </button>
+            <span class="prompt-board-kicker" data-detail-category></span>
+            <h3 data-detail-title></h3>
+            <p class="prompt-detail-meta"><strong>适合：</strong><span data-detail-scenario></span></p>
+            <p class="prompt-detail-meta"><strong>需要：</strong><span data-detail-requirements></span></p>
+            <pre class="prompt-detail-content" data-detail-content></pre>
+            <div class="prompt-detail-actions">
+                <button class="btn-copy" data-detail-copy><i class="fas fa-copy"></i> 复制</button>
+                <a class="btn-prompt-link" data-detail-link target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>
+            </div>
+        </aside>
     `;
 
     initPromptControls(grid);
@@ -710,32 +812,36 @@ function renderPrompts(prompts) {
 function initPromptControls(grid) {
     const search = grid.querySelector('#promptSearch');
     const filters = grid.querySelectorAll('[data-prompt-filter]');
+    const items = grid.querySelectorAll('[data-prompt-item]');
     const cards = grid.querySelectorAll('[data-prompt-card]');
     const count = grid.querySelector('#promptCount');
     const empty = grid.querySelector('#promptFilterEmpty');
-    let activeCategory = 'all';
+    const panel = document.getElementById('promptDetailPanel');
+    const backdrop = document.getElementById('promptDetailBackdrop');
+    let activeCategory = '';
 
     const updateList = () => {
         const keyword = (search?.value || '').trim().toLowerCase();
-        let visibleCount = 0;
+        let visibleCards = 0;
 
-        cards.forEach(card => {
-            const categoryMatched = activeCategory === 'all' || card.dataset.category === activeCategory;
-            const textMatched = !keyword || (card.dataset.search || '').includes(keyword);
+        items.forEach(item => {
+            const categoryMatched = !activeCategory || item.dataset.category === activeCategory;
+            const textMatched = !keyword || (item.dataset.search || '').includes(keyword);
             const visible = categoryMatched && textMatched;
-            card.hidden = !visible;
-            if (visible) visibleCount += 1;
+            item.hidden = !visible;
+            if (visible && item.matches('[data-prompt-card]')) visibleCards += 1;
         });
 
-        if (count) count.textContent = `显示 ${visibleCount} / ${cards.length} 条 Prompt`;
-        if (empty) empty.classList.toggle('show', visibleCount === 0);
+        if (count) count.textContent = `显示 ${visibleCards} / ${cards.length} 条 Prompt`;
+        if (empty) empty.classList.toggle('show', visibleCards === 0);
     };
 
     search?.addEventListener('input', updateList);
     filters.forEach(btn => {
         btn.addEventListener('click', () => {
-            activeCategory = btn.dataset.promptFilter || 'all';
-            filters.forEach(item => item.classList.toggle('active', item === btn));
+            const nextCategory = btn.dataset.promptFilter || '';
+            activeCategory = activeCategory === nextCategory ? '' : nextCategory;
+            filters.forEach(item => item.classList.toggle('active', item.dataset.promptFilter === activeCategory));
             updateList();
         });
     });
@@ -745,6 +851,49 @@ function initPromptControls(grid) {
             copyPrompt(btn, decodeURIComponent(btn.dataset.promptCopy || ''));
         });
     });
+
+    const closeDetail = () => {
+        panel?.classList.remove('open');
+        backdrop?.classList.remove('show');
+        panel?.setAttribute('aria-hidden', 'true');
+    };
+
+    const openDetail = (index) => {
+        const prompt = promptDetailItems[Number(index)];
+        if (!prompt || !panel) return;
+        const meta = getPromptMeta(prompt);
+        const link = String(prompt.link || '').trim();
+        const hasLink = /^https?:\/\//i.test(link);
+
+        panel.querySelector('[data-detail-category]').textContent = prompt.category || '未分类';
+        panel.querySelector('[data-detail-title]').textContent = prompt.title || '未命名提示词';
+        panel.querySelector('[data-detail-scenario]').textContent = meta.scenario;
+        panel.querySelector('[data-detail-requirements]').textContent = meta.requirements;
+        panel.querySelector('[data-detail-content]').textContent = prompt.content || '';
+        panel.querySelector('[data-detail-copy]').dataset.promptCopy = encodeURIComponent(prompt.content || '');
+
+        const linkEl = panel.querySelector('[data-detail-link]');
+        if (linkEl) {
+            linkEl.href = hasLink ? link : '#';
+            linkEl.hidden = !hasLink;
+        }
+
+        panel.classList.add('open');
+        backdrop?.classList.add('show');
+        panel.setAttribute('aria-hidden', 'false');
+    };
+
+    grid.parentElement?.querySelectorAll('[data-prompt-detail]').forEach(btn => {
+        btn.addEventListener('click', () => openDetail(btn.dataset.promptDetail));
+    });
+
+    panel?.querySelector('[data-detail-copy]')?.addEventListener('click', (event) => {
+        const btn = event.currentTarget;
+        copyPrompt(btn, decodeURIComponent(btn.dataset.promptCopy || ''));
+    });
+
+    panel?.querySelector('[data-prompt-detail-close]')?.addEventListener('click', closeDetail);
+    backdrop?.addEventListener('click', closeDetail);
 }
 
 function copyPrompt(btn, text) {
@@ -901,6 +1050,8 @@ const adminTypes = [
             { name: 'title', label: '提示词标题', required: true },
             { name: 'category', label: '分类' },
             { name: 'link', label: '原文链接', placeholder: 'https://...' },
+            { name: 'scenario', label: '适合场景', placeholder: '通知、汇报、总结、发言稿、公文初稿', full: true },
+            { name: 'requirements', label: '需要信息', placeholder: '主题 / 单位 / 材料 / 字数 / 语气', full: true },
             { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
         ]
     },

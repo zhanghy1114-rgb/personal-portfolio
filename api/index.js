@@ -468,6 +468,8 @@ app.post('/api/prompts', requireAdmin, (req, res) => {
         title: req.body.title || '未命名提示词',
         category: req.body.category || '',
         content: req.body.content || '',
+        scenario: req.body.scenario || '',
+        requirements: req.body.requirements || '',
         link: req.body.link || ''
     };
     db.prompts.push(newPrompt);
