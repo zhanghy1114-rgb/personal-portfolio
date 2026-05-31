@@ -467,7 +467,8 @@ app.post('/api/prompts', requireAdmin, (req, res) => {
         id: Date.now(),
         title: req.body.title || '未命名提示词',
         category: req.body.category || '',
-        content: req.body.content || ''
+        content: req.body.content || '',
+        link: req.body.link || ''
     };
     db.prompts.push(newPrompt);
     saveDB(db);

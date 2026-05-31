@@ -630,29 +630,129 @@ function renderPrompts(prompts) {
     const grid = document.getElementById('promptsGrid');
     if (!grid) return;
 
-    if (prompts.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><i class="fas fa-terminal"></i><p>提示词库正在整理中...</p></div>';
+    const items = Array.isArray(prompts) ? prompts : [];
+    const categories = [...new Set(items.map(p => p.category).filter(Boolean))];
+
+    if (items.length === 0) {
+        grid.innerHTML = `
+            <div class="prompt-board prompt-board-empty">
+                <div class="prompt-board-visual">
+                    <span class="prompt-board-kicker">Prompt Lab</span>
+                    <h3>提示词工作台正在整理中</h3>
+                    <p>这里会沉淀写作、智能体、工作流和商业实验里真正可复用的 Prompt。</p>
+                    <div class="prompt-empty-tags">
+                        <span>写作</span>
+                        <span>Agent</span>
+                        <span>工作流</span>
+                        <span>商业</span>
+                    </div>
+                </div>
+            </div>
+        `;
         return;
     }
 
-    grid.innerHTML = prompts.map(p => `
-        <div class="prompt-card">
-            <div class="prompt-header">
-                <h3>${p.title}</h3>
-                ${p.category ? `<span class="prompt-tag">${p.category}</span>` : ''}
+    grid.innerHTML = `
+        <div class="prompt-board">
+            <div class="prompt-toolbar">
+                <label class="prompt-search">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="search" id="promptSearch" placeholder="搜索标题、分类或提示词内容">
+                </label>
+                <div class="prompt-filters" id="promptFilters">
+                    <button class="active" data-prompt-filter="all">全部</button>
+                    ${categories.map(category => `<button data-prompt-filter="${escapeAdminText(category)}">${escapeAdminText(category)}</button>`).join('')}
+                </div>
             </div>
-            <div class="prompt-body">${p.content || ''}</div>
-            <div class="prompt-footer">
-                <button class="btn-copy" onclick="copyPrompt(this, \`${p.content ? p.content.replace(/`/g, '\\`').replace(/\\/g, '\\\\') : ''}\`)">
-                    <i class="fas fa-copy"></i> 复制
-                </button>
+            <div class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</div>
+            <div class="prompt-list" id="promptList">
+                ${items.map((p, index) => {
+                    const title = escapeAdminText(p.title || '未命名提示词');
+                    const category = escapeAdminText(p.category || '未分类');
+                    const content = String(p.content || '');
+                    const safeContent = escapeAdminText(content);
+                    const encodedContent = escapeAdminText(encodeURIComponent(content));
+                    const link = String(p.link || '').trim();
+                    const hasLink = /^https?:\/\//i.test(link);
+                    const safeLink = escapeAdminText(link);
+                    const searchText = escapeAdminText(`${p.title || ''} ${p.category || ''} ${content}`.toLowerCase());
+
+                    return `
+                        <article class="prompt-card" data-prompt-card data-category="${category}" data-search="${searchText}">
+                            <div class="prompt-card-meta">
+                                <span class="prompt-index">P${String(index + 1).padStart(2, '0')}</span>
+                                <span class="prompt-tag">${category}</span>
+                            </div>
+                            <div class="prompt-header">
+                                <h3>${title}</h3>
+                            </div>
+                            <div class="prompt-body">${safeContent}</div>
+                            <div class="prompt-footer">
+                                ${hasLink ? `<a class="btn-prompt-link" href="${safeLink}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>` : ''}
+                                <button class="btn-copy" data-prompt-copy="${encodedContent}">
+                                    <i class="fas fa-copy"></i> 复制
+                                </button>
+                            </div>
+                        </article>
+                    `;
+                }).join('')}
+            </div>
+            <div class="prompt-filter-empty" id="promptFilterEmpty">
+                <i class="fas fa-magnifying-glass"></i>
+                <span>没有匹配的 Prompt</span>
             </div>
         </div>
-    `).join('');
+    `;
+
+    initPromptControls(grid);
+}
+
+function initPromptControls(grid) {
+    const search = grid.querySelector('#promptSearch');
+    const filters = grid.querySelectorAll('[data-prompt-filter]');
+    const cards = grid.querySelectorAll('[data-prompt-card]');
+    const count = grid.querySelector('#promptCount');
+    const empty = grid.querySelector('#promptFilterEmpty');
+    let activeCategory = 'all';
+
+    const updateList = () => {
+        const keyword = (search?.value || '').trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const categoryMatched = activeCategory === 'all' || card.dataset.category === activeCategory;
+            const textMatched = !keyword || (card.dataset.search || '').includes(keyword);
+            const visible = categoryMatched && textMatched;
+            card.hidden = !visible;
+            if (visible) visibleCount += 1;
+        });
+
+        if (count) count.textContent = `显示 ${visibleCount} / ${cards.length} 条 Prompt`;
+        if (empty) empty.classList.toggle('show', visibleCount === 0);
+    };
+
+    search?.addEventListener('input', updateList);
+    filters.forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeCategory = btn.dataset.promptFilter || 'all';
+            filters.forEach(item => item.classList.toggle('active', item === btn));
+            updateList();
+        });
+    });
+
+    grid.querySelectorAll('[data-prompt-copy]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            copyPrompt(btn, decodeURIComponent(btn.dataset.promptCopy || ''));
+        });
+    });
 }
 
 function copyPrompt(btn, text) {
-    navigator.clipboard.writeText(text).then(() => {
+    const copyTask = navigator.clipboard?.writeText
+        ? navigator.clipboard.writeText(text)
+        : Promise.reject();
+
+    copyTask.then(() => {
         btn.innerHTML = '<i class="fas fa-check"></i> 已复制';
         btn.classList.add('copied');
         setTimeout(() => {
@@ -800,6 +900,7 @@ const adminTypes = [
         fields: [
             { name: 'title', label: '提示词标题', required: true },
             { name: 'category', label: '分类' },
+            { name: 'link', label: '原文链接', placeholder: 'https://...' },
             { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
         ]
     },
@@ -1216,7 +1317,8 @@ window.navigateTo = navigateTo;
         }
     });
 
-    navigateTo('home');
+    const initialPage = window.location.hash?.replace('#', '') || 'home';
+    navigateTo(document.getElementById(initialPage) ? initialPage : 'home');
 })();
 
 /* ========================================
