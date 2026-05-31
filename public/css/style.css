@@ -2289,21 +2289,22 @@ section {
 
 .chat-fab {
     position: fixed;
-    bottom: 28px;
-    right: 28px;
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: var(--card-bg);
+    bottom: 22px;
+    right: 180px;
+    width: 82px;
+    height: 118px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, rgba(22, 22, 38, 0.36), rgba(22, 22, 38, 0.72));
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(30px) saturate(160%);
     -webkit-backdrop-filter: blur(30px) saturate(160%);
     cursor: pointer;
     z-index: 999;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     transition: var(--transition-smooth);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .chat-fab:hover {
@@ -2314,8 +2315,11 @@ section {
 
 .fab-glow {
     position: absolute;
-    inset: -3px;
-    border-radius: 50%;
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+    height: 56px;
+    border-radius: 999px;
     background: linear-gradient(135deg, var(--accent), transparent 70%);
     opacity: 0;
     transition: opacity var(--transition-smooth);
@@ -2324,17 +2328,19 @@ section {
 .chat-fab:hover .fab-glow { opacity: 0.1; }
 
 .fab-avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 76px;
+    height: 112px;
+    border-radius: 0;
+    object-fit: contain;
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.34));
 }
 
 .chat-window {
     position: fixed;
-    bottom: 96px;
+    bottom: 152px;
     right: 28px;
     width: 360px;
     height: 500px;
@@ -2550,7 +2556,17 @@ body:not([data-page="home"]) .ai-control-deck {
     .diary-dot { left: 20px; }
     .diary-card { margin-left: 44px; max-width: none; }
 
-    .chat-window { width: calc(100vw - 32px); right: 16px; bottom: 88px; }
+    .chat-fab {
+        right: 14px;
+        bottom: 14px;
+        width: 72px;
+        height: 104px;
+    }
+    .fab-avatar {
+        width: 66px;
+        height: 98px;
+    }
+    .chat-window { width: calc(100vw - 32px); right: 16px; bottom: 128px; }
 
     .digital-human-hero {
         flex-direction: column;
