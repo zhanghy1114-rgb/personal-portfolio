@@ -573,16 +573,17 @@ function renderArticles(articles) {
         return;
     }
 
-    const icons = ['📝', '📄', '📰', '📋', '📖', '📑'];
-
-    grid.innerHTML = articles.map((a, i) => `
+    grid.innerHTML = articles.map((a) => `
         <div class="article-card" onclick="window.open('${a.link || '#'}', '_blank')">
-            <span class="article-icon">${icons[i % icons.length]}</span>
+            <div class="article-card-top">
+                <span class="article-tag">${a.category || '思考札记'}</span>
+                <span class="article-date">${a.date || ''}</span>
+            </div>
             <h3>${a.title}</h3>
             <p>${a.summary || a.description || ''}</p>
             <div class="article-meta">
-                <span>${a.date || ''}</span>
-                ${a.category ? `<span class="article-tag">${a.category}</span>` : ''}
+                <span>阅读全文</span>
+                <i class="fas fa-arrow-right"></i>
             </div>
         </div>
     `).join('');

@@ -119,7 +119,16 @@
       "iconUrl": "秒哒.png"
     }
   ],
-  "articles": [],
+  "articles": [
+    {
+      "id": 1780386543808,
+      "title": "AI 编程（Claude Code、Codex、openclaw）工具开始长\"壳\"了",
+      "category": "AI工具观察",
+      "date": "2026-06-02",
+      "summary": "最近我发现一个有意思的现象：AI 编程工具开始长\"壳\"了。不是比喻。是真的有人在给 Claude Code、Codex 这些工具套壳——而且不止一个人在干，是一群人。",
+      "link": "https://mp.weixin.qq.com/s/48WltWjgNXuuqgqSIl7dTw"
+    }
+  ],
   "diary": [
     {
       "date": "2026-05-29",
