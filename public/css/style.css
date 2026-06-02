@@ -3611,6 +3611,49 @@ body.ai-controlled-site {
     font-size: 0.74rem;
 }
 
+.admin-list-main {
+    min-width: 0;
+}
+
+.admin-list-item-prompt {
+    grid-template-columns: minmax(150px, 0.8fr) minmax(260px, 1.4fr) auto auto;
+}
+
+.admin-inline-intro {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+}
+
+.admin-inline-intro span {
+    margin: 0;
+    color: rgba(245, 245, 247, 0.62);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.admin-inline-intro input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(2, 4, 12, 0.36);
+    outline: none;
+}
+
+.admin-inline-intro input:focus {
+    border-color: rgba(100, 255, 218, 0.36);
+}
+
+.admin-save-intro {
+    color: #08120f;
+    background: var(--accent);
+    border: 1px solid rgba(100, 255, 218, 0.45);
+    white-space: nowrap;
+}
+
 .admin-delete {
     color: #ffb3a2;
     background: rgba(255, 151, 121, 0.08);
@@ -3633,6 +3676,12 @@ body.ai-controlled-site {
 
     .admin-login-row {
         flex-direction: column;
+    }
+
+    .admin-list-item,
+    .admin-list-item-prompt {
+        grid-template-columns: 1fr;
+        align-items: stretch;
     }
 }
 

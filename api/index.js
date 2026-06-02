@@ -476,6 +476,24 @@ app.post('/api/prompts', requireAdmin, (req, res) => {
     res.json(newPrompt);
 });
 
+app.patch('/api/prompts/:id', requireAdmin, (req, res) => {
+    const db = loadDB();
+    const id = parseInt(req.params.id);
+    if (!Array.isArray(db.prompts)) db.prompts = [];
+
+    const prompt = db.prompts.find(item => item.id === id);
+    if (!prompt) {
+        return res.status(404).json({ success: false, message: 'Prompt not found' });
+    }
+
+    if (Object.prototype.hasOwnProperty.call(req.body, 'intro')) {
+        prompt.intro = req.body.intro || '';
+    }
+
+    saveDB(db);
+    res.json(prompt);
+});
+
 app.post('/api/diary', requireAdmin, (req, res) => {
     const db = loadDB();
     if (!Array.isArray(db.diary)) db.diary = [];

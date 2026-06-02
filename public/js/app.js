@@ -640,18 +640,70 @@ let promptDetailItems = [];
 
 const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '商业策略', '知识解构', '提示优化', '专家角色'];
 
+function cleanPromptSummaryLine(line) {
+    const value = String(line || '')
+        .replace(/```+/g, '')
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^[-*\d.\s]+/, '')
+        .replace(/\*\*/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    return value.replace(/^(\u6838\u5fc3\u4e3b\u9898|\u7528\u6237\u610f\u56fe|\u5185\u5bb9\u7279\u70b9|\u9002\u7528\u573a\u666f|\u4f18\u5316\u65b9\u5411|\u6269\u5c55\u5efa\u8bae|\u4e3b\u9898)[:\uff1a]\s*/, '');
+}
+
+function isPromptStructureLine(line) {
+    const label = String(line || '').replace(/[:\uff1a]$/, '');
+    const structureLabels = [
+        '\u89d2\u8272', '\u4efb\u52a1', '\u6280\u80fd', '\u8981\u6c42', '\u529f\u80fd', '\u5bf9\u8bdd',
+        '\u9700\u6c42\u786e\u8ba4', '\u5de5\u4f5c\u6d41\u7a0b', '\u8f93\u51fa\u683c\u5f0f', '\u521d\u59cb',
+        '\u8d28\u91cf\u6807\u51c6', '\u4f7f\u7528\u5efa\u8bae', '\u9002\u7528\u573a\u666f', '\u4f18\u5316\u65b9\u5411',
+        '\u6269\u5c55\u5efa\u8bae', '\u5e38\u7528\u8bcd\u7ec4', '\u5e38\u7528\u77ed\u8bed', '\u5e38\u7528\u52a8\u8bcd',
+        '\u5e38\u7528\u540d\u8bcd', '\u5e38\u7528\u5f62\u5bb9\u8bcd', '\u5e38\u7528\u526f\u8bcd',
+        '\u751f\u6210\u7684\u63d0\u793a\u8bcd', '\u6838\u5fc3\u4e3b\u9898', '\u7528\u6237\u610f\u56fe',
+        '\u5185\u5bb9\u7279\u70b9', '\u4e3b\u9898'
+    ];
+
+    return structureLabels.includes(label)
+        || /^\[[^\]]+\]$/.test(line)
+        || /^[`=\-_*#\s]+$/.test(line);
+}
+
+function summarizePromptContent(content) {
+    const normalized = String(content || '')
+        .replace(/\r/g, '\n')
+        .replace(/\\n/g, '\n');
+
+    const lines = normalized
+        .split('\n')
+        .map(cleanPromptSummaryLine)
+        .filter(line => line.length >= 6 && !isPromptStructureLine(line));
+
+    const meaningKeywords = [
+        '\u4f60\u662f', '\u4f60\u7684\u4efb\u52a1', '\u4efb\u52a1\u662f', '\u5e2e\u52a9\u7528\u6237',
+        '\u751f\u6210', '\u64b0\u5199', '\u5206\u6790', '\u603b\u7ed3', '\u9002\u7528\u4e8e',
+        '\u7528\u4e8e', '\u76ee\u6807'
+    ];
+    const preferred = lines.find(line => meaningKeywords.some(keyword => line.includes(keyword))) || lines[0] || '';
+    const supporting = lines.find(line => line !== preferred && line.length >= 12) || '';
+    const summary = [preferred, supporting]
+        .filter(Boolean)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (!summary) return '';
+    return summary.length > 92 ? `${summary.slice(0, 92)}...` : summary;
+}
+
 function getPromptIntro(prompt) {
-    const title = String(prompt.title || '');
-    const category = String(prompt.category || '');
     const intro = String(prompt.intro || prompt.summary || '').trim();
+    const contentIntro = summarizePromptContent(prompt.content || '');
 
     if (intro) return intro;
+    if (contentIntro) return contentIntro;
 
-    if (/公文|文秘|汇报|通知|总结|发言/.test(`${title} ${category}`)) {
-        return '把零散想法训练成结构清晰、表达稳妥的公文作品。';
-    }
-
-    return '把高频任务沉淀成可复制、可迭代、可复盘的 AI 工作模板。';
+    return '\u8fd9\u6761 Prompt \u8fd8\u6ca1\u6709\u586b\u5199\u6b63\u6587\uff0c\u5b8c\u5584\u5185\u5bb9\u540e\u4f1a\u81ea\u52a8\u751f\u6210\u66f4\u8d34\u5408\u7528\u9014\u7684\u7b80\u4ecb\u3002';
 }
 
 function getPromptSearchText(prompt) {
@@ -1135,6 +1187,36 @@ function renderAdminList() {
     }
 
     const items = Array.isArray(siteData[type.key]) ? siteData[type.key] : [];
+    if (type.key === 'prompts' && items.length > 0) {
+        list.innerHTML = `
+            <div class="admin-list-title">已有${type.label}</div>
+            ${items.map(item => {
+                const itemId = escapeAdminText(item.id);
+                const title = escapeAdminText(item.title || '未命名提示词');
+                const category = escapeAdminText(item.category || '未分类');
+                const promptIntro = escapeAdminText(item.intro || '');
+
+                return `
+                    <div class="admin-list-item admin-list-item-prompt">
+                        <div class="admin-list-main">
+                            <strong>${title}</strong>
+                            <span>${category}</span>
+                        </div>
+                        <label class="admin-inline-intro">
+                            <span>简介</span>
+                            <input type="text" value="${promptIntro}" placeholder="一句话说明这个提示词能解决什么问题" data-prompt-intro-input="${itemId}">
+                        </label>
+                        <button class="admin-save-intro" type="button" data-prompt-intro-save="${itemId}">保存简介</button>
+                        <button class="admin-delete" type="button" data-delete-type="${type.key}" data-delete-id="${itemId}">
+                            删除
+                        </button>
+                    </div>
+                `;
+            }).join('')}
+        `;
+        return;
+    }
+
     if (items.length === 0) {
         list.innerHTML = `
             <div class="admin-list-title">已有${type.label}</div>
@@ -1214,6 +1296,38 @@ async function deleteAdminItem(typeKey, id) {
     }
     await fetchData();
     renderAdminList();
+}
+
+async function updatePromptIntro(id, btn) {
+    const input = document.querySelector(`[data-prompt-intro-input="${CSS.escape(String(id))}"]`);
+    if (!input) return;
+
+    const originalText = btn?.textContent || '保存简介';
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '保存中...';
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/prompts/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Password': getAdminPassword()
+            },
+            body: JSON.stringify({ intro: input.value.trim() })
+        });
+
+        if (!res.ok) throw new Error(res.status === 401 ? '请重新登录后再保存。' : '简介保存失败。');
+        await fetchData();
+        renderAdminList();
+    } catch (error) {
+        alert(error.message || '简介保存失败。');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
 }
 
 async function syncAdminToGithub() {
@@ -1310,6 +1424,12 @@ function initAdminPanel() {
     syncBtn?.addEventListener('click', syncAdminToGithub);
 
     list?.addEventListener('click', (event) => {
+        const saveIntroBtn = event.target.closest('[data-prompt-intro-save]');
+        if (saveIntroBtn) {
+            updatePromptIntro(saveIntroBtn.dataset.promptIntroSave, saveIntroBtn);
+            return;
+        }
+
         const btn = event.target.closest('[data-delete-id]');
         if (!btn) return;
         deleteAdminItem(btn.dataset.deleteType, btn.dataset.deleteId);
