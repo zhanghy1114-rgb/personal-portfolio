@@ -593,38 +593,47 @@ function renderSkills(skills) {
     const container = document.getElementById('skillsContainer');
     if (!container) return;
 
-    if (skills.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-microchip"></i><p>技能树正在生长...</p></div>';
-        return;
-    }
+    const skillLinks = [
+        {
+            title: 'Skill',
+            tag: 'AI ABILITY',
+            description: '\u6c89\u6dc0\u53ef\u590d\u7528\u7684 AI \u80fd\u529b\u3001\u63d0\u793a\u8bcd\u65b9\u6cd5\u548c\u5b9e\u6218\u6280\u80fd\uff0c\u8ba9\u7ecf\u9a8c\u53d8\u6210\u4e0b\u4e00\u6b21\u53ef\u4ee5\u76f4\u63a5\u8c03\u7528\u7684\u5de5\u5177\u7bb1\u3002',
+            href: 'https://xnqfxp3scj.feishu.cn/wiki/PNSIw0aOPiuuDdkGF5XcFWFDnJ4?from=from_copylink',
+            icon: 'fa-wand-magic-sparkles',
+            accent: 'skill'
+        },
+        {
+            title: '\u5de5\u4f5c\u6d41',
+            tag: 'WORKFLOW',
+            description: '\u6574\u7406\u4ece\u60f3\u6cd5\u3001\u5185\u5bb9\u751f\u4ea7\u3001\u534f\u4f5c\u5230\u4ea4\u4ed8\u7684\u6d41\u7a0b\uff0c\u628a\u590d\u6742\u4efb\u52a1\u62c6\u6210\u53ef\u6267\u884c\u3001\u53ef\u590d\u76d8\u7684\u8def\u5f84\u3002',
+            href: 'https://xnqfxp3scj.feishu.cn/wiki/JS8bwgSkHiCEIJkbQuacvAs2ngh?from=from_copylink',
+            icon: 'fa-route',
+            accent: 'workflow'
+        },
+        {
+            title: '\u63d2\u4ef6',
+            tag: 'PLUGIN',
+            description: '\u6536\u7eb3\u53ef\u6269\u5c55\u7684\u63d2\u4ef6\u80fd\u529b\u548c\u5de5\u5177\u5165\u53e3\uff0c\u628a\u4e2a\u4eba\u9875\u9762\u8fde\u63a5\u5230\u66f4\u5927\u7684\u81ea\u52a8\u5316\u7cfb\u7edf\u3002',
+            href: 'https://xnqfxp3scj.feishu.cn/wiki/P9zRwovXHiDAXhkSTSeclxAjnOc?from=from_copylink',
+            icon: 'fa-puzzle-piece',
+            accent: 'plugin'
+        }
+    ];
 
-    const grouped = {};
-    skills.forEach(s => {
-        const cat = s.category || '其他';
-        if (!grouped[cat]) grouped[cat] = [];
-        grouped[cat].push(s);
-    });
-
-    container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
-        <div class="skill-category">
-            <h3>${cat}</h3>
-            ${items.map(s => `
-                <div class="skill-item">
-                    <div class="skill-info">
-                        <span class="skill-name">${s.name}</span>
-                        <span class="skill-level">${s.level || 0}%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="--level: ${s.level || 0}%"></div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
+    container.innerHTML = skillLinks.map(item => `
+        <a class="skill-link-card ${item.accent}" href="${item.href}" target="_blank" rel="noopener">
+            <div class="skill-link-top">
+                <span class="skill-link-icon"><i class="fas ${item.icon}"></i></span>
+                <span class="skill-link-tag">${item.tag}</span>
+            </div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            <div class="skill-link-meta">
+                <span>\u6253\u5f00\u98de\u4e66\u77e5\u8bc6\u5e93</span>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+            </div>
+        </a>
     `).join('');
-
-    setTimeout(() => {
-        document.querySelectorAll('.skill-fill').forEach(f => f.classList.add('animated'));
-    }, 200);
 }
 
 let promptDetailItems = [];
