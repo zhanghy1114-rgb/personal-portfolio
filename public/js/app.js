@@ -603,20 +603,20 @@ function renderSkills(skills) {
             accent: 'skill'
         },
         {
+            title: 'MCP',
+            tag: 'MODEL CONTEXT',
+            description: '汇总可连接工具、数据和服务的 MCP 能力，让 AI 不只会回答，也能进入真实系统完成动作。',
+            href: 'https://xnqfxp3scj.feishu.cn/wiki/P9zRwovXHiDAXhkSTSeclxAjnOc?from=from_copylink',
+            icon: 'fa-plug-circle-bolt',
+            accent: 'mcp'
+        },
+        {
             title: '\u5de5\u4f5c\u6d41',
             tag: 'WORKFLOW',
             description: '\u6574\u7406\u4ece\u60f3\u6cd5\u3001\u5185\u5bb9\u751f\u4ea7\u3001\u534f\u4f5c\u5230\u4ea4\u4ed8\u7684\u6d41\u7a0b\uff0c\u628a\u590d\u6742\u4efb\u52a1\u62c6\u6210\u53ef\u6267\u884c\u3001\u53ef\u590d\u76d8\u7684\u8def\u5f84\u3002',
             href: 'https://xnqfxp3scj.feishu.cn/wiki/JS8bwgSkHiCEIJkbQuacvAs2ngh?from=from_copylink',
             icon: 'fa-route',
             accent: 'workflow'
-        },
-        {
-            title: '\u63d2\u4ef6',
-            tag: 'PLUGIN',
-            description: '\u6536\u7eb3\u53ef\u6269\u5c55\u7684\u63d2\u4ef6\u80fd\u529b\u548c\u5de5\u5177\u5165\u53e3\uff0c\u628a\u4e2a\u4eba\u9875\u9762\u8fde\u63a5\u5230\u66f4\u5927\u7684\u81ea\u52a8\u5316\u7cfb\u7edf\u3002',
-            href: 'https://xnqfxp3scj.feishu.cn/wiki/P9zRwovXHiDAXhkSTSeclxAjnOc?from=from_copylink',
-            icon: 'fa-puzzle-piece',
-            accent: 'plugin'
         }
     ];
 

@@ -1637,7 +1637,7 @@ section {
     --skill-accent-soft: rgba(72, 202, 228, 0.13);
 }
 
-.skill-link-card.plugin {
+.skill-link-card.mcp {
     --skill-accent: #b49cff;
     --skill-accent-soft: rgba(180, 156, 255, 0.13);
 }
