@@ -783,6 +783,14 @@ function renderPrompts(prompts) {
 
     grid.innerHTML = `
         <div class="prompt-board">
+            <div class="prompt-board-head">
+                <div>
+                    <span class="prompt-board-kicker">Prompt Library</span>
+                    <h3>提示词资源库</h3>
+                    <p>把可复用的写作、编程、分析和工作流 Prompt 收纳成可以快速检索、复制和复盘的卡片。</p>
+                </div>
+                <span class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</span>
+            </div>
             <div class="prompt-toolbar">
                 <label class="prompt-search">
                     <i class="fas fa-magnifying-glass"></i>
@@ -796,7 +804,6 @@ function renderPrompts(prompts) {
             <div class="prompt-section-block">
                 <div class="prompt-block-title-row">
                     <h3 class="prompt-block-title">全部 Prompt</h3>
-                    <span class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</span>
                 </div>
             </div>
             <div class="prompt-list" id="promptList">
