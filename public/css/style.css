@@ -1938,19 +1938,12 @@ section {
     position: relative;
     display: grid;
     grid-template-areas:
-        "head gallery"
-        "nav gallery";
-    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 2fr);
-    align-items: stretch;
-    column-gap: 18px;
+        "head"
+        "gallery"
+        "nav";
     margin-top: 18px;
-    padding: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.075);
-    border-radius: 8px;
-    background:
-        linear-gradient(135deg, rgba(100, 255, 218, 0.055), transparent 34%),
-        rgba(5, 8, 14, 0.36);
-    overflow: hidden;
+    padding: 18px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .featured-prompts-head {
@@ -1959,25 +1952,21 @@ section {
 
 .featured-prompts-head > div:first-child {
     grid-area: head;
-    max-width: none;
-    min-height: 210px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-bottom: 0;
-    padding-left: 16px;
+    max-width: 720px;
+    margin-bottom: 12px;
+    padding-left: 14px;
     border-left: 2px solid rgba(100, 255, 218, 0.55);
 }
 
 .featured-prompts-head h3 {
     color: var(--text-primary);
-    font-size: 1.32rem;
+    font-size: 1.2rem;
     line-height: 1.3;
     font-weight: 760;
 }
 
 .featured-prompts-head p {
-    margin-top: 8px;
+    margin-top: 4px;
     color: rgba(245, 245, 247, 0.56);
     font-size: 0.82rem;
     line-height: 1.6;
@@ -1990,7 +1979,7 @@ section {
     align-items: center;
     justify-content: center;
     gap: 13px;
-    margin: 14px 0 0 16px;
+    margin: 14px auto 0;
     padding: 6px;
     border: 1px solid rgba(255, 255, 255, 0.075);
     border-radius: 999px;
@@ -2030,8 +2019,7 @@ section {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    min-width: 0;
-    padding: 2px 0;
+    padding: 4px 0 6px;
     mask-image: linear-gradient(90deg, black 0, black calc(100% - 72px), transparent 100%);
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -3010,27 +2998,6 @@ body:not([data-page="home"]) .ai-control-deck {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-}
-
-@media (max-width: 760px) {
-    .featured-prompts-block {
-        grid-template-areas:
-            "head"
-            "gallery"
-            "nav";
-        grid-template-columns: 1fr;
-        row-gap: 0;
-    }
-
-    .featured-prompts-head > div:first-child {
-        min-height: auto;
-        justify-content: flex-start;
-        margin-bottom: 12px;
-    }
-
-    .featured-prompt-nav {
-        margin: 14px auto 0;
-    }
 }
 
 @media (max-width: 900px) {
