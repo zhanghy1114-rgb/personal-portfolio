@@ -699,6 +699,11 @@ const promptCategoryCards = [
     }
 ];
 
+function getPromptCategoryTone(category) {
+    const card = promptCategoryCards.find(item => item.title === category);
+    return card ? card.tone : 'mint';
+}
+
 function renderPromptCategoryCards(items) {
     const settings = siteData.settings || {};
 
@@ -838,6 +843,65 @@ function renderPromptCard(prompt, index) {
     `;
 }
 
+function renderFeaturedPromptCard(prompt, index) {
+    const title = escapeAdminText(prompt.title || '未命名提示词');
+    const categoryValue = prompt.category || '未分类';
+    const category = escapeAdminText(categoryValue);
+    const categoryTone = getPromptCategoryTone(categoryValue);
+    const intro = escapeAdminText(getPromptIntro(prompt));
+    const content = String(prompt.content || '');
+    const encodedContent = escapeAdminText(encodeURIComponent(content));
+
+    return `
+        <article class="featured-prompt-card ${categoryTone}">
+            <div class="featured-prompt-meta">
+                <span class="featured-prompt-index">P${String(index + 1).padStart(2, '0')}</span>
+                <span class="featured-prompt-tag ${categoryTone}">${category}</span>
+            </div>
+            <h3>${title}</h3>
+            <p>${intro}</p>
+            <div class="featured-prompt-actions">
+                <button class="btn-copy" data-prompt-copy="${encodedContent}" title="复制提示词">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+                <button class="btn-prompt-detail" data-prompt-detail="${index}" title="查看详情">
+                    详情 <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </article>
+    `;
+}
+
+function renderFeaturedPrompts(items) {
+    if (!items.length) return '';
+
+    return `
+        <section class="featured-prompts-block" aria-label="精选提示词">
+            <div class="featured-prompts-head">
+                <div>
+                    <span class="prompt-board-kicker">FEATURED PROMPTS</span>
+                    <h3>精选提示词</h3>
+                    <p>像索引卡一样收藏常用 Prompt，随时复制、查看和复用。</p>
+                </div>
+            </div>
+            <div class="featured-prompts-gallery" id="featuredPromptsGallery">
+                ${items.map(renderFeaturedPromptCard).join('')}
+            </div>
+            <div class="featured-prompt-nav">
+                <button class="featured-prompt-btn" id="featuredPromptPrev" type="button" aria-label="上一条提示词">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="featured-prompt-dots" id="featuredPromptDots">
+                    ${items.map((_, index) => `<button class="featured-prompt-dot${index === 0 ? ' active' : ''}" type="button" data-featured-prompt-dot="${index}" aria-label="查看第 ${index + 1} 条提示词"></button>`).join('')}
+                </div>
+                <button class="featured-prompt-btn" id="featuredPromptNext" type="button" aria-label="下一条提示词">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+    `;
+}
+
 function renderPrompts(prompts) {
     const grid = document.getElementById('promptsGrid');
     if (!grid) return;
@@ -848,8 +912,57 @@ function renderPrompts(prompts) {
     grid.innerHTML = `
         <div class="prompt-board prompt-category-only">
             ${renderPromptCategoryCards(items)}
+            ${renderFeaturedPrompts(items)}
         </div>
     `;
+
+    initPromptControls(grid);
+    initFeaturedPromptGallery(grid);
+}
+
+function initFeaturedPromptGallery(grid) {
+    const gallery = grid.querySelector('#featuredPromptsGallery');
+    const prev = grid.querySelector('#featuredPromptPrev');
+    const next = grid.querySelector('#featuredPromptNext');
+    const dots = grid.querySelectorAll('[data-featured-prompt-dot]');
+    if (!gallery) return;
+    let activeIndex = 0;
+
+    const cardWidth = () => {
+        const card = gallery.querySelector('.featured-prompt-card');
+        const gap = parseFloat(getComputedStyle(gallery).columnGap || getComputedStyle(gallery).gap || '16');
+        return card ? card.offsetWidth + gap : 356;
+    };
+
+    const clampIndex = index => Math.max(0, Math.min(dots.length - 1, index));
+
+    const setActiveIndex = index => {
+        activeIndex = clampIndex(index);
+        dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === activeIndex));
+        prev?.toggleAttribute('disabled', activeIndex === 0);
+        next?.toggleAttribute('disabled', activeIndex === dots.length - 1);
+    };
+
+    const scrollToIndex = index => {
+        const targetIndex = clampIndex(index);
+        gallery.scrollTo({ left: targetIndex * cardWidth(), behavior: 'smooth' });
+        setActiveIndex(targetIndex);
+    };
+
+    const updateDots = () => {
+        setActiveIndex(Math.round(gallery.scrollLeft / cardWidth()));
+    };
+
+    gallery.addEventListener('scroll', updateDots);
+    prev?.addEventListener('click', () => scrollToIndex(activeIndex - 1));
+    next?.addEventListener('click', () => scrollToIndex(activeIndex + 1));
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const index = Number(dot.dataset.featuredPromptDot || 0);
+            scrollToIndex(index);
+        });
+    });
+    setActiveIndex(0);
 }
 
 function initPromptControls(grid) {
