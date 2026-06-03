@@ -640,6 +640,90 @@ let promptDetailItems = [];
 
 const promptCategoryPresets = ['职场提效', '视觉生成', '编程助手', '思维框架', '商业策略', '知识解构', '提示优化', '专家角色'];
 
+const promptCategoryCards = [
+    {
+        title: '职场提效',
+        key: 'promptLinkWorkplace',
+        icon: 'fa-briefcase',
+        desc: '周报、公文、汇报、通知和日常办公写作。',
+        tone: 'mint'
+    },
+    {
+        title: '视觉生成',
+        key: 'promptLinkVisual',
+        icon: 'fa-wand-magic-sparkles',
+        desc: '图片、海报、分镜和视觉创意生成。',
+        tone: 'cyan'
+    },
+    {
+        title: '编程助手',
+        key: 'promptLinkCoding',
+        icon: 'fa-code',
+        desc: '开发、调试、架构和代码协作提示词。',
+        tone: 'blue'
+    },
+    {
+        title: '思维框架',
+        key: 'promptLinkThinking',
+        icon: 'fa-diagram-project',
+        desc: '拆解问题、结构化思考和决策分析。',
+        tone: 'violet'
+    },
+    {
+        title: '商业策略',
+        key: 'promptLinkBusiness',
+        icon: 'fa-chart-line',
+        desc: '产品、运营、增长和商业模型推演。',
+        tone: 'gold'
+    },
+    {
+        title: '知识解构',
+        key: 'promptLinkKnowledge',
+        icon: 'fa-book-open',
+        desc: '学习、提炼、解释和知识体系整理。',
+        tone: 'green'
+    },
+    {
+        title: '提示优化',
+        key: 'promptLinkOptimization',
+        icon: 'fa-sliders',
+        desc: '改写、压缩、增强和评估 Prompt。',
+        tone: 'rose'
+    },
+    {
+        title: '专家角色',
+        key: 'promptLinkExpert',
+        icon: 'fa-user-tie',
+        desc: '把 AI 设定成稳定可用的专业角色。',
+        tone: 'silver'
+    }
+];
+
+function renderPromptCategoryCards(items) {
+    const settings = siteData.settings || {};
+
+    return `
+        <div class="prompt-category-grid">
+            ${promptCategoryCards.map(card => {
+                const link = String(settings[card.key] || '').trim();
+                const hasLink = /^https?:\/\//i.test(link);
+                const attrs = hasLink
+                    ? `href="${escapeAdminText(link)}" target="_blank" rel="noopener"`
+                    : `type="button" data-prompt-category-card="${escapeAdminText(card.title)}"`;
+                const tag = hasLink ? 'a' : 'button';
+
+                return `
+                    <${tag} class="prompt-category-card ${card.tone}" ${attrs}>
+                        <span class="prompt-category-icon"><i class="fas ${card.icon}"></i></span>
+                        <strong>${card.title}</strong>
+                        <small>${card.desc}</small>
+                    </${tag}>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
 function cleanPromptSummaryLine(line) {
     const value = String(line || '')
         .replace(/```+/g, '')
@@ -760,77 +844,12 @@ function renderPrompts(prompts) {
 
     const items = Array.isArray(prompts) ? prompts : [];
     promptDetailItems = items;
-    const categories = [...new Set([...promptCategoryPresets, ...items.map(p => p.category).filter(Boolean)])];
-
-    if (items.length === 0) {
-        grid.innerHTML = `
-            <div class="prompt-board prompt-board-empty">
-                <div class="prompt-board-visual">
-                    <span class="prompt-board-kicker">Prompt Lab</span>
-                    <h3>提示词工作台正在整理中</h3>
-                    <p>这里会沉淀写作、智能体、工作流和商业实验里真正可复用的 Prompt。</p>
-                    <div class="prompt-empty-tags">
-                        <span>写作</span>
-                        <span>Agent</span>
-                        <span>工作流</span>
-                        <span>商业</span>
-                    </div>
-                </div>
-            </div>
-        `;
-        return;
-    }
 
     grid.innerHTML = `
-        <div class="prompt-board">
-            <div class="prompt-board-head">
-                <div>
-                    <span class="prompt-board-kicker">Prompt Library</span>
-                    <h3>提示词资源库</h3>
-                    <p>把可复用的写作、编程、分析和工作流 Prompt 收纳成可以快速检索、复制和复盘的卡片。</p>
-                </div>
-                <span class="prompt-count" id="promptCount">共 ${items.length} 条 Prompt</span>
-            </div>
-            <div class="prompt-toolbar">
-                <label class="prompt-search">
-                    <i class="fas fa-magnifying-glass"></i>
-                    <input type="search" id="promptSearch" placeholder="搜索提示词...">
-                </label>
-                <div class="prompt-filters" id="promptFilters">
-                    ${categories.map(category => `<button data-prompt-filter="${escapeAdminText(category)}">${escapeAdminText(category)}</button>`).join('')}
-                </div>
-            </div>
-
-            <div class="prompt-section-block">
-                <div class="prompt-block-title-row">
-                    <h3 class="prompt-block-title">全部 Prompt</h3>
-                </div>
-            </div>
-            <div class="prompt-list" id="promptList">
-                ${items.map((p, index) => renderPromptCard(p, index)).join('')}
-            </div>
-            <div class="prompt-filter-empty" id="promptFilterEmpty">
-                <i class="fas fa-magnifying-glass"></i>
-                <span>没有匹配的 Prompt</span>
-            </div>
+        <div class="prompt-board prompt-category-only">
+            ${renderPromptCategoryCards(items)}
         </div>
-        <div class="prompt-detail-backdrop" id="promptDetailBackdrop"></div>
-        <aside class="prompt-detail-panel" id="promptDetailPanel" aria-hidden="true">
-            <button class="prompt-detail-close" type="button" data-prompt-detail-close title="关闭">
-                <i class="fas fa-times"></i>
-            </button>
-            <span class="prompt-board-kicker" data-detail-category></span>
-            <h3 data-detail-title></h3>
-            <p class="prompt-detail-intro" data-detail-intro></p>
-            <pre class="prompt-detail-content" data-detail-content></pre>
-            <div class="prompt-detail-actions">
-                <button class="btn-copy" data-detail-copy><i class="fas fa-copy"></i> 复制</button>
-                <a class="btn-prompt-link" data-detail-link target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> 原文</a>
-            </div>
-        </aside>
     `;
-
-    initPromptControls(grid);
 }
 
 function initPromptControls(grid) {
@@ -861,6 +880,14 @@ function initPromptControls(grid) {
     };
 
     search?.addEventListener('input', updateList);
+    grid.querySelectorAll('[data-prompt-category-card]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeCategory = btn.dataset.promptCategoryCard || '';
+            filters.forEach(item => item.classList.toggle('active', item.dataset.promptFilter === activeCategory));
+            updateList();
+        });
+    });
+
     filters.forEach(btn => {
         btn.addEventListener('click', () => {
             const nextCategory = btn.dataset.promptFilter || '';
@@ -1064,18 +1091,15 @@ const adminTypes = [
         ]
     },
     {
-        key: 'prompts',
+        key: 'promptLinks',
         label: '提示词',
-        endpoint: 'prompts',
-        titleKey: 'title',
-        subtitleKey: 'category',
-        fields: [
-            { name: 'title', label: '提示词标题', required: true },
-            { name: 'category', label: '分类', type: 'select', options: promptCategoryPresets, required: true },
-            { name: 'link', label: '原文链接', placeholder: 'https://...' },
-            { name: 'intro', label: '简介', placeholder: '一句话说明这个提示词能解决什么问题', full: true },
-            { name: 'content', label: '提示词内容', type: 'textarea', full: true, required: true }
-        ]
+        endpoint: 'settings',
+        settingsSource: true,
+        fields: promptCategoryCards.map(card => ({
+            name: card.key,
+            label: `${card.title} 飞书链接`,
+            placeholder: 'https://...'
+        }))
     },
     {
         key: 'diary',
@@ -1149,7 +1173,8 @@ function renderAdminEditor() {
         const inputId = `admin-${type.key}-${field.name}`;
         const common = `id="${inputId}" name="${field.name}" ${field.required ? 'required' : ''}`;
         const placeholder = field.placeholder ? `placeholder="${escapeAdminText(field.placeholder)}"` : '';
-        const value = field.value ? `value="${escapeAdminText(field.value)}"` : '';
+        const fieldValue = type.settingsSource ? siteData.settings?.[field.name] : field.value;
+        const value = fieldValue ? `value="${escapeAdminText(fieldValue)}"` : '';
         const control = field.type === 'textarea'
             ? `<textarea ${common} ${placeholder}></textarea>`
             : field.type === 'select'
@@ -1169,7 +1194,7 @@ function renderAdminEditor() {
 
     form.innerHTML = `
         ${fields}
-        <button class="admin-submit" type="submit">添加${type.label}</button>
+        <button class="admin-submit" type="submit">${type.settingsSource ? '保存链接' : `添加${type.label}`}</button>
         <p class="admin-message full" id="adminEditorMessage"></p>
     `;
 }
@@ -1220,6 +1245,19 @@ function renderAdminList() {
                     </div>
                 `;
             }).join('')}
+        `;
+        return;
+    }
+
+    if (type.settingsSource) {
+        list.innerHTML = `
+            <div class="admin-list-title">说明</div>
+            <div class="admin-list-item">
+                <div>
+                    <strong>提示词分类卡片链接</strong>
+                    <span>为空时，前台点击卡片会筛选对应分类；填写飞书链接后，点击卡片会直接打开链接。</span>
+                </div>
+            </div>
         `;
         return;
     }
@@ -1275,7 +1313,7 @@ async function submitAdminEditor(event) {
             body
         });
         if (!res.ok) throw new Error(res.status === 401 ? '密码已失效，请重新登录。' : '保存失败。');
-        form.reset();
+        if (!type.settingsSource) form.reset();
         await fetchData();
         renderAdminEditor();
         renderAdminList();
