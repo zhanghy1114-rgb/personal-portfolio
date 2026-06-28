@@ -15,7 +15,15 @@
     "qrDouyin": "qr_douyin.png",
     "qrXiaohongshu": "qr_xiaohongshu.png",
     "qrVideoAccount": "qr_video.png",
-    "contactHandle": "毓见Agent"
+    "contactHandle": "毓见Agent",
+    "promptLinkWorkplace": "https://xnqfxp3scj.feishu.cn/wiki/ASP6wadKIimfcOkSRDvcitN7nhf?from=from_copylink",
+    "promptLinkVisual": "https://xnqfxp3scj.feishu.cn/wiki/BPQuw21rpi9WNQkomBecnpd3nCf?from=from_copylink",
+    "promptLinkCoding": "https://xnqfxp3scj.feishu.cn/wiki/VoGJw4NS1io2QikqywzcEAcNneg?from=from_copylink",
+    "promptLinkThinking": "https://xnqfxp3scj.feishu.cn/wiki/GkFmw64WiiLc7lkbjavcjQr4nvb?from=from_copylink",
+    "promptLinkBusiness": "https://xnqfxp3scj.feishu.cn/wiki/Nps4wWvyPisvJ1k4ccwcPDFAnth?from=from_copylink",
+    "promptLinkKnowledge": "https://xnqfxp3scj.feishu.cn/wiki/VPeCw3qiLi3xPNkaj5TcCmFWnnd?from=from_copylink",
+    "promptLinkOptimization": "https://xnqfxp3scj.feishu.cn/wiki/Prp3wF25uiJ2ZakcF9qcGK4Inib?from=from_copylink",
+    "promptLinkExpert": "https://xnqfxp3scj.feishu.cn/wiki/ZDXVwh4UQiegCUkkbMAcFZGEn2d?from=from_copylink"
   },
   "projects": [
     {
